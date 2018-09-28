@@ -1,0 +1,145 @@
+ver 1.4.6, Sep 28, 2018
+  moved from subversion to github
+
+ver 1.4.5, Jan 4, 2018
+  Genes: discontinued generation of gene tracks in gff format
+
+ver 1.4.4, Sep 29, 2017
+  GeneAgr: tuned up generation of Note field, so the genes will look better in AGR browser
+
+ver 1.4.3, Sep 20, 2017
+  added generation of gff3 files for AGR
+
+ver 1.4.2, Jul 21, 2017
+  initial version for DbSnp tracks for human build 38 and 37
+
+ver 1.4.1, Jul 19, 2017
+  export of additional attributes for ClinVar tracks
+
+ver 1.4.0, Jun 21, 2017
+  moved from ANT to GRADLE
+
+ver 1.3.30, May 8, 2017
+  gene extractor: added CHINCHILLA to list of supported species
+
+ver 1.3.29, Mar 8, 2017
+  gene extractor: added SQUIRREL to list of supported species
+
+ver 1.3.28, Feb 24, 2017
+  gene extractor: added BONOBO to list of supported species
+
+ver 1.3.27, Feb 23, 2017
+  gene extractor: added DOG to list of supported species
+
+ver 1.3.26, Feb 22, 2017
+  gene extractor: HGNC IDs and MGI IDs are exported as Aliases for genes, if available
+
+ver 1.3.25, Feb 15, 2017
+  gene extractor: discontinued export of HPRD IDs as xdb ids; NCBI-annot-status field is exported if available
+  generated .gff files are now copied to data_release/GFF directory while .gff3 files are copied to data_release/GFF3 as usual
+
+ver 1.3.24, Sep 16, 2016
+  strain tracks: enhanced list of mutant strain types -- per RGDD-1272
+
+ver 1.3.23, Apr 29, 2016
+  moved GBrowse loading scripts to graveyard code branch -- per RGDD-1202
+
+ver 1.3.22, Mar 2, 2016
+  updated generation of gff3 for RATMINE: for genes with multiple loci, only first locus is emitted
+
+ver 1.3.21, Feb 26, 2016
+  updated generation of gff3 for RATMINE
+  fixed gff3 format issues
+
+ver 1.3.20, Nov 6, 2015
+  added generation of gff3 files for MT chromosome (genes and sslps)
+
+ver 1.3.19, Aug 8, 2015
+  fixed generation of CHEBI gff3 files: reenabled export of annotation qualifiers
+    which was inadvertently disabled during unification of generation code for ontologies
+
+ver 1.3.18, Jul 23, 2015
+  genes: fixed bug in generating CDS features: start pos > stop pos
+
+ver 1.3.17, Jun 26, 2015
+  unified code for generation of disease and drug-gene interaction files
+
+ver 1.3.16, Jun 1, 2015
+  congenic strains module: fixed encoding of attributes in gff3 file
+
+ver 1.3.15, May 29, 2015
+  congenic strains module: changed attribute name from 'source' to 'origin'
+   'source' is a reserved keyword in gff3 specification and having an attribute named 'source'
+   messed up data in JBrowse
+
+ver 1.3.14, May 28, 2015
+  congenic strains module: code refactored to simplify it;
+    multicongenics are now exported with object type set to 'multicongenic' instead of 'congenic'
+    for multicongenics new attributes are exported: 'loc2','loc3', etc with the positions of other loci,
+      f.e. loc2=Chr2:224991853..224991955
+
+ver 1.3.13, May 26, 2015
+  congenic strains module: in the notes field, every double-quote character is now replaced by a single-quote
+  justification: (per Aurash)
+  
+    The source of the error was found within the “Note” field: JBrowse typically hates double-quotes, as this truncates
+  individual feature descriptions (we’ve seen and dealt with this previously), but in this particular case, JBrowse went
+  absolutely haywire in passing the IFrame when it saw both a double-quote and a backslash (literal “/”) within
+  the Note field of this one very troublesome feature.
+    Anyway, the fix:
+  substitute all double-quotes into single strong quotes within the “Note” field for mutant strains tracks.
+
+v 1.3.12, May 13, 2015
+  congenic strains module now generates two files: one for congenics, second for mutants
+
+v 1.3.11, Feb 2, 2015
+  gene/qtl/strains/sslp/promoters/ontology tracks are exported with all chromosomes per one file;
+  ontology tracks are split by object type: for genes/sslps/qtls/strains
+
+v 1.3.10, Jan 29, 2015
+  for Disease (RDO) and GeneDrug (CHEBI) tracks: an email is sent if new tracks / obsolete tracks are detected
+
+v 1.3.9, Jan 26, 2015
+  .gff3 files are generated compressed, with .gff3.gz extension
+
+v 1.3.8, Jan 19, 2015
+  refactored generation of ontology tracks for RDO and CHEBI: code simplified
+    and gff3 files are generated only for terms having annotations
+
+v 1.3.7, Sep 26, 2014
+  fixed generation for genes having transcripts mapped to multiple assemblies
+
+v 1.3.6, Sep 5, 2014
+  fixed generation for genes having positions and transcripts without positions
+
+v 1.3.5, Aug 8, 2014
+  generation of DO files optimized
+
+v 1.3.4, Aug 7, 2014
+  sslps: refactored: download data directly from db, not from sslp ftp files
+  fixed generation of 'Alias' field
+
+v 1.3.3, Aug 5, 2014
+  files: genes: xdbIds: exdb ids for KeggPathway, MGC clone, Image clone and PharmGkb ids
+     are no longer in the generated gff3 files
+
+v 1.3.2, Jun 27, 2014
+  no more duplicates are generated for genes having loci on multiple genes
+
+v 1.3.1, Jun 25, 2014
+  an artificial feature line is generated for every gene without features (mostly pseudogenes and ncRNAs)
+    otherwise these genes are not shown properly in JBrowse
+
+v 1.3, Mar 31, 2014
+  gff3 files are now more compatible with gff3 format -- after fixes the generated files do pass
+   online gff3 validation at http://modencode.oicr.on.ca/cgi-bin/validate_gff3_online
+
+v 1.2, Mar 27, 2014
+  fixed generation of gff3 files for genes (it was generating multiple duplicated sections for genes/transcripts
+  having multiple loci on a chromosome; also code simplified and refactored to speed up processing
+
+v 1.1, Feb 28, 2014
+  simplified processing of chromosomes, no more hard-coded chromosome 'conventions' that are unnatural
+  (f.e. passing 21 to denote chr X in rat, or passing 21 to denote chr Y in mouse)
+  now the chromosomes to be processed are passed in 'natural' format, f.e. you can specify for rat
+  'chr:1-20,X' what is intuitive for a human to understand

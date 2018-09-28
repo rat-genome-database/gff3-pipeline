@@ -1,0 +1,9 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans default-lazy-init="false" default-autowire="no" default-dependency-check="none">
+    <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
+        <property name="version" value="--Gff3 generation pipeline -- ver. 1.4.6 -- Sep 28, 2018 --" />
+    </bean>
+</beans>
+
+
