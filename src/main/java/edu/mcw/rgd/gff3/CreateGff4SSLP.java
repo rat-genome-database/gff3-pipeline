@@ -57,17 +57,6 @@ public class CreateGff4SSLP {
                 expectedSize = sslp.getExpectedSize().toString();
             }
 
-            String forwardSeq="", reverseSeq="";
-            List<Sequence> seqs = dao.getSslpSequences(sslpRgdId);
-            for( Sequence seq: seqs ) {
-                if( seq.getSeqTypeKey()==4 ) {
-                    // primer pair sequence
-                    forwardSeq = seq.getForwardSeq();
-                    reverseSeq = seq.getReverseSeq();
-                }
-            }
-
-
             String assocGeneRgdID = "NA";
             Gene gene = dao.getGeneBySslpKey(sslp.getKey());
             if( gene!=null ) {
@@ -86,13 +75,7 @@ public class CreateGff4SSLP {
              moreThanOneMapSslpPos++;
             }
 
-            if( forwardSeq==null ) {
-                //System.out.println("no forward primer pair sequence for SSLP RGDID:"+sslpRgdId);
-            }
-            if( reverseSeq==null ) {
-                //System.out.println("no reverse primer pair sequence for SSLP RGDID:"+sslpRgdId);
-            }
-            fastaWriter.writeFastaSequences("forward_"+sslpRgdId, forwardSeq, "reverse_"+sslpRgdId, reverseSeq);
+            fastaWriter.writeFastaSequences("forward_"+sslpRgdId, sslp.getForwardSeq(), "reverse_"+sslpRgdId, sslp.getReverseSeq());
 
             if(sslpsMapdataList.size()>0){
 

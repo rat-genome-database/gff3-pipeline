@@ -1,3 +1,6 @@
+ver 1.4.7, Oct 23, 2018
+  generation of fasta file with primer pair sequences for markers: updated to use the new sequence data model
+
 ver 1.4.6, Sep 28, 2018
   moved from subversion to github
 
