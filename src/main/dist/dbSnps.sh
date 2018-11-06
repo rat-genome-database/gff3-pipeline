@@ -10,7 +10,7 @@ DATA_RELEASE_DIR=/home/rgddata/data_release/GFF3
 
 
 SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
-if [ "$SERVER" == "KYLE" ]; then
+if [ "$SERVER" == "REED" ]; then
   #EMAILLIST=jrsmith@mcw.edu,RGD.Developers@mcw.edu
   EMAILLIST=mtutaj@mcw.edu
 else

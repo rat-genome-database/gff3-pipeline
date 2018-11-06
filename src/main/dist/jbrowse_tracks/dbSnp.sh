@@ -2,16 +2,16 @@
 # load dbSnp tracks into human hg38 and hg19
 
 ###### VARIABLE DECLARATIONS ######
-jbrowseHome="/rgd/JBrowse-1.12.0/"
+jbrowseHome="/rgd/JBrowse-1.12.3/"
 
 mainGFF3home="/rgd/data/gff3"
 workingDir="pipelineOutput"
 
-kylePulldown="scp -q rgdpub@kyle.rgd.mcw.edu:"
+reedPulldown="scp -q rgdpub@reed.rgd.mcw.edu:"
 
 SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
-if [ "$SERVER" = "KYLE" ]; then
-  kylePulldown="cp -f "
+if [ "$SERVER" = "REED" ]; then
+  reedPulldown="cp -f "
 fi
 
 mainPipelineOutput="/home/rgddata/pipelines/RGDGff3Pipeline/dist/log/RGDGFF3/Output"
@@ -55,10 +55,10 @@ do
 	rm -f  ${currentWorkingPath}/*.gff3* ${currentOrgPath}/*.gff3*
 	printf 'done!\n\n'
 
-	#pulldown from KYLE	
-	echo PULLDOWN from kyle "${kylePulldown}${mainPipelineOutput}/DbSnp/DbSnp_hg${ASSEMBLY}.gff3.gz ${currentOrgPath}"
+	#pulldown from REED
+	echo PULLDOWN from reed "${reedPulldown}${mainPipelineOutput}/DbSnp/DbSnp_hg${ASSEMBLY}.gff3.gz ${currentOrgPath}"
 	echo
-	${kylePulldown}${mainPipelineOutput}/DbSnp/DbSnp_hg${ASSEMBLY}.gff3.gz ${currentOrgPath}
+	${reedPulldown}${mainPipelineOutput}/DbSnp/DbSnp_hg${ASSEMBLY}.gff3.gz ${currentOrgPath}
 	echo "PULLDOWN ok"
 
 

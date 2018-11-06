@@ -9,7 +9,11 @@
 #4) Split the original file into 2 files:
 #   - genes and transcripts model  (grep -v biological_region <file> > Ensembl_rn6_model.gff3)
 #   - other features               (grep biological_region <file> > Ensembl_rn6_features.gff3)
-#5) Run the script 'ensembl.sh'
+#5) run
+#      sed -i 's/;description=/;notes=/g' Ensembl_rn6_model.gff3
+#   purpose: to turn off automatic display of descriptions, which could be lengthy and confusing
+#      (f.e. MGI source inforation is shown for hundreds of rat genes)
+#6) Run the script 'ensembl.sh'
 
 cd /rgd/JBrowse-1.12.3/bin
 
@@ -31,10 +35,10 @@ echo
 ./flatfile-to-json.pl \
   --gff /rgd/data/gff3/Ensembl/Ensembl_rn6_model.gff3 \
   --trackLabel Ensembl_genes \
-  --key "Ensembl (rn6) Genes" \
+  --key "Ensembl (rn6) Genes and Transcripts" \
   --out /jbrowse/data_rgd6 \
   --trackType JBrowse/View/Track/CanvasFeatures \
-  --config "{ \"category\" : \"Gene Models/RGD Gene Features\" }" 
+  --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
 
 echo
 echo "STEP 3: DELETE TRACK Ensembl_features"
@@ -55,6 +59,6 @@ echo
   --key "Ensembl (rn6) Features" \
   --out /jbrowse/data_rgd6 \
   --trackType JBrowse/View/Track/CanvasFeatures \
-  --config "{ \"category\" : \"Gene Models/RGD Gene Features\" }"
+  --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
 
 echo "STEP 5: === DONE ! ==="

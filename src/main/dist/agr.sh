@@ -9,7 +9,7 @@ DATA_RELEASE_DIR_AGR=/home/rgddata/data_release/agr
 
 
 SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
-if [ "$SERVER" == "KYLE" ]; then
+if [ "$SERVER" == "REED" ]; then
   EMAILLIST=jrsmith@mcw.edu,RGD.Developers@mcw.edu
 else
   EMAILLIST=mtutaj@mcw.edu
