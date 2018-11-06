@@ -33,7 +33,7 @@ echo "STEP 2: LOAD TRACK Ensembl_genes"
 echo
 
 ./flatfile-to-json.pl \
-  --gff /rgd/data/gff3_ensembl/Ensembl_rn6_model.gff3 \
+  --gff /ref/gff3_ensembl/Ensembl_rn6_model.gff3 \
   --trackLabel Ensembl_genes \
   --key "Ensembl (rn6) Genes and Transcripts" \
   --out /jbrowse/data_rgd6 \
@@ -54,7 +54,7 @@ echo "STEP 4: LOAD TRACK Ensembl_features"
 echo
 
 ./flatfile-to-json.pl \
-  --gff /rgd/data/gff3_ensembl/Ensembl_rn6_features.gff3 \
+  --gff /ref/gff3_ensembl/Ensembl_rn6_features.gff3 \
   --trackLabel Ensembl_features \
   --key "Ensembl (rn6) Features" \
   --out /jbrowse/data_rgd6 \
