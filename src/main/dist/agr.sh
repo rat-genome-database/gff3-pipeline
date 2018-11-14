@@ -23,5 +23,5 @@ mailx -s "[$SERVER]Pipeline to create AGR Gff3 data for Rat Gene assembly 6.0 ra
 $RUNLOAD -object:gene -species:HUMAN -mapKey:38 -toFile:$LOGDIR/AGR/ -chr:* -flavor:AGR -compress  &> cron_humanAGR.log
 mailx -s "[$SERVER]Pipeline to create AGR Gff3 data for Human Gene assembly 38 ran" $EMAILLIST<cron_humanAGR.log
 
-cp -p $LOGDIR/AGR/Rat_RGD_AGR.gff3.gz $DATA_RELEASE_DIR_AGR/RGD_1.0_10116.gff3.gz
-cp -p $LOGDIR/AGR/Human_RGD_AGR.gff3.gz $DATA_RELEASE_DIR_AGR/RGD_1.0_9696.gff3.gz
+cp -p $LOGDIR/AGR/Rat_RGD_AGR.gff3.gz $DATA_RELEASE_DIR_AGR/genes_10116.gff3.gz
+cp -p $LOGDIR/AGR/Human_RGD_AGR.gff3.gz $DATA_RELEASE_DIR_AGR/genes_9606.gff3.gz

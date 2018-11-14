@@ -1,3 +1,7 @@
+ver 1.4.9, Nov 14, 2018
+  AGR gff3 files: for transcripts, added generation of 'biotype' attribute
+  (to be used by Ensembl VEP tool: https://useast.ensembl.org/info/docs/tools/vep/script/vep_cache.html#gfftypes)
+
 ver 1.4.8, Nov 6, 2018
   tuned up loading of Ensembl tracks for Rnor6 genes into JBrowse; per RGDD-1523
   scripts fixups: replaced all occurrences of server KYLE with REED

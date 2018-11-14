@@ -39,10 +39,16 @@ public class CreateGff4GeneAgr {
 
         gff3Writer.print("# Genome build: "+ MapManager.getInstance().getMap(mapKey).getName()+"\n");
         gff3Writer.print("# Primary Contact: mtutaj@mcw.edu\n");
-        gff3Writer.print("# Tool: AGR GFF3 extractor v.1.1.1 (single locus genes)\n");
+        gff3Writer.print("# Tool: AGR GFF3 extractor v.1.1.2 (single locus genes)\n");
         gff3Writer.print("# Generated: "+new Date()+"\n");
 
         List<Gene> activeGenes = dao.getActiveGenes(speciesTypeKey);
+        Collections.sort(activeGenes, new Comparator<Gene>() {
+            @Override
+            public int compare(Gene o1, Gene o2) {
+                return Utils.stringsCompareToIgnoreCase(o1.getSymbol(), o2.getSymbol());
+            }
+        });
         //Collections.shuffle(activeGenes);
 
         for( Gene gene: activeGenes ){
@@ -134,6 +140,7 @@ public class CreateGff4GeneAgr {
                             attributes.put("status", tr.getRefSeqStatus());
                         attributes.put("isNonCoding", nc);
                         attributes.put("gene", gene.getSymbol());
+                        attributes.put("biotype", getTrBiotype(gType, gene.getName(), tr));
 
                         gff3Writer.writeFirst8Columns(trMd.getChromosome(), "RGD", "mRNA", trMd.getStartPos(),trMd.getStopPos(), ".", trMd.getStrand(), ".");
                         gff3Writer.writeAttributes4Gff3(attributes);
@@ -199,6 +206,36 @@ public class CreateGff4GeneAgr {
         gff3Writer.close();
 
         dumpCounters(counters);
+    }
+
+    String getTrBiotype(String geneType, String geneName, Transcript tr) {
+        switch(geneType) {
+            case "ncrna":
+                if( geneName.startsWith("microRNA") ) {
+                    return "miRNA";
+                } else {
+                    return "misc_RNA";
+                }
+            case "protein-coding":
+                if( tr.getAccId().startsWith("XR_") || tr.getAccId().startsWith("NR_") ) {
+                    return "misc_RNA";
+                }
+                return "protein_coding";
+            case "pseudo": return "pseudogene";
+            case "rrna": return "rRNA";
+            case "snrna": return "snRNA";
+            case "gene":
+                if( tr.getAccId().startsWith("XR_") ) {
+                    return "misc_RNA";
+                }
+                if( tr.getAccId().startsWith("XM_") ) {
+                    return "protein_coding";
+                }
+                System.out.println("unknown");
+            default:
+                System.out.println("unknown");
+                return "";
+        }
     }
 
     String getCurie(int geneRgdId, List<XdbId> xdbIds) {
