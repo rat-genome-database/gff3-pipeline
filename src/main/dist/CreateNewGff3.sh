@@ -2,7 +2,7 @@
 #
 . /etc/profile
 
-APP_HOME=/home/rgddata/pipelines/RGDGff3Pipeline/dist
+APP_HOME=/home/rgddata/pipelines/RGDGff3Pipeline
 cd $APP_HOME
 
 CHR_RAT="1-20,X,Y,MT"
@@ -13,7 +13,7 @@ CHR_BONOBO="1,2A,2B,3-22,X,MT"
 CHR_SQUIRREL="Scaffold"
 CHR_CHINCHILLA="Scaffold"
 
-LOGDIR=$APP_HOME/log/RGDGFF3/Output
+LOGDIR=$APP_HOME/dist/log/RGDGFF3/Output
 DATA_RELEASE_DIR_GFF3=/home/rgddata/data_release/GFF3
 DATA_RELEASE_DIR_GFF=/home/rgddata/data_release/GFF
 
