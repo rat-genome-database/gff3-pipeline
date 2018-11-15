@@ -2,10 +2,10 @@
 #
 . /etc/profile
 
-APP_HOME=/home/rgddata/pipelines/RGDGff3Pipeline/dist
+APP_HOME=/home/rgddata/pipelines/RGDGff3Pipeline
 cd $APP_HOME
 
-LOGDIR=$APP_HOME/log/RGDGFF3/Output
+LOGDIR=$APP_HOME/data
 DATA_RELEASE_DIR=/home/rgddata/data_release/GFF3
 
 

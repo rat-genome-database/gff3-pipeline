@@ -14,7 +14,7 @@ if [ "$SERVER" = "REED" ]; then
   reedPulldown="cp -f "
 fi
 
-mainPipelineOutput="/home/rgddata/pipelines/RGDGff3Pipeline/dist/log/RGDGFF3/Output"
+mainPipelineOutput="/home/rgddata/pipelines/RGDGff3Pipeline/data"
 
 contentBlock="/rgdweb/jbrowse/contextMenu.html?source={source}&type={type}&seq_id={seq_id}&start={start}&end={end}&name={name}&id={id}&dbxRef={dbxref}&alias={alias}&symbol={symbol}&clinicalSignificance={clinicalSignificance}&methodType={methodType}&molecularConsequence={molecularConsequence}&ageOfOnset={ageOfOnset}&prevalence={prevalence}&submitter={submitter}&traitName={traitName}"
 ###################################
