@@ -39,7 +39,7 @@ if [ "$SERVER" = "REED" ]; then
   reedPulldown="cp -f "
 fi
 
-mainPipelineOutput="/home/rgddata/pipelines/RGDGff3Pipeline/dist/log/RGDGFF3/Output"
+mainPipelineOutput="/home/rgddata/pipelines/RGDGff3Pipeline/data"
 
 contentBlock="/rgdweb/jbrowse/contextMenu.html?source={source}&type={type}&seq_id={seq_id}&start={start}&end={end}&name={name}&fullName={fullname}&geneType={genetype}&refSeqStatus={refseqstatus}&species={species}&note={note}&id={id}&mappingMethod={mappingmethod}&LOD={lod}&pValue={pvalue}&dbxRef={dbxref}&relatedQTLs={relatedqtls}&relatedStrains={relatedStrains}&relatedGenes={relatedgenes}&alias={alias}&diseaseOntologyAssociation={diseaseontologyassociation}&phenotypeOntologyAssociation={phenotypeontologyassociation}&synBlockLength={synblocklength}&synStart={synstart}&synEnd={synend}&synChrNum={synchrnum}&gene={gene}&isNonCoding={isnoncoding}&mapWeight={mapweight}&allele={allele}&strain={strain}&expectedSize={expectedsize}&symbol={symbol}&ontologyTerms={ontology_term}&product={product}&transcriptID={transcript_id}&proteinID={protein_id}&codonStart={codon_start}&promoterGeneRlt={promotergenerlt}&experimentMethods={experimentmethods}&regulation={regulation}&objectType={objecttype}&tissues={tissues}&score={score}&method={method}&reference={reference}&loc1={loc1}&loc2={loc2}&loc3={loc3}&loc4={loc4}&loc5={loc5}&loc6={loc6}&origin={origin}"
 ###################################

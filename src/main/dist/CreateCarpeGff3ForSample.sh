@@ -2,8 +2,8 @@
 #
 . /etc/profile
 
-APP_HOME=/home/rgddata/pipelines/RGDGff3Pipeline/dist/
-OUTDIR=$APP_HOME/../data/strain_specific_variants
+APP_HOME=/home/rgddata/pipelines/RGDGff3Pipeline/
+OUTDIR=$APP_HOME/data/strain_specific_variants
 EMAILLIST=mtutaj@mcw.edu
 
 CHR_RAT="1-20,X,Y,MT"

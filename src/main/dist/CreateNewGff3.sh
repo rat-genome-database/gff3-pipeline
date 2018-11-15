@@ -13,7 +13,7 @@ CHR_BONOBO="1,2A,2B,3-22,X,MT"
 CHR_SQUIRREL="Scaffold"
 CHR_CHINCHILLA="Scaffold"
 
-LOGDIR=$APP_HOME/dist/log/RGDGFF3/Output
+LOGDIR=$APP_HOME/data
 DATA_RELEASE_DIR_GFF3=/home/rgddata/data_release/GFF3
 DATA_RELEASE_DIR_GFF=/home/rgddata/data_release/GFF
 

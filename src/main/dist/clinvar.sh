@@ -5,7 +5,7 @@
 APP_HOME=/home/rgddata/pipelines/RGDGff3Pipeline
 cd $APP_HOME
 
-LOGDIR=$APP_HOME/dist/log/RGDGFF3/Output
+LOGDIR=$APP_HOME/data
 DATA_RELEASE_DIR=/home/rgddata/data_release/GFF3
 
 

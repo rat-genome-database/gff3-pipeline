@@ -1,3 +1,7 @@
+ver 1.4.10, Nov 15, 2018
+  updated scripts to generate all files in directory /home/rgddata/pipelines/RGDGff3Pipeline/data;
+  previously it was: /home/rgddata/pipelines/RGDGff3Pipeline/dist/log/RGDGFF3/Output
+
 ver 1.4.9, Nov 14, 2018
   AGR gff3 files: for transcripts, added generation of 'biotype' attribute
   (to be used by Ensembl VEP tool: https://useast.ensembl.org/info/docs/tools/vep/script/vep_cache.html#gfftypes)
