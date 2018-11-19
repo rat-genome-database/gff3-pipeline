@@ -39,7 +39,7 @@ public class CreateGff4GeneAgr {
 
         gff3Writer.print("# Genome build: "+ MapManager.getInstance().getMap(mapKey).getName()+"\n");
         gff3Writer.print("# Primary Contact: mtutaj@mcw.edu\n");
-        gff3Writer.print("# Tool: AGR GFF3 extractor v.1.1.2 (single locus genes)\n");
+        gff3Writer.print("# Tool: AGR GFF3 extractor v.1.1.3 (single locus genes)\n");
         gff3Writer.print("# Generated: "+new Date()+"\n");
 
         List<Gene> activeGenes = dao.getActiveGenes(speciesTypeKey);
@@ -92,12 +92,18 @@ public class CreateGff4GeneAgr {
 
             Map<String,String> attributes = new HashMap<>();
 
-            String uniqueGeneId = getUniqueId("g"+gene.getRgdId());
+            String uniqueGeneId = getUniqueId("gene");
             attributes.put("ID", uniqueGeneId);
             attributes.put("Name", gene.getSymbol());
             attributes.put("Note", nameOfgene);
             attributes.put("curie", curie);
-            attributes.put("Alias", gene.getSymbol()+","+curie+ "," + nameOfgene);
+
+            String alias = gene.getSymbol()+","+curie+ "," + nameOfgene;
+            if( gene.getSpeciesTypeKey()==SpeciesType.HUMAN ) {
+                alias += ",RGD:"+gene.getRgdId();
+            }
+            attributes.put("Alias", alias);
+
             attributes.put("geneType", gType.replaceAll("\\-","_"));
             if( gene.getRefSeqStatus()!=null )
                 attributes.put("status",gene.getRefSeqStatus());
@@ -129,7 +135,7 @@ public class CreateGff4GeneAgr {
                         if( !utils.transcriptPositionOverlapsGenePosition(trMd, map) )
                             continue;
 
-                        String id = getUniqueId("mRNA"+tr.getRgdId());
+                        String id = getUniqueId("rna");
                         counters.transcriptsMappedCount++;
 
 
@@ -138,36 +144,38 @@ public class CreateGff4GeneAgr {
                         attributes.put("Parent", uniqueGeneId);
                         if( tr.getRefSeqStatus()!=null )
                             attributes.put("status", tr.getRefSeqStatus());
-                        attributes.put("isNonCoding", nc);
+                        //attributes.put("isNonCoding", nc);
                         attributes.put("gene", gene.getSymbol());
                         attributes.put("biotype", getTrBiotype(gType, gene.getName(), tr));
 
                         gff3Writer.writeFirst8Columns(trMd.getChromosome(), "RGD", "mRNA", trMd.getStartPos(),trMd.getStopPos(), ".", trMd.getStrand(), ".");
                         gff3Writer.writeAttributes4Gff3(attributes);
 
+                        String cdsId = null;
                         List<CodingFeature> cfList = utils.buildCfList(trMd);
                         for(CodingFeature cf: cfList){
                             String featureId;
 
                             if(cf.getFeatureType()== TranscriptFeature.FeatureType.CDS){
-                                featureId = getUniqueId("cds"+cf.getRgdId());
+                                // one CDS id per multiple fragments of CDS (as it is in NCBI RefSeq gff3 file for rat)
+                                featureId = cdsId==null ? getUniqueId("cds") : cdsId;
 
                                 counters.cdsCount++;
                             }
                             else {
                                 if(cf.getFeatureType()== TranscriptFeature.FeatureType.EXON){
                                     counters.exonCount++;
-                                    featureId = getUniqueId("exon"+cf.getRgdId());
+                                    featureId = getUniqueId("e");
                                 }else
                                 if(cf.getFeatureType()== TranscriptFeature.FeatureType.UTR5){
                                     counters.utr5Count++;
-                                    featureId = getUniqueId("utr"+cf.getRgdId());
+                                    featureId = getUniqueId("u");
                                 }else
                                 if(cf.getFeatureType()== TranscriptFeature.FeatureType.UTR3){
                                     counters.utr3Count++;
-                                    featureId = getUniqueId("utr"+cf.getRgdId());
+                                    featureId = getUniqueId("u");
                                 } else {
-                                    featureId = getUniqueId("ft"+cf.getRgdId());
+                                    featureId = getUniqueId("f");
                                 }
                             }
 
@@ -189,14 +197,14 @@ public class CreateGff4GeneAgr {
                 // generate fake feature for genes without features
                 gff3Writer.writeFirst8Columns(map.getChromosome(), "RGD", "transcript_region", map.getStartPos(),map.getStopPos(), ".", map.getStrand(), ".");
 
-                String regionId = getUniqueId("tr"+geneRgdId);
+                String regionId = getUniqueId("rna");
                 attributes.put("ID", regionId);
                 attributes.put("Parent", uniqueGeneId);
                 gff3Writer.writeAttributes4Gff3(attributes);
 
                 gff3Writer.writeFirst8Columns(map.getChromosome(), "RGD", "exon", map.getStartPos(),map.getStopPos(), ".", map.getStrand(), ".");
 
-                attributes.put("ID", getUniqueId("ft"+geneRgdId));
+                attributes.put("ID", getUniqueId("e"));
                 attributes.put("Parent", regionId);
                 gff3Writer.writeAttributes4Gff3(attributes);
             }
@@ -418,9 +426,7 @@ public class CreateGff4GeneAgr {
         }
         idMap.put(idBase, cnt);
 
-        if( cnt==1 )
-            return idBase;
-        return idBase+"_"+cnt;
+        return idBase+cnt;
     }
 
     public void setSpeciesTypeKey(int speciesTypeKey) {
