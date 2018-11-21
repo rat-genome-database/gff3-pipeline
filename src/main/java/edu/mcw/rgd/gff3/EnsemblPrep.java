@@ -61,6 +61,11 @@ public class EnsemblPrep {
                 line = line.substring(0, pos)+";notes="+line.substring(pos+13);
                 notesLines++;
             }
+            // prepend line with 'Chr'
+            if( !line.startsWith("Chr") ) {
+                line = "Chr" + line;
+            }
+            
             // write out the line to the proper file
             if( line.contains("biological_region") ) {
                 featureFile.write(line);
