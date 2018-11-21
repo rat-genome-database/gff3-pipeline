@@ -122,7 +122,10 @@ public class Manager {
             }
 
         }
-        else{
+        else if( flavor.equals("ensembl_prep") ) {
+            EnsemblPrep.run(fromFile);
+
+        } else {
             throw new ArgumentsException("This script requires '-object:' or '-sampleID' or '-ontAspect' as a parameter:\n" +
                     "-sampleID:309/329/330\t-object:gene/qtl/sslp/strain\t-ontAspect:D/M/P/W/..\n" + getUsage());
         }

@@ -1,3 +1,9 @@
+ver 1.4.12, Nov 21, 2018
+  AGR gff3 files: refactored generation of IDs, to produce smaller file
+
+ver 1.4.11, Nov 19, 2018
+  AGR gff3 files: refactored generation of IDs, to produce smaller file
+
 ver 1.4.10, Nov 15, 2018
   updated scripts to generate all files in directory /home/rgddata/pipelines/RGDGff3Pipeline/data;
   previously it was: /home/rgddata/pipelines/RGDGff3Pipeline/dist/log/RGDGFF3/Output
