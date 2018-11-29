@@ -1,5 +1,8 @@
+ver 1.4.13, Nov 29, 2018
+  ensembl prep module: added handling of scaffold assemblies like chinchilla
+
 ver 1.4.12, Nov 21, 2018
-  AGR gff3 files: refactored generation of IDs, to produce smaller file
+  added a module to prepare Ensembl gff3 files for loading into JBrowse
 
 ver 1.4.11, Nov 19, 2018
   AGR gff3 files: refactored generation of IDs, to produce smaller file
