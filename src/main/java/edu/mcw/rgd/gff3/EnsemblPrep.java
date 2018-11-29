@@ -74,7 +74,7 @@ public class EnsemblPrep {
             // prepend line with 'Chr'
             if( !line.startsWith("Chr") ) {
                 int chrLen = line.indexOf('\t');
-                if( chrLen<2 ) {
+                if( chrLen<=2 ) {
                     line = "Chr" + line;
                 } else {
                     // replace genbank acc ids with refseq acc ids for supercontigs (scaffolds)
