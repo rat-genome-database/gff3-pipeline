@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- ver. 1.4.13 -- Nov 29, 2018 --" />
+        <property name="version" value="--Gff3 generation pipeline -- ver. 1.4.14 -- Jan 16, 2019 --" />
     </bean>
 </beans>
 
