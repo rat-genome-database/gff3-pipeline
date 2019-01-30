@@ -1,3 +1,6 @@
+ver 1.4.15, Jan 30, 2019
+  added generation of gene tracks for PIG
+
 ver 1.4.14, Jan 16, 2019
   jbrowse track loader: updated url for popup menu content (it is absolute now, instead of relative,
     to support JBrowse installation on the cloud)

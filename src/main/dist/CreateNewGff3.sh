@@ -9,6 +9,7 @@ CHR_RAT="1-20,X,Y,MT"
 CHR_MOUSE="1-19,X,Y,MT"
 CHR_HUMAN="1-22,X,Y,MT"
 CHR_DOG="1-38,X,MT"
+CHR_PIG="1-18,X,Y,MT"
 CHR_BONOBO="1,2A,2B,3-22,X,MT"
 CHR_SQUIRREL="Scaffold"
 CHR_CHINCHILLA="Scaffold"
@@ -43,6 +44,10 @@ mailx -s "[$SERVER]Pipeline to create Gff3 data for Bonobo Gene assembly 1.1 ran
 
 $RUNLOAD -object:gene -species:DOG -mapKey:631 -toFile:$LOGDIR/Gene/Dog/dog31/ -chr:$CHR_DOG -compress  &> cron_dogGene31.log
 mailx -s "[$SERVER]Pipeline to create Gff3 data for Dog Gene assembly 3.1 ran" $EMAILLIST<cron_dogGene31.log
+
+
+$RUNLOAD -object:gene -species:PIG -mapKey:911 -toFile:$LOGDIR/Gene/Pig/pig11/ -chr:$CHR_PIG -compress  &> cron_pigGene11.log
+mailx -s "[$SERVER]Pipeline to create Gff3 data for Pig Gene assembly 11.1 ran" $EMAILLIST<cron_pigGene11.log
 
 
 $RUNLOAD -object:gene -species:RAT -mapKey:60 -toFile:$LOGDIR/Gene/Rat/rat34/ -chr:$CHR_RAT -compress  &> cron_ratGene34.log
