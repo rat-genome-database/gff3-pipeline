@@ -30,6 +30,13 @@ fi
 RUNLOAD="$APP_HOME/run.sh"
 
 
+$RUNLOAD -object:gene -species:PIG -mapKey:911 -toFile:$LOGDIR/Gene/Pig/pig11/ -chr:$CHR_PIG -compress  &> cron_pigGene11.log
+mailx -s "[$SERVER]Pipeline to create Gff3 data for Pig Gene assembly 11.1 ran" $EMAILLIST<cron_pigGene11.log
+
+$RUNLOAD -object:gene -species:PIG -mapKey:910 -toFile:$LOGDIR/Gene/Pig/pig10/ -chr:$CHR_PIG -compress  &> cron_pigGene10.log
+mailx -s "[$SERVER]Pipeline to create Gff3 data for Pig Gene assembly 10.2 ran" $EMAILLIST<cron_pigGene10.log
+
+
 $RUNLOAD -object:gene -species:CHINCHILLA -mapKey:44 -toFile:$LOGDIR/Gene/Chinchilla/chinchilla10/ -chr:$CHR_CHINCHILLA -compress  &> cron_chinchillaGene10.log
 mailx -s "[$SERVER]Pipeline to create Gff3 data for Chinchilla Gene assembly 1.0 ran" $EMAILLIST<cron_chinchillaGene10.log
 
@@ -44,10 +51,6 @@ mailx -s "[$SERVER]Pipeline to create Gff3 data for Bonobo Gene assembly 1.1 ran
 
 $RUNLOAD -object:gene -species:DOG -mapKey:631 -toFile:$LOGDIR/Gene/Dog/dog31/ -chr:$CHR_DOG -compress  &> cron_dogGene31.log
 mailx -s "[$SERVER]Pipeline to create Gff3 data for Dog Gene assembly 3.1 ran" $EMAILLIST<cron_dogGene31.log
-
-
-$RUNLOAD -object:gene -species:PIG -mapKey:911 -toFile:$LOGDIR/Gene/Pig/pig11/ -chr:$CHR_PIG -compress  &> cron_pigGene11.log
-mailx -s "[$SERVER]Pipeline to create Gff3 data for Pig Gene assembly 11.1 ran" $EMAILLIST<cron_pigGene11.log
 
 
 $RUNLOAD -object:gene -species:RAT -mapKey:60 -toFile:$LOGDIR/Gene/Rat/rat34/ -chr:$CHR_RAT -compress  &> cron_ratGene34.log
