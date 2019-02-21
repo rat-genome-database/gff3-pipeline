@@ -18,10 +18,10 @@ import java.util.Map;
  */
 public class CreateGff4CarpeNovo {
 
-     String toFile;
-     List<String> chromosomes;
-     String fileSource;
-     int sampleID;
+    String toFile;
+    List<String> chromosomes;
+    String fileSource;
+    int sampleID;
 
     int varNumCount=0;
     int varGenic=0;
@@ -51,9 +51,14 @@ public class CreateGff4CarpeNovo {
         SampleDAO sampleDAO = new SampleDAO();
         sampleDAO.setDataSource(DataSourceFactory.getInstance().getCarpeNovoDataSource());
 
-        for( Sample sample: sampleDAO.getSamples(patientId) ) {
-            createGff3ForSample(sample.getId());
-        }
+        List<Sample> samples = sampleDAO.getSamples(patientId);
+        samples.parallelStream().forEach(sample-> {
+            try{
+                createGff3ForSample(sample.getId());
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        });
     }
 
     public void createGff3ForSample(int sampleId) throws Exception{
@@ -301,10 +306,10 @@ public class CreateGff4CarpeNovo {
         HashMap<Integer, variant> newvarHash = new HashMap<Integer, variant>();
 
         Connection connection = getConnection();
-       // System.out.println("here is the connection:" + connection);
+        // System.out.println("here is the connection:" + connection);
         String findAllVariants = "SELECT v.VARIANT_ID, v.CHROMOSOME, v.START_POS, v.END_POS, v.REF_NUC, v.VAR_NUC," +
-            "TOTAL_DEPTH, v.VAR_FREQ, v.ZYGOSITY_STATUS, v.GENIC_STATUS FROM VARIANT v " +
-            "WHERE v.SAMPLE_ID = ? and v.CHROMOSOME = ? ";
+                "TOTAL_DEPTH, v.VAR_FREQ, v.ZYGOSITY_STATUS, v.GENIC_STATUS FROM VARIANT v " +
+                "WHERE v.SAMPLE_ID = ? and v.CHROMOSOME = ? ";
 
         PreparedStatement findVar = connection.prepareStatement(findAllVariants);
         findVar.setInt(1, sampleID);
@@ -348,7 +353,7 @@ public class CreateGff4CarpeNovo {
 
 
         String getpph = "select p.UNIPROT_ACC, p.PREDICTION, p.PROTEIN_ID, p.POSITION, p.AA1, p.AA2 " +
-            "from POLYPHEN p where p.VARIANT_TRANSCRIPT_ID=?";
+                "from POLYPHEN p where p.VARIANT_TRANSCRIPT_ID=?";
 
         PreparedStatement findPph = conn.prepareStatement(getpph);
 
@@ -443,7 +448,7 @@ public class CreateGff4CarpeNovo {
             if(!(rsvarTran.getString(6)==null)){
                 grgd = rsvarTran.getString(6).trim();
             }else{
-               grgd = "NA";
+                grgd = "NA";
             }
             newvarTransObj.setAssociatedGeneRGD(grgd);
 
