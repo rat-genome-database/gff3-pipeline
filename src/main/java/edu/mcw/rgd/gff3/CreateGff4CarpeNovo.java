@@ -76,8 +76,7 @@ public class CreateGff4CarpeNovo {
     void creategff4CarpeNovo(String gffFile, Connection conn) throws Exception{
 
         Gff3ColumnWriter gffWriter = new Gff3ColumnWriter(gffFile, false, true);
-        List<String> chromosomes = getChromosomes();
-        chromosomes.parallelStream().forEach(chr ->{
+        for(String chr: getChromosomes()){
 
             varNumCount=0;
             varGenic=0;
@@ -166,7 +165,7 @@ public class CreateGff4CarpeNovo {
             }catch(Exception e){
                 e.printStackTrace();
             }
-        });
+        }
 
         gffWriter.close();
     }
@@ -211,12 +210,12 @@ public class CreateGff4CarpeNovo {
 
                     if(vt.getPpObj().getPrediction().equalsIgnoreCase("benign")){
                         varPPBenign++;
-                    }else
-                    if(vt.getPpObj().getPrediction().equalsIgnoreCase("possibly damaging")){
-                        varPPPossibly++;
-                    }else
-                    if(vt.getPpObj().getPrediction().equalsIgnoreCase("probably damaging")){
-                        varPPProbably++;
+                    }else {
+                        if (vt.getPpObj().getPrediction().equalsIgnoreCase("possibly damaging")) {
+                            varPPPossibly++;
+                        } else if (vt.getPpObj().getPrediction().equalsIgnoreCase("probably damaging")) {
+                            varPPProbably++;
+                        }
                     }
                 }else{
                     transcriptPolyPred+="NA,";
