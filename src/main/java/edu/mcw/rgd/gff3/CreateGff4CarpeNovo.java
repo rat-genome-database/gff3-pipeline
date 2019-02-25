@@ -294,14 +294,8 @@ public class CreateGff4CarpeNovo {
     }
     void printDamagingTranscriptGff3(String chr, Gff3ColumnWriter gffDmgVariantWriter, Variant varOB, LinkedHashMap<Integer, VarTranscript> varTransHashObj) throws Exception {
 
-        LinkedHashMap<String,String> attributesHashMap = new LinkedHashMap<String, String>();
-        attributesHashMap.put("ID", String.valueOf(varOB.getVariantID()));
-        attributesHashMap.put("Name", String.valueOf(varOB.getVariantID()));
-        attributesHashMap.put("Alias", String.valueOf(varOB.getVariantID()));
-        attributesHashMap.put("Reference", varOB.getRef());
-        attributesHashMap.put("Variant", varOB.getVar());
-        attributesHashMap.put("Depth", String.valueOf(varOB.getDepth()));
-        attributesHashMap.put("Frequency", String.valueOf(varOB.getFreq()));
+
+
         String transcriptId="";
         String transcriptRgdId="";
         String refAA="";
@@ -311,13 +305,14 @@ public class CreateGff4CarpeNovo {
         String nearSpliceSite="";
         String transcriptPolyPred="";
         String synStatus="";
+        boolean damaging= false;
         for(int transcriptID : varTransHashObj.keySet() ) {
             VarTranscript vt = varTransHashObj.get(transcriptID);
 
             if (!vt.getLocName().equals("NA")) {
             if (vt.getPpObj() != null && (vt.getPpObj().getPrediction().equalsIgnoreCase("possibly damaging") ||
                     vt.getPpObj().getPrediction().equalsIgnoreCase("probably damaging"))) {
-
+                    damaging = true;
                     transcriptId += transcriptID + ",";
                     transcriptRgdId += vt.getTranscriptRgdId() + ",";
                     refAA += vt.getRefAA() + ",";
@@ -338,18 +333,28 @@ public class CreateGff4CarpeNovo {
                 }
             }
         }
-        attributesHashMap.put("VariantTranscriptID", transcriptId.substring(0, transcriptId.length()-1));
-        attributesHashMap.put("transcriptRGDID", transcriptRgdId.substring(0, transcriptRgdId.length()-1));
-        attributesHashMap.put("refAA", refAA.substring(0, refAA.length()-1));
-        attributesHashMap.put("varAA", varAA.substring(0, varAA.length()-1));
-        attributesHashMap.put("associatedGene", associatedGene.substring(0, associatedGene.length()-1));
-        attributesHashMap.put("synStatus", synStatus.substring(0, synStatus.length()-1));
-        attributesHashMap.put("locName", varLoc.substring(0, varLoc.length()-1));
-        attributesHashMap.put("nearSpliceSite", nearSpliceSite.substring(0, nearSpliceSite.length()-1));
-        attributesHashMap.put("polyPred", transcriptPolyPred.substring(0, transcriptPolyPred.length()-1));
+        if(damaging) {
+            LinkedHashMap<String,String> attributesHashMap = new LinkedHashMap<String, String>();
+            attributesHashMap.put("ID", String.valueOf(varOB.getVariantID()));
+            attributesHashMap.put("Name", String.valueOf(varOB.getVariantID()));
+            attributesHashMap.put("Alias", String.valueOf(varOB.getVariantID()));
+            attributesHashMap.put("Reference", varOB.getRef());
+            attributesHashMap.put("Variant", varOB.getVar());
+            attributesHashMap.put("Depth", String.valueOf(varOB.getDepth()));
+            attributesHashMap.put("Frequency", String.valueOf(varOB.getFreq()));
+            attributesHashMap.put("VariantTranscriptID", transcriptId.substring(0, transcriptId.length() - 1));
+            attributesHashMap.put("transcriptRGDID", transcriptRgdId.substring(0, transcriptRgdId.length() - 1));
+            attributesHashMap.put("refAA", refAA.substring(0, refAA.length() - 1));
+            attributesHashMap.put("varAA", varAA.substring(0, varAA.length() - 1));
+            attributesHashMap.put("associatedGene", associatedGene.substring(0, associatedGene.length() - 1));
+            attributesHashMap.put("synStatus", synStatus.substring(0, synStatus.length() - 1));
+            attributesHashMap.put("locName", varLoc.substring(0, varLoc.length() - 1));
+            attributesHashMap.put("nearSpliceSite", nearSpliceSite.substring(0, nearSpliceSite.length() - 1));
+            attributesHashMap.put("polyPred", transcriptPolyPred.substring(0, transcriptPolyPred.length() - 1));
 
-        gffDmgVariantWriter.writeFirst8Columns(chr,getFileSource(),"SNV_"+this.sampleID,varOB.getStart(),varOB.getStart(),".",".",".");
-        gffDmgVariantWriter.writeAttributes4Gff3(attributesHashMap);
+            gffDmgVariantWriter.writeFirst8Columns(chr, getFileSource(), "SNV_" + this.sampleID, varOB.getStart(), varOB.getStart(), ".", ".", ".");
+            gffDmgVariantWriter.writeAttributes4Gff3(attributesHashMap);
+        }
     }
     void printNonTranscriptGFF3(String chr, Gff3ColumnWriter gffWriter, Variant varOB) throws Exception {
         LinkedHashMap<String, String> attributeHashMap = new LinkedHashMap<String, String>();
