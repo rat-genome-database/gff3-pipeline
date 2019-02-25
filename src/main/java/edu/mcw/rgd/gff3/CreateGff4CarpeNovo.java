@@ -56,14 +56,18 @@ public class CreateGff4CarpeNovo {
             try {
                 this.sampleID = sample.getId();
                 System.out.println("\nSample:" + sample.getAnalysisName());
-                createGff3ForSample(sample);
+                createGff3ForSample(sample.getId());
             } catch (Exception e){
                 e.printStackTrace();
             }
         });
     }
 
-    public void createGff3ForSample(Sample sample) throws Exception{
+    public void createGff3ForSample(int sampleId) throws Exception{
+
+        SampleDAO sampleDAO = new SampleDAO();
+        sampleDAO.setDataSource(DataSourceFactory.getInstance().getCarpeNovoDataSource());
+        Sample sample = sampleDAO.getSample(sampleId);
         String sampleName = sample.getAnalysisName().replace('/','_');
         String gffFile = getToFile()+sampleName+".gff3";
         String gffDamagingFile = getToFile()+sampleName+".gff3_damaging";
