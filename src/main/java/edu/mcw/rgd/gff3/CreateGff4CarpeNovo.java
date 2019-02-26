@@ -167,6 +167,7 @@ public class CreateGff4CarpeNovo {
                 }
 
                 gffWriter.close();
+                gffDmgVariantWriter.close();
 
     }
 
