@@ -52,19 +52,13 @@ public class CreateGff4CarpeNovo {
         SampleDAO sampleDAO = new SampleDAO();
         sampleDAO.setDataSource(DataSourceFactory.getInstance().getCarpeNovoDataSource());
         List<Sample> samples = sampleDAO.getSamples(patientId);
-        samples.parallelStream().forEach(sample -> {
-            try {
-                this.sampleID = sample.getId();
-                System.out.println("\nSample:" + sample.getAnalysisName());
-                createGff3ForSample(sample.getId());
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-        });
+        for( Sample sample: sampleDAO.getSamples(patientId) ) {
+            createGff3ForSample(sample.getId());
+        }
     }
 
     public void createGff3ForSample(int sampleId) throws Exception{
-
+        this.sampleID = sampleId;
         SampleDAO sampleDAO = new SampleDAO();
         sampleDAO.setDataSource(DataSourceFactory.getInstance().getCarpeNovoDataSource());
         Sample sample = sampleDAO.getSample(sampleId);
@@ -72,14 +66,9 @@ public class CreateGff4CarpeNovo {
         String gffFile = getToFile()+sampleName+".gff3";
         String gffDamagingFile = getToFile()+sampleName+".gff3_damaging";
         Connection conn = getConnection();
-        try {
-            synchronized(sample) {
-            creategff4CarpeNovo(gffFile,gffDamagingFile, conn);
-            conn.close();
-            }
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
+        creategff4CarpeNovo(gffFile,gffDamagingFile, conn);
+
+        conn.close();
     }
 
     void creategff4CarpeNovo(String gffFile,String gffDamagingFile, Connection conn) throws Exception{
@@ -113,8 +102,8 @@ public class CreateGff4CarpeNovo {
                     varPPProbably = 0;
 
 
-                    LinkedHashMap<Integer, VarTranscript> varTransHashObj;
-                    LinkedHashMap<Integer, Variant> varhashOB = getVariants(chr);
+                    HashMap<Integer, VarTranscript> varTransHashObj;
+                    HashMap<Integer, Variant> varhashOB = getVariants(chr);
 
                     for (int variantid : varhashOB.keySet()) {
                         varNumCount++;
@@ -183,7 +172,7 @@ public class CreateGff4CarpeNovo {
 
 
 
-    void printTranscriptGff3(String chr, Gff3ColumnWriter gffWriter, Variant varOB, LinkedHashMap<Integer, VarTranscript> varTransHashObj) throws Exception {
+    void printTranscriptGff3(String chr, Gff3ColumnWriter gffWriter, Variant varOB, HashMap<Integer, VarTranscript> varTransHashObj) throws Exception {
 
         String transcriptId="";
         String transcriptRgdId="";
@@ -194,7 +183,7 @@ public class CreateGff4CarpeNovo {
         String nearSpliceSite="";
         String transcriptPolyPred="";
         String synStatus="";
-        LinkedHashMap<String,String> attributesHashMap = new LinkedHashMap<String, String>();
+        HashMap<String,String> attributesHashMap = new HashMap<String, String>();
 
         attributesHashMap.put("ID", String.valueOf(varOB.getVariantID()));
         attributesHashMap.put("Name", String.valueOf(varOB.getVariantID()));
@@ -292,7 +281,7 @@ public class CreateGff4CarpeNovo {
         gffWriter.writeFirst8Columns(chr,getFileSource(),"SNV_"+this.sampleID,varOB.getStart(),varOB.getStart(),".",".",".");
         gffWriter.writeAttributes4Gff3(attributesHashMap);
     }
-    void printDamagingTranscriptGff3(String chr, Gff3ColumnWriter gffDmgVariantWriter, Variant varOB, LinkedHashMap<Integer, VarTranscript> varTransHashObj) throws Exception {
+    void printDamagingTranscriptGff3(String chr, Gff3ColumnWriter gffDmgVariantWriter, Variant varOB, HashMap<Integer, VarTranscript> varTransHashObj) throws Exception {
 
 
 
@@ -334,7 +323,7 @@ public class CreateGff4CarpeNovo {
             }
         }
         if(damaging) {
-            LinkedHashMap<String,String> attributesHashMap = new LinkedHashMap<String, String>();
+            Map<String,String> attributesHashMap = new HashMap<String, String>();
             attributesHashMap.put("ID", String.valueOf(varOB.getVariantID()));
             attributesHashMap.put("Name", String.valueOf(varOB.getVariantID()));
             attributesHashMap.put("Alias", String.valueOf(varOB.getVariantID()));
@@ -357,7 +346,7 @@ public class CreateGff4CarpeNovo {
         }
     }
     void printNonTranscriptGFF3(String chr, Gff3ColumnWriter gffWriter, Variant varOB) throws Exception {
-        LinkedHashMap<String, String> attributeHashMap = new LinkedHashMap<String, String>();
+        Map<String, String> attributeHashMap = new HashMap<String, String>();
         attributeHashMap.put("ID", String.valueOf(varOB.getVariantID()));
         attributeHashMap.put("Name", String.valueOf(varOB.getVariantID()));
         attributeHashMap.put("Alias", String.valueOf(varOB.getVariantID()));
@@ -373,9 +362,9 @@ public class CreateGff4CarpeNovo {
     }
 
 
-    LinkedHashMap<Integer, Variant> getVariants(String chrNum) throws Exception{
+    HashMap<Integer, Variant> getVariants(String chrNum) throws Exception{
 
-        LinkedHashMap<Integer, Variant> newvarHash = new LinkedHashMap<Integer, Variant>();
+        HashMap<Integer, Variant> newvarHash = new HashMap<Integer, Variant>();
 
         Connection connection = getConnection();
         // System.out.println("here is the connection:" + connection);
@@ -409,11 +398,10 @@ public class CreateGff4CarpeNovo {
         return newvarHash;
     }
 
-
-    LinkedHashMap<Integer, VarTranscript> getVarGeneTransInfo(int varObj, Connection conn) throws Exception {
+    HashMap<Integer, VarTranscript> getVarGeneTransInfo(int varObj, Connection conn) throws Exception {
 
         VarTranscript newvarTransObj = new VarTranscript();
-        LinkedHashMap<Integer, VarTranscript> newvarTransHash = new LinkedHashMap<Integer, VarTranscript>();
+        HashMap<Integer, VarTranscript> newvarTransHash = new HashMap<Integer, VarTranscript>();
 
         String getvarTranscript = "select vt.VARIANT_TRANSCRIPT_ID, vt.SYN_STATUS, vt.TRANSCRIPT_RGD_ID, vt.REF_AA, " +
                 "vt.VAR_AA, g.RGD_ID, vt.LOCATION_NAME, vt.NEAR_SPLICE_SITE, g.GENE_SYMBOL " +
