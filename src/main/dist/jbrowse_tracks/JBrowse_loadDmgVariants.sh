@@ -1,5 +1,5 @@
 #!/bin/bash
-# load Strain Specific Variant tracks into rgd6, rgd5 and rgd3_4 assemblies
+# load Strain Specific Damaging Variant tracks into rgd6, rgd5 and rgd3_4 assemblies
 
 ###### VARIABLE DECLARATIONS ######
 jbrowseHome="/rgd/JBrowse-1.12.3/"
@@ -31,7 +31,7 @@ do
 
 
         printf "***********************************\n"
-        printf "Beginning processing of Strain Specific Variants for assembly ${ASSEMBLY} ...\n"
+        printf "Beginning processing of Strain Specific Damaging Variants for assembly ${ASSEMBLY} ...\n"
         date
         printf "***********************************\n\n"
 
@@ -58,25 +58,25 @@ do
 
         ## Initial clean-up
        printf "Initiating clean-up ... "
-       rm -f  ${currentWorkingPath}/*.gff3* ${currentgff3Path}/*.gff3*
+       rm -f  ${currentWorkingPath}/*.gff3_damaging* ${currentgff3Path}/*.gff3_damaging*
        printf 'done!\n\n'
 
         #pulldown from REED
-       echo PULLDOWN from reed "${reedPulldown}${mainPipelineOutput}/rat${ASSEMBLY}/*.gff3.gz ${currentgff3Path}"
+       echo PULLDOWN from reed "${reedPulldown}${mainPipelineOutput}/rat${ASSEMBLY}/*.gff3_damaging.gz ${currentgff3Path}"
        echo
-       ${reedPulldown}${mainPipelineOutput}/rat${ASSEMBLY}/*.gff3.gz ${currentgff3Path}
+       ${reedPulldown}${mainPipelineOutput}/rat${ASSEMBLY}/*.gff3_damaging.gz ${currentgff3Path}
        echo "PULLDOWN ok"
 
 
         ## Unzip imported GFF3 files
         printf "Unzipping GFF3 files ... "
-        for file in ${currentgff3Path}/*.gff3.gz
+        for file in ${currentgff3Path}/*.gff3_damaging.gz
         do
                 gzip -d "${file}"
         printf "File: ${file}\n"
 
-        trackName="$(printf "${file##*/}" | sed 's/_/\//' | sed 's/\.gff3.*//')"
-        trackLabel="SSV_$(printf "${file##*/}" | sed 's/\.gff3.*//')"
+        trackName="$(printf "${file##*/}" | sed 's/_/\//' | sed 's/\.gff3_damaging.*//')"
+        trackLabel="DmgV_$(printf "${file##*/}" | sed 's/\.gff3_damaging.*//')"
         fileName="$(printf "${file##*/}" | sed 's/\.gz//' )"
         printf "trackLabel: ${trackLabel}\n"
         printf "fileName: ${fileName}\n"
@@ -89,7 +89,7 @@ do
         ./bin/remove-track.pl --dir "${datasetDir}" --trackLabel "${trackLabel}" --delete
 
         echo "insert Variants track"
-        ./bin/flatfile-to-json.pl --gff "${currentgff3Path}/${fileName}" --trackLabel "${trackLabel}" --key "${trackName}" --out "${datasetDir}" --trackType JBrowse/View/Track/CanvasFeatures --clientConfig "{ \"className\" : \"feature\", \"color\" : \"function( feature ) { var pred = feature.get( \\\"polypred\\\" ); if( pred == null ) pred = \\\"NA\\\"; else pred = decodeURIComponent( pred.toString() ).split( \\\",\\\" )[ 0 ].split( \\\"||\\\" )[ 4 ]; switch( pred ) { case \\\"probably damaging\\\": return \\\"#DF255A\\\"; case \\\"possibly damaging\\\": return \\\"#C4C400\\\"; case \\\"benign\\\": return \\\"#378D15\\\"; case \\\"NA\\\": default: return \\\"#000000\\\"; } }\", \"label\" : \"symbol,name\", \"featureScale\" : 0.0001, \"description\" : \"\" }" --config "{ \"category\" : \"Variants/Strain Specific Variants\", \"histograms\" : { \"binsPerBlock\" : 25, \"color\" : \"#6600CC\" }, \"onClick\" : { \"iconClass\" : \"dijitIconDatabase\", \"content\" : \"<iframe src=\\\"/rgdweb/front/detail_gbrowse.html?vid={name}&mapKey=${mapKey}\\\" frameborder='0' marginheight='0' scrolling='yes' width='680' height='315'></iframe>\", \"action\" : \"contentDialog\", \"title\" : \"<center>RGD Strain-Specific Data for Variant #{name}</center>\" }, \"menuTemplate\" : [ { \"iconClass\" : \"dijitIconDatabase\", \"content\" : \"<iframe src=\\\"/rgdweb/front/detail_gbrowse.html?vid={name}&mapKey=${mapKey}\\\" frameborder='0' marginheight='0' scrolling='yes' width='680' height='315'></iframe>\", \"action\" : \"contentDialog\", \"title\" : \"<center>RGD Strain-Specific Data for Variant #{name}</center>\", \"label\" : \"View RGD Details\" }, { \"label\" : \"Highlight this feature\" } ] }"
+        ./bin/flatfile-to-json.pl --gff "${currentgff3Path}/${fileName}" --trackLabel "${trackLabel}" --key "${trackName}" --out "${datasetDir}" --trackType JBrowse/View/Track/CanvasFeatures --clientConfig "{ \"className\" : \"feature\", \"color\" : \"function( feature ) { var pred = feature.get( \\\"polypred\\\" ); if( pred == null ) pred = \\\"NA\\\"; else pred = decodeURIComponent( pred.toString() ).split( \\\",\\\" )[ 0 ].split( \\\"||\\\" )[ 4 ]; switch( pred ) { case \\\"probably damaging\\\": return \\\"#DF255A\\\"; case \\\"possibly damaging\\\": return \\\"#C4C400\\\";  } }\", \"label\" : \"symbol,name\", \"featureScale\" : 0.0001, \"description\" : \"\" }" --config "{ \"category\" : \"Variants/Damaging Variants\", \"histograms\" : { \"binsPerBlock\" : 25, \"color\" : \"#6600CC\" }, \"onClick\" : { \"iconClass\" : \"dijitIconDatabase\", \"content\" : \"<iframe src=\\\"/rgdweb/front/detail_gbrowse.html?vid={name}&mapKey=${mapKey}\\\" frameborder='0' marginheight='0' scrolling='yes' width='680' height='315'></iframe>\", \"action\" : \"contentDialog\", \"title\" : \"<center>RGD Strain-Specific Data for Variant #{name}</center>\" }, \"menuTemplate\" : [ { \"iconClass\" : \"dijitIconDatabase\", \"content\" : \"<iframe src=\\\"/rgdweb/front/detail_gbrowse.html?vid={name}&mapKey=${mapKey}\\\" frameborder='0' marginheight='0' scrolling='yes' width='680' height='315'></iframe>\", \"action\" : \"contentDialog\", \"title\" : \"<center>RGD Strain-Specific Data for Variant #{name}</center>\", \"label\" : \"View RGD Details\" }, { \"label\" : \"Highlight this feature\" } ] }"
         echo "+++ inserted track Variants"
 
 
