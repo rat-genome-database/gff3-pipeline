@@ -2,7 +2,7 @@
 # load Strain Specific Variant tracks into rgd6, rgd5 and rgd3_4 assemblies
 
 ###### VARIABLE DECLARATIONS ######
-jbrowseHome="/rgd/JBrowse-1.12.3/"
+jbrowseHome="/rgd/JBrowse-1.16.3/"
 
 
 workingDir="pipelineOutput"
