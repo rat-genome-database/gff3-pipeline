@@ -1,3 +1,6 @@
+ver 1.4.18, Jun 6, 2019
+  gff3 for genes generator: optimized logging and parallelized code
+
 ver 1.4.17, Mar 5, 2019
   JBrowse track loader: added track loading for RNAcentral
 

@@ -1,7 +1,8 @@
 package edu.mcw.rgd.gff3;
 
-import edu.mcw.rgd.datamodel.RgdId;
-import edu.mcw.rgd.datamodel.SpeciesType;
+import edu.mcw.rgd.dao.impl.TranscriptDAO;
+import edu.mcw.rgd.datamodel.*;
+import edu.mcw.rgd.process.SeqUtils;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;

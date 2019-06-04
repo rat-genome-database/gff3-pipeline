@@ -7,20 +7,17 @@ import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.datamodel.ontologyx.Relation;
 import edu.mcw.rgd.datamodel.ontologyx.TermWithStats;
 import edu.mcw.rgd.process.Utils;
-import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.object.MappingSqlQuery;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.*;
 import java.util.Map;
 
 /**
  * @author mtutaj
- * Date: 2/26/14
- * <p>
+ * @since 2/26/14
  * wrapper for DAO code
  */
 public class RgdGff3Dao {
@@ -31,13 +28,15 @@ public class RgdGff3Dao {
     private QTLDAO qtlDAO = new QTLDAO();
     private MapDAO mapDAO = new MapDAO();
     private OntologyXDAO ontologyXDAO = new OntologyXDAO();
-    private SequenceDAO sequenceDAO = new SequenceDAO();
     private SSLPDAO sslpDAO = new SSLPDAO();
     private StrainDAO strainDAO = new StrainDAO();
     private TranscriptDAO trDao = new TranscriptDAO();
     private VariantInfoDAO variantInfoDAO = new VariantInfoDAO();
     private XdbIdDAO xdbDao = new XdbIdDAO();
 
+    public String getConnectionInfo() {
+        return aliasDAO.getConnectionInfo();
+    }
 
     /**
      * given rgd, id, return a gene object; for given gene, build description using the DescriptionGenerator
@@ -105,17 +104,10 @@ public class RgdGff3Dao {
         return sslpDAO.getActiveSSLPs(speciesTypeKey);
     }
 
-    List<Sequence> getSslpSequences(int rgdId) throws Exception {
-        return sequenceDAO.getObjectSequences(rgdId);
-    }
-
     public Gene getGeneBySslpKey(int sslpKey) throws Exception {
         String sql = "select g.*,0 species_type_key from GENES g where GENE_KEY IN (SELECT GENE_KEY FROM RGD_GENE_SSLP WHERE SSLP_KEY=?)";
-        GeneQuery q = new GeneQuery(sslpDAO.getDataSource(), sql);
-        q.declareParameter(new SqlParameter(Types.INTEGER));
-        q.compile();
-        List<Gene> genes = q.execute(sslpKey);
-        return genes == null || genes.isEmpty() ? null : genes.get(0);
+        List<Gene> genes = GeneQuery.execute(geneDAO, sql, sslpKey);
+        return genes.isEmpty() ? null : genes.get(0);
     }
 
     public List<Alias> getAliases(int rgdId) throws Exception {
@@ -137,10 +129,6 @@ public class RgdGff3Dao {
      */
     public List<MapData> getMapDataByMapKeyChr(String chromosome, int mapKey, int objectKey) throws Exception {
         return mapDAO.getMapDataByMapKeyChr(chromosome, mapKey, objectKey);
-    }
-
-    public Map<String, Integer> getChromosomeSizes(int mapKey) throws Exception {
-        return mapDAO.getChromosomeSizes(mapKey);
     }
 
     public List<Transcript> getTranscriptsForGene(int geneRgdId) throws Exception {
