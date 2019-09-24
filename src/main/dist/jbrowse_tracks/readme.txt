@@ -5,7 +5,7 @@ The master script LoadGff3IntoJBrowse_Reed.sh must be placed in /rgd/scripts dir
 and it is beeing run automatically by cron on weekly basis.
 
 The directory /jbrowse is a remote mount to a directory on HOSHI server:
-  - on HASTINGS     /jbrowse points to /data/jbrowsedev on HOSHI
+  - on HANSEN       /jbrowse points to /data/jbrowsedev on HOSHI
   - on REED         /jbrowse points to /data/jbrowsepipeline on HOSHI
   - on HANCOCK/OWEN /jbrowse points to /data/jbrowseprod on HOSHI
   

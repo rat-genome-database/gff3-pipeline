@@ -23,7 +23,9 @@ public class CreateGff4CarpeNovo {
     List<String> chromosomes;
     String fileSource;
     int sampleID;
-
+    String varTable;
+    String varTransTable;
+    String polyTable;
     int varNumCount=0;
     int varGenic=0;
     int varInterGenic=0;
@@ -46,7 +48,39 @@ public class CreateGff4CarpeNovo {
     int varPPPossibly=0;
     int varPPProbably=0;
 
+    public String getVariantTable(int sampleId) {
+        if( sampleId<100 ) {
+            return "variant_clinvar";
+        }
+        if( sampleId>=6000 && sampleId<=6999 ) {
+            return "variant_dog";
+        }
 
+        if( sampleId>=10000 && sampleId<=13999 ) {
+            return "variant_human";
+        }
+        return "variant";
+    }
+    public String getVariantTranscriptTable(int sampleId) {
+        if( sampleId<100 ) {
+            return "variant_transcript_clinvar";
+        }
+        if( sampleId>=6000 && sampleId<=6999 ) {
+            return "variant_transcript_dog";
+        }
+        if( sampleId>=10000 && sampleId<=13999 ) {
+            return "variant_transcript_human";
+        }
+
+        return "variant_transcript";
+    }
+    public String getPolyphenTable(int sampleId) {
+
+        if( sampleId>=6000 && sampleId<=6999 ) {
+            return "polyphen_dog";
+        }
+        return "polyphen";
+    }
     public void createGff3ForPatient(int patientId) throws Exception{
 
         SampleDAO sampleDAO = new SampleDAO();
@@ -62,6 +96,9 @@ public class CreateGff4CarpeNovo {
         SampleDAO sampleDAO = new SampleDAO();
         sampleDAO.setDataSource(DataSourceFactory.getInstance().getCarpeNovoDataSource());
         Sample sample = sampleDAO.getSample(sampleId);
+        varTable = getVariantTable(sampleId);
+        varTransTable = getVariantTranscriptTable(sampleId);
+        polyTable = getPolyphenTable(sampleId);
         String sampleName = sample.getAnalysisName().replace('/','_');
         String gffFile = getToFile()+sampleName+".gff3";
         String gffDamagingFile = getToFile()+sampleName+".gff3_damaging";
@@ -370,7 +407,7 @@ public class CreateGff4CarpeNovo {
         Connection connection = getConnection();
         // System.out.println("here is the connection:" + connection);
         String findAllVariants = "SELECT v.VARIANT_ID, v.CHROMOSOME, v.START_POS, v.END_POS, v.REF_NUC, v.VAR_NUC," +
-                "TOTAL_DEPTH, v.VAR_FREQ, v.ZYGOSITY_STATUS, v.GENIC_STATUS FROM VARIANT v " +
+                "TOTAL_DEPTH, v.VAR_FREQ, v.ZYGOSITY_STATUS, v.GENIC_STATUS FROM "+varTable +" v " +
                 "WHERE v.SAMPLE_ID = ? and v.CHROMOSOME = ? ";
 
         PreparedStatement findVar = connection.prepareStatement(findAllVariants);
@@ -406,7 +443,7 @@ public class CreateGff4CarpeNovo {
 
         String getvarTranscript = "select vt.VARIANT_TRANSCRIPT_ID, vt.SYN_STATUS, vt.TRANSCRIPT_RGD_ID, vt.REF_AA, " +
                 "vt.VAR_AA, g.RGD_ID, vt.LOCATION_NAME, vt.NEAR_SPLICE_SITE, g.GENE_SYMBOL " +
-                "from (VARIANT_TRANSCRIPT vt " +
+                "from ("+varTransTable +" vt " +
                 "inner join TRANSCRIPTS t on t.TRANSCRIPT_RGD_ID=vt.TRANSCRIPT_RGD_ID) " +
                 "inner join GENES g on g.RGD_ID=t.GENE_RGD_ID where vt.VARIANT_ID=?";
 
@@ -414,7 +451,7 @@ public class CreateGff4CarpeNovo {
 
 
         String getpph = "select p.UNIPROT_ACC, p.PREDICTION, p.PROTEIN_ID, p.POSITION, p.AA1, p.AA2 " +
-                "from POLYPHEN p where p.VARIANT_TRANSCRIPT_ID=?";
+                "from "+polyTable +" p where p.VARIANT_TRANSCRIPT_ID=?";
 
         PreparedStatement findPph = conn.prepareStatement(getpph);
 

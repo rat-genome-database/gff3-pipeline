@@ -29,6 +29,20 @@ fi
 
 RUNLOAD="$APP_HOME/run.sh"
 
+##### PROTEIN DOMAINS -- currently there is data only for primary assembly
+
+$RUNLOAD -object:proteinDomain -species:PIG -mapKey:911 -toFile:$LOGDIR/ProteinDomain/pig11_domains.gff3 -compress  &> cron_pig11Domains.log
+$RUNLOAD -object:proteinDomain -species:CHINCHILLA -mapKey:44 -toFile:$LOGDIR/ProteinDomain/chinchilla10_domains.gff3 -compress  &> cron_chinchilla10Domains.log
+$RUNLOAD -object:proteinDomain -species:SQUIRREL -mapKey:720 -toFile:$LOGDIR/ProteinDomain/squirrel20_domains.gff3 -compress  &> cron_squirrel20Domains.log
+$RUNLOAD -object:proteinDomain -species:BONOBO -mapKey:511 -toFile:$LOGDIR/ProteinDomain/bonobo11_domains.gff3 -compress  &> cron_bonobo31Domains.log
+$RUNLOAD -object:proteinDomain -species:DOG -mapKey:631 -toFile:$LOGDIR/ProteinDomain/dog31_domains.gff3 -compress  &> cron_dog31Domains.log
+$RUNLOAD -object:proteinDomain -species:RAT -mapKey:360 -toFile:$LOGDIR/ProteinDomain/rat60_domains.gff3 -compress  &> cron_rat60Domains.log
+$RUNLOAD -object:proteinDomain -species:HUMAN -mapKey:38 -toFile:$LOGDIR/ProteinDomain/human38_domains.gff3 -compress  &> cron_human38Domains.log
+$RUNLOAD -object:proteinDomain -species:MOUSE -mapKey:35 -toFile:$LOGDIR/ProteinDomain/mouse38_domains.gff3 -compress  &> cron_mouse38Domains.log
+
+mailx -s "[$SERVER]Pipeline to create Gff3 data for protein domains ran" $EMAILLIST < logs/domains.log
+
+
 ##### GENES
 
 $RUNLOAD -object:gene -species:PIG -mapKey:911 -toFile:$LOGDIR/Gene/Pig/pig11/ -chr:$CHR_PIG -compress  &> cron_pigGene11.log
@@ -50,6 +64,7 @@ $RUNLOAD -object:gene -species:MOUSE -mapKey:18 -toFile:$LOGDIR/Gene/Mouse/mouse
 $RUNLOAD -object:gene -species:MOUSE -mapKey:35 -toFile:$LOGDIR/Gene/Mouse/mouse38/ -chr:$CHR_MOUSE -compress  &> cron_mouseGene38.log
 
 mailx -s "[$SERVER]Pipeline to create Gff3 data for genes ran" $EMAILLIST < logs/gene.log
+
 
 
 $RUNLOAD -object:qtl -species:RAT -mapKey:60 -toFile:$LOGDIR/Qtl/Rat/rat34/ -compress  &> cron_ratQtl34.log

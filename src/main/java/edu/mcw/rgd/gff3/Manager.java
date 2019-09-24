@@ -233,6 +233,18 @@ public class Manager {
                 }
                 break;
 
+            case RgdId.OBJECT_KEY_PROTEIN_DOMAINS:
+                CreateGff4ProteinDomains pdcreator = new CreateGff4ProteinDomains();
+                if( mapKey!=null && toFile!=null && speciesTypekey!=0 ){
+                    pdcreator.setMapKey(Integer.parseInt(mapKey));
+                    pdcreator.setToFile(toFile);
+                    pdcreator.setSpeciesTypeKey(speciesTypekey);
+                    pdcreator.run(compress);
+                }else{
+                    throw new ArgumentsException("This Script requires '-mapKey: -species: -toFile:' " +
+                            "as parameters:\n" + getUsage());
+                }
+                break;
 
             case OBJECT_KEY_DB_SNP:
                 CreateGff4DbSnp createGff4DbSnp = new CreateGff4DbSnp();
@@ -284,6 +296,9 @@ public class Manager {
                             break;
                         case "dbSnp":
                             objectTypeKey = OBJECT_KEY_DB_SNP;
+                            break;
+                        case "proteinDomain":
+                            objectTypeKey = RgdId.OBJECT_KEY_PROTEIN_DOMAINS;
                             break;
                     }
                 }else

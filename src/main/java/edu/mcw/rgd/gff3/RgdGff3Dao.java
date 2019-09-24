@@ -25,9 +25,9 @@ public class RgdGff3Dao {
     private AliasDAO aliasDAO = new AliasDAO();
     private AnnotationDAO annotationDAO = new AnnotationDAO();
     private GeneDAO geneDAO = new GeneDAO();
-    private QTLDAO qtlDAO = new QTLDAO();
     private MapDAO mapDAO = new MapDAO();
     private OntologyXDAO ontologyXDAO = new OntologyXDAO();
+    private QTLDAO qtlDAO = new QTLDAO();
     private SSLPDAO sslpDAO = new SSLPDAO();
     private StrainDAO strainDAO = new StrainDAO();
     private TranscriptDAO trDao = new TranscriptDAO();
@@ -131,6 +131,10 @@ public class RgdGff3Dao {
         return mapDAO.getMapDataByMapKeyChr(chromosome, mapKey, objectKey);
     }
 
+    public List<Chromosome> getChromosomes(int mapKey) throws Exception {
+        return mapDAO.getChromosomes(mapKey);
+    }
+
     public List<Transcript> getTranscriptsForGene(int geneRgdId) throws Exception {
         return trDao.getTranscriptsForGene(geneRgdId);
     }
@@ -199,4 +203,20 @@ public class RgdGff3Dao {
             return obj;
         }
     }
+
+    /// GENOMIC ELEMENTS
+    //
+    // map of protein domain rgd id to protein domain name
+    public Map<Integer, String> getProteinDomainNames() throws Exception {
+
+        GenomicElementDAO geDAO = new GenomicElementDAO();
+        List<GenomicElement> domains = geDAO.getActiveElements(RgdId.OBJECT_KEY_PROTEIN_DOMAINS);
+        Map<Integer, String> result = new HashMap<>();
+        for( GenomicElement domain: domains ) {
+            result.put(domain.getRgdId(), domain.getSymbol());
+        }
+        return result;
+    }
+
+
 }
