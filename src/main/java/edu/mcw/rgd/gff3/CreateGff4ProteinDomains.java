@@ -59,7 +59,27 @@ public class CreateGff4ProteinDomains {
                 attributesHashMap.put("Name", domainName);
                 attributesHashMap.put("Alias", domainName + "," + md.getRgdId());
                 if (md.getNotes() != null) {
-                    attributesHashMap.put("Note", md.getNotes());
+                    // in notes there is information about proteins, like this:
+                    //   Q924C6 part 1; E9Q600 part 1; Q8CEU1 part 1
+                    // convert it to
+                    //   Q924C6, E9Q600, Q8CEU1
+                    String[] words = md.getNotes().split("[\\;] ");
+                    String proteins = "";
+                    for( String word: words ) {
+                        int spacePos = word.indexOf(' ');
+                        String protein;
+                        if( spacePos>0 ) {
+                            protein = word.substring(0, spacePos);
+                        } else {
+                            protein = word;
+                        }
+                        if( proteins.isEmpty() ) {
+                            proteins = protein;
+                        } else {
+                            proteins += ", "+protein;
+                        }
+                    }
+                    attributesHashMap.put("Note", proteins);
                 }
 
                 gff3Writer.writeFirst8Columns(md.getChromosome(), "RGD", "sequence feature", md.getStartPos(), md.getStopPos(), ".", md.getStrand(), ".");
