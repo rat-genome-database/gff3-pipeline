@@ -1,3 +1,6 @@
+Sep 25, 2019
+  genes module: added 'biological-region' to list of handled gene types (occurs for mouse genes)
+
 Sep 24, 2019
   added gff3 generator for protein domains
 

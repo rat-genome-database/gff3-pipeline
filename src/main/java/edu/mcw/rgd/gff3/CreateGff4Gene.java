@@ -339,35 +339,42 @@ public class CreateGff4Gene {
     }
 
     String getSoFeatureType(String geneType) throws Exception {
-        if( geneType.equals("pseudogene") )
-            return "pseudogene";
-        if( geneType.equals("pseudo") )
-            return "pseudogene";
-        if( geneType.equals("protein-coding") )
-            return "protein_coding_gene";
-        if( geneType.equals("ncrna") )
-            return "ncRNA_gene";
-        if( geneType.equals("gene") )
-            return "gene";
-        if( geneType.equals("allele") )
-            return "allele";
-        if( geneType.equals("splice") )
-            return "alternatively_spliced";
+
         if( geneType.startsWith("predicted") )
             return "predicted_gene";
-        if( geneType.equals("rrna") )
-            return "rRNA_gene";
-        if( geneType.equals("trna") )
-            return "tRNA_gene";
-        if( geneType.equals("snrna") )
-            return "snRNA_gene";
-        if( geneType.equals("scrna") )
-            return "scRNA_gene";
-        if( geneType.equals("snorna") )
-            return "snoRNA_gene";
-        if( geneType.equals("miscrna") )
-            return "miscRNA_gene";
-        throw new Exception("unsupported gene type "+geneType);
+
+        switch( geneType ) {
+            case "pseudogene":
+                return "pseudogene";
+            case "pseudo":
+                return "pseudogene";
+            case "protein-coding":
+                return "protein_coding_gene";
+            case "ncrna":
+                return "ncRNA_gene";
+            case "gene":
+                return "gene";
+            case "allele":
+                return "allele";
+            case "splice":
+                return "alternatively_spliced";
+            case "rrna":
+                return "rRNA_gene";
+            case "trna":
+                return "tRNA_gene";
+            case "snrna":
+                return "snRNA_gene";
+            case "scrna":
+                return "scRNA_gene";
+            case "snorna":
+                return "snoRNA_gene";
+            case "miscrna":
+                return "miscRNA_gene";
+            case "biological-region":
+                return "region";
+            default:
+                throw new Exception("unsupported gene type " + geneType);
+        }
     }
 
     /**
