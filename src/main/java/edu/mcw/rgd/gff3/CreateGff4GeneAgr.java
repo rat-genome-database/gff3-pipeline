@@ -39,7 +39,7 @@ public class CreateGff4GeneAgr {
 
         gff3Writer.print("# Genome build: "+ MapManager.getInstance().getMap(mapKey).getName()+"\n");
         gff3Writer.print("# Primary Contact: mtutaj@mcw.edu\n");
-        gff3Writer.print("# Tool: AGR GFF3 extractor v.1.1.3 (single locus genes)\n");
+        gff3Writer.print("# Tool: AGR GFF3 extractor  v 2019-10-01 (single locus genes)\n");
         gff3Writer.print("# Generated: "+new Date()+"\n");
 
         List<Gene> activeGenes = dao.getActiveGenes(speciesTypeKey);
@@ -49,7 +49,6 @@ public class CreateGff4GeneAgr {
                 return Utils.stringsCompareToIgnoreCase(o1.getSymbol(), o2.getSymbol());
             }
         });
-        //Collections.shuffle(activeGenes);
 
         for( Gene gene: activeGenes ){
             int geneRgdId = gene.getRgdId();
@@ -88,11 +87,9 @@ public class CreateGff4GeneAgr {
                 annotDesc = annotDesc.replaceAll(";"," AND ").replaceAll(",", " ");
             }
 
-            String nc="N";
-
             Map<String,String> attributes = new HashMap<>();
 
-            String uniqueGeneId = getUniqueId("gene");
+            String uniqueGeneId = "RGD:"+geneRgdId;
             attributes.put("ID", uniqueGeneId);
             attributes.put("Name", gene.getSymbol());
             attributes.put("Note", nameOfgene);
@@ -128,7 +125,6 @@ public class CreateGff4GeneAgr {
                 for( Transcript tr: geneTrs ){
 
                     if(tr.isNonCoding()){
-                        nc="Y";
                         counters.nonCodingTransCount++;
                     }
                     for( MapData trMd: tr.getGenomicPositions() ) {
@@ -138,15 +134,17 @@ public class CreateGff4GeneAgr {
                         String id = getUniqueId("rna");
                         counters.transcriptsMappedCount++;
 
-
                         attributes.put("ID", id);
                         attributes.put("Name", tr.getAccId());
                         attributes.put("Parent", uniqueGeneId);
-                        if( tr.getRefSeqStatus()!=null )
+                        if( tr.getRefSeqStatus()!=null ) {
                             attributes.put("status", tr.getRefSeqStatus());
-                        //attributes.put("isNonCoding", nc);
+                        }
                         attributes.put("gene", gene.getSymbol());
                         attributes.put("biotype", getTrBiotype(gType, gene.getName(), tr));
+                        if( !Utils.isStringEmpty(tr.getProteinAccId()) ) {
+                            attributes.put("protein_id", tr.getProteinAccId());
+                        }
 
                         gff3Writer.writeFirst8Columns(trMd.getChromosome(), "RGD", "mRNA", trMd.getStartPos(),trMd.getStopPos(), ".", trMd.getStrand(), ".");
                         gff3Writer.writeAttributes4Gff3(attributes);
@@ -291,37 +289,30 @@ public class CreateGff4GeneAgr {
     }
 
     String getSoTermNameForGene(String geneType) throws Exception {
-        if( geneType.equals("protein-coding") )
-            return "protein_coding_gene";
-        if( geneType.equals("pseudogene") )
-            return "pseudogene";
-        if( geneType.equals("pseudo") )
-            return "pseudogene";
-        if( geneType.equals("ncrna") )
-            return "ncRNA_gene";
-        if( geneType.equals("trna") )
-            return "tRNA_gene";
-        if( geneType.equals("rrna") )
-            return "rRNA_gene";
-        if( geneType.equals("gene") )
-            return "gene";
-        if( geneType.equals("snrna") )
-            return "snRNA_gene";
-        if( geneType.equals("snorna") )
-            return "snoRNA_gene";
-        if( geneType.equals("scrna") )
-            return "scRNA_gene";
-        /*
-        if( geneType.equals("allele") )
-            return "allele";
-        if( geneType.equals("splice") )
-            return "alternatively_spliced";
-        if( geneType.startsWith("predicted") )
-            return "predicted_gene";
-        if( geneType.equals("miscrna") )
-            return "miscRNA_gene";
-            */
-        throw new Exception("unsupported gene type "+geneType);
+
+        switch(geneType) {
+            case "protein-coding":
+                return "protein_coding_gene";
+            case "pseudogene":
+            case "pseudo":
+                return "pseudogene";
+            case "ncrna":
+                return "ncRNA_gene";
+            case "trna":
+                return "tRNA_gene";
+            case "rrna":
+                return "rRNA_gene";
+            case "gene":
+                return "gene";
+            case "snrna":
+                return "snRNA_gene";
+            case "snorna":
+                return "snoRNA_gene";
+            case "scrna":
+                return "scRNA_gene";
+            default:
+                throw new Exception("unsupported gene type "+geneType);
+        }
     }
 
     /**
@@ -381,7 +372,6 @@ public class CreateGff4GeneAgr {
             XdbId externalId = it.next();
 
             if( externalId.getXdbKey()!=XdbId.XDB_KEY_NCBI_GENE &&
-                    externalId.getXdbKey()!=XdbId.XDB_KEY_UNIGENE &&
                     externalId.getXdbKey()!=XdbId.XDB_KEY_MGD &&
                     externalId.getXdbKey()!=XdbId.XDB_KEY_OMIM &&
                     externalId.getXdbKey()!=XdbId.XDB_KEY_UNIPROT &&

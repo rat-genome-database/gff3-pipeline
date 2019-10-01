@@ -1,3 +1,9 @@
+Oct 1, 2019
+  AGR gff3 files:
+    - gff3 fields 'ID:' and 'Parent:' are now set to RGD IDS for genes
+    - 'protein_id' field set to protein RefSeq acc is emitted for protein coding transcripts
+    - UniGene ids removed from emitted xdb ids
+
 Sep 25, 2019
   genes module: added 'biological-region' to list of handled gene types (occurs for mouse genes)
 
