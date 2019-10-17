@@ -118,16 +118,17 @@ public class RgdGff3Dao {
         return mapDAO.getMapData(rgdId, mapKey);
     }
 
-    /**
-     * return all positions for given map, chromosome and object type
-     *
-     * @param chromosome chromosome
-     * @param mapKey     map key
-     * @param objectKey  object key
-     * @return List of MapData objects
-     * @throws Exception when unexpected error in spring framework occurs
-     */
     public List<MapData> getMapDataByMapKeyChr(String chromosome, int mapKey, int objectKey) throws Exception {
+        // handle all chromosomes
+        if( chromosome.equals("*") ) {
+            List<MapData> results = new ArrayList<>();
+            for( Chromosome chr: getChromosomes(mapKey) ) {
+                results.addAll(mapDAO.getMapDataByMapKeyChr(chr.getChromosome(), mapKey, objectKey));
+            }
+            return results;
+        }
+
+        // handle single chromosome
         return mapDAO.getMapDataByMapKeyChr(chromosome, mapKey, objectKey);
     }
 

@@ -63,11 +63,11 @@ public class CreateGff4Gene {
 
                 List<Gene> activeGenes = chr.equals("Scaffold") ? dao.getActiveGenes(speciesTypeKey) : dao.getActiveGenes(chr, 1, Long.MAX_VALUE, mapKey);
 
-                //Gene gene = geneDao.getGene(2413);
-                //if(gene!=null){
                 for( Gene gene: activeGenes ){
                     int geneRgdId = gene.getRgdId();
-
+if(geneRgdId==732975){
+    System.out.println("SORBS2");
+}
                     List<MapData> geneMap = getMapData(geneRgdId, mapKey, chr, counters);
                     if( geneMap.isEmpty() ) {
                         //System.out.println("no map positions");

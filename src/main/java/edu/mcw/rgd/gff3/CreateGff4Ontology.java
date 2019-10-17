@@ -8,6 +8,7 @@ import edu.mcw.rgd.datamodel.ontologyx.Term;
 import edu.mcw.rgd.datamodel.ontologyx.TermDagEdge;
 import edu.mcw.rgd.datamodel.ontologyx.TermWithStats;
 import edu.mcw.rgd.process.Utils;
+import edu.mcw.rgd.process.mapping.MapManager;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -118,8 +119,18 @@ public class CreateGff4Ontology {
 
                 int counter = 0;
 
-                gffFile = fname + termAcc.replaceAll(":", "") + "_Ontology_" + SpeciesType.getCommonName(speciesTypeKey) + "_RGDChr" + chr + ".gff3";
+                // handle '*' for all chromosomes
+                if( chr.equals("*") ) {
+                    gffFile = fname + termAcc.replaceAll(":", "") + "_Ontology_" + SpeciesType.getCommonName(speciesTypeKey) + "_RGD.gff3";
+                } else {
+                    gffFile = fname + termAcc.replaceAll(":", "") + "_Ontology_" + SpeciesType.getCommonName(speciesTypeKey) + "_RGDChr" + chr + ".gff3";
+                }
                 gff3Writer = new Gff3ColumnWriter(gffFile, false, compress);
+
+                // write as comment: date and time it was generated, spesies, assembly and ontology term
+                gff3Writer.print("#generated on "+new Date()+"\n");
+                gff3Writer.print("#"+SpeciesType.getCommonName(speciesTypeKey)+" assembly "+ MapManager.getInstance().getMap(getMapKey()).getName()+"\n");
+                gff3Writer.print("#disease ontology track for term '"+dao.getTerm(termAcc).getTerm()+"' ("+termAcc+")\n");
 
                 for (MapData md : dao.getMapDataByMapKeyChr(chr, mapKey, RgdId.OBJECT_KEY_GENES)) {
                     if( md.getStartPos() != null && md.getStopPos() != null ) {
