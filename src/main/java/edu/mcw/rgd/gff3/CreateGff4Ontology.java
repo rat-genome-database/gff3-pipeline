@@ -3,10 +3,7 @@ package edu.mcw.rgd.gff3;
 import edu.mcw.rgd.dao.impl.*;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.datamodel.ontology.Annotation;
-import edu.mcw.rgd.datamodel.ontologyx.Ontology;
-import edu.mcw.rgd.datamodel.ontologyx.Term;
-import edu.mcw.rgd.datamodel.ontologyx.TermDagEdge;
-import edu.mcw.rgd.datamodel.ontologyx.TermWithStats;
+import edu.mcw.rgd.datamodel.ontologyx.*;
 import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
 
@@ -74,14 +71,14 @@ public class CreateGff4Ontology {
 
         switch( getOntAspect() ) {
             case "D":
-                Ontology ont = ontXdao.getOntologyFromAspect(getOntAspect());
-                String rootTermAcc = ontXdao.getRootTerm(ont.getId());
-                run(compress, rootTermAcc);
+                Collection<String> doTermAccs = getTermsInJBrowseSlim();
+                run(compress, doTermAccs);
                 break;
 
             case "E":
                 final String termAcc = "CHEBI:24432"; // CHEBI term 'biological_role'
-                run(compress, termAcc);
+                Collection<String> termAccs = dao.getTermDescendants(termAcc).keySet();
+                run(compress, termAccs);
                 break;
 
             default:
@@ -89,7 +86,7 @@ public class CreateGff4Ontology {
         }
     }
 
-    public void run(boolean compress, String rootTermAcc) throws Exception{
+    public void run(boolean compress, Collection<String> termAccs) throws Exception{
 
         long t0 = System.currentTimeMillis();
 
@@ -106,7 +103,7 @@ public class CreateGff4Ontology {
         FileGuard fileGuard = new FileGuard();
         fileGuard.init(fname, ont.getId());
 
-        for( String termAcc: dao.getTermDescendants(rootTermAcc).keySet() ) {
+        for( String termAcc: termAccs ) {
             if( !isTermAnnotated(termAcc) )
                 continue;
 
@@ -452,6 +449,16 @@ public class CreateGff4Ontology {
     boolean isTermAnnotated(String termAcc) throws Exception {
         TermWithStats t = dao.getTerm(termAcc);
         return t.getAnnotObjectCountForSpecies(getSpeciesTypeKey(), true)>0;
+    }
+
+    Collection<String> getTermsInJBrowseSlim() throws Exception {
+        Set<String> termAccs = new HashSet<>();
+
+        List<TermSynonym> synonyms = ontXdao.getActiveSynonymsByName("RDO", "RGD_JBrowse_slim");
+        for( TermSynonym synonym: synonyms ) {
+            termAccs.add(synonym.getTermAcc());
+        }
+        return termAccs;
     }
 
     class Gff3Entry {

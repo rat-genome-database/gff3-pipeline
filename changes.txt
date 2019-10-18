@@ -1,3 +1,8 @@
+Oct 18, 2019
+  disease ontology tracks:
+    generates only one file for all chromosomes
+    DO terms that should processed must be in 'RGD_JBrowse_slim'
+
 Oct 1, 2019
   AGR gff3 files:
     - gff3 fields 'ID:' and 'Parent:' are now set to RGD IDS for genes
