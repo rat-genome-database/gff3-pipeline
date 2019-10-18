@@ -3,6 +3,7 @@ Oct 18, 2019
     generates only one file for all chromosomes
     DO terms that should processed must be in 'RGD_JBrowse_slim'
     uses merged-gene-descriptions if available
+    fixed detection of obsolete ontology files
 
 Oct 1, 2019
   AGR gff3 files:

@@ -88,6 +88,10 @@ public class CreateGff4Ontology {
 
     public void run(boolean compress, Collection<String> termAccs) throws Exception{
 
+        if( termAccs.isEmpty() ) {
+            System.out.println("ERROR! no term accessions for aspect "+getOntAspect());
+            return;
+        }
         long t0 = System.currentTimeMillis();
 
         String fname = getToFile();
@@ -100,8 +104,9 @@ public class CreateGff4Ontology {
 
         Ontology ont = ontXdao.getOntologyFromAspect(getOntAspect());
 
+        String ontPrefix = getOntAspect().equals("E") ? "CHEBI" : getOntAspect().equals("D") ? "DOID" : "UNKNOWN";
         FileGuard fileGuard = new FileGuard();
-        fileGuard.init(fname, ont.getId());
+        fileGuard.init(fname, ontPrefix);
 
         for( String termAcc: termAccs ) {
             if( !isTermAnnotated(termAcc) )
