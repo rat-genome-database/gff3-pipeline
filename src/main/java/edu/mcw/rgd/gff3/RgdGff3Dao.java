@@ -53,8 +53,13 @@ public class RgdGff3Dao {
         if (gene == null) {
             gene = geneDAO.getGene(geneRgdId);
             _cacheGenes.put(geneRgdId, gene);
-            if (gene != null)
-                gene.setDescription(Utils.getGeneDescription(gene));
+            if( gene != null ) {
+                if( !Utils.isStringEmpty(gene.getMergedDescription()) ) {
+                    gene.setDescription(gene.getMergedDescription());
+                } else {
+                    gene.setDescription(Utils.getGeneDescription(gene));
+                }
+            }
         }
         return gene;
     }
