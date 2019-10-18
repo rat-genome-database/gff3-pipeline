@@ -1,9 +1,10 @@
 Oct 18, 2019
-  disease ontology tracks:
+  disease and chebi ontology tracks:
     generates only one file for all chromosomes
     DO terms that should processed must be in 'RGD_JBrowse_slim'
     uses merged-gene-descriptions if available
     fixed detection of obsolete ontology files
+    added generation of disease/chebi tracks for chnonchilla, bonobo, squirrel, pig and dog
 
 Oct 1, 2019
   AGR gff3 files:
