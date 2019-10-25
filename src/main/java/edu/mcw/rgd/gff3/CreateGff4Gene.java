@@ -3,6 +3,7 @@ package edu.mcw.rgd.gff3;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
+import edu.mcw.rgd.process.mapping.MapManager;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -58,6 +59,12 @@ public class CreateGff4Gene {
                 CounterPool counters = new CounterPool();
 
                 Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(newPathGff3+"/"+assemblySymbol+"_genes.gff3", false, compress);
+                gff3Writer.print("# RAT GENOME DATABASE (https://https://rgd.mcw.edu/)\n");
+                gff3Writer.print("# Species: "+ species+"\n");
+                gff3Writer.print("# Assembly: "+ MapManager.getInstance().getMap(mapKey).getName()+"\n");
+                gff3Writer.print("# Primary Contact: mtutaj@mcw.edu\n");
+                gff3Writer.print("# Generated: "+new Date()+"\n");
+
                 Gff3ColumnWriter RATMINEgff3Writer = new Gff3ColumnWriter(newPathGff3+"/RATMINE_"+assemblySymbol+"_genes.gff3", false, compress);
                 RATMINEgff3Writer.setRatmineCompatibleFormat(true);
 
