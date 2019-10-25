@@ -31,37 +31,42 @@ RUNLOAD="$APP_HOME/run.sh"
 
 ##### PROTEIN DOMAINS -- currently there is data only for primary assembly
 
-$RUNLOAD -object:proteinDomain -species:PIG -mapKey:911 -toFile:$LOGDIR/ProteinDomain/pig11_domains.gff3 -compress  &> cron_pig11Domains.log
-$RUNLOAD -object:proteinDomain -species:CHINCHILLA -mapKey:44 -toFile:$LOGDIR/ProteinDomain/chinchilla10_domains.gff3 -compress  &> cron_chinchilla10Domains.log
-$RUNLOAD -object:proteinDomain -species:SQUIRREL -mapKey:720 -toFile:$LOGDIR/ProteinDomain/squirrel20_domains.gff3 -compress  &> cron_squirrel20Domains.log
-$RUNLOAD -object:proteinDomain -species:BONOBO -mapKey:511 -toFile:$LOGDIR/ProteinDomain/bonobo11_domains.gff3 -compress  &> cron_bonobo31Domains.log
-$RUNLOAD -object:proteinDomain -species:DOG -mapKey:631 -toFile:$LOGDIR/ProteinDomain/dog31_domains.gff3 -compress  &> cron_dog31Domains.log
-$RUNLOAD -object:proteinDomain -species:RAT -mapKey:360 -toFile:$LOGDIR/ProteinDomain/rat60_domains.gff3 -compress  &> cron_rat60Domains.log
-$RUNLOAD -object:proteinDomain -species:HUMAN -mapKey:38 -toFile:$LOGDIR/ProteinDomain/human38_domains.gff3 -compress  &> cron_human38Domains.log
-$RUNLOAD -object:proteinDomain -species:MOUSE -mapKey:35 -toFile:$LOGDIR/ProteinDomain/mouse38_domains.gff3 -compress  &> cron_mouse38Domains.log
+$RUNLOAD -object:proteinDomain -species:PIG -mapKey:911 -toFile:$LOGDIR/ProteinDomain/pig11_domains.gff3 -compress  > pig11Domains.log &
+$RUNLOAD -object:proteinDomain -species:CHINCHILLA -mapKey:44 -toFile:$LOGDIR/ProteinDomain/chinchilla10_domains.gff3 -compress  > chinchilla10Domains.log &
+$RUNLOAD -object:proteinDomain -species:SQUIRREL -mapKey:720 -toFile:$LOGDIR/ProteinDomain/squirrel20_domains.gff3 -compress  > squirrel20Domains.log &
+$RUNLOAD -object:proteinDomain -species:BONOBO -mapKey:511 -toFile:$LOGDIR/ProteinDomain/bonobo11_domains.gff3 -compress  > bonobo31Domains.log &
+$RUNLOAD -object:proteinDomain -species:DOG -mapKey:631 -toFile:$LOGDIR/ProteinDomain/dog31_domains.gff3 -compress  > dog31Domains.log &
+$RUNLOAD -object:proteinDomain -species:RAT -mapKey:360 -toFile:$LOGDIR/ProteinDomain/rat60_domains.gff3 -compress  > rat60Domains.log &
+$RUNLOAD -object:proteinDomain -species:HUMAN -mapKey:38 -toFile:$LOGDIR/ProteinDomain/human38_domains.gff3 -compress  > human38Domains.log &
+$RUNLOAD -object:proteinDomain -species:MOUSE -mapKey:35 -toFile:$LOGDIR/ProteinDomain/mouse38_domains.gff3 -compress  > mouse38Domains.log &
 
+wait
 mailx -s "[$SERVER]Pipeline to create Gff3 data for protein domains ran" $EMAILLIST < logs/domains.log
 
 
 ##### GENES
 
-$RUNLOAD -object:gene -species:PIG -mapKey:911 -toDir:$LOGDIR/Gene/Pig/ -chr:* -compress  &> pigGene11.log
-$RUNLOAD -object:gene -species:PIG -mapKey:910 -toDir:$LOGDIR/Gene/Pig/ -chr:* -compress  &> pigGene10.log
-$RUNLOAD -object:gene -species:CHINCHILLA -mapKey:44 -toDir:$LOGDIR/Gene/Chinchilla/ -chr:* -compress  &> chinchillaGene10.log
-$RUNLOAD -object:gene -species:SQUIRREL -mapKey:720 -toDir:$LOGDIR/Gene/Squirrel/ -chr:* -compress  &> squirrelGene20.log
-$RUNLOAD -object:gene -species:BONOBO -mapKey:511 -toDir:$LOGDIR/Gene/Bonobo/ -chr:* -compress  &> bonoboGene31.log
-$RUNLOAD -object:gene -species:DOG -mapKey:631 -toDir:$LOGDIR/Gene/Dog/ -chr:* -compress  &> dogGene31.log
+$RUNLOAD -object:gene -species:PIG -mapKey:911 -toDir:$LOGDIR/Gene/Pig/ -chr:* -compress  > pigGene11.log &
+$RUNLOAD -object:gene -species:PIG -mapKey:910 -toDir:$LOGDIR/Gene/Pig/ -chr:* -compress  > pigGene10.log &
+$RUNLOAD -object:gene -species:CHINCHILLA -mapKey:44 -toDir:$LOGDIR/Gene/Chinchilla/ -chr:* -compress  > chinchillaGene10.log &
+$RUNLOAD -object:gene -species:SQUIRREL -mapKey:720 -toDir:$LOGDIR/Gene/Squirrel/ -chr:* -compress  > squirrelGene20.log &
+$RUNLOAD -object:gene -species:BONOBO -mapKey:511 -toDir:$LOGDIR/Gene/Bonobo/ -chr:* -compress  > bonoboGene31.log &
+$RUNLOAD -object:gene -species:DOG -mapKey:631 -toDir:$LOGDIR/Gene/Dog/ -chr:* -compress  > dogGene31.log &
+wait
 
-$RUNLOAD -object:gene -species:RAT -mapKey:60 -toDir:$LOGDIR/Gene/Rat/ -chr:* -compress  &> ratGene34.log
-$RUNLOAD -object:gene -species:RAT -mapKey:70 -toDir:$LOGDIR/Gene/Rat/ -chr:* -compress  &> ratGene50.log
-$RUNLOAD -object:gene -species:RAT -mapKey:360 -toDir:$LOGDIR/Gene/Rat/ -chr:* -compress  &> ratGene60.log
+$RUNLOAD -object:gene -species:RAT -mapKey:60 -toDir:$LOGDIR/Gene/Rat/ -chr:* -compress  > ratGene34.log &
+$RUNLOAD -object:gene -species:RAT -mapKey:70 -toDir:$LOGDIR/Gene/Rat/ -chr:* -compress  > ratGene50.log &
+$RUNLOAD -object:gene -species:RAT -mapKey:360 -toDir:$LOGDIR/Gene/Rat/ -chr:* -compress  > ratGene60.log &
+wait
 
-$RUNLOAD -object:gene -species:HUMAN -mapKey:13 -toDir:$LOGDIR/Gene/Human/ -chr:* -compress  &> humanGene36.log
-$RUNLOAD -object:gene -species:HUMAN -mapKey:17 -toDir:$LOGDIR/Gene/Human/ -chr:* -compress  &> humanGene37.log
-$RUNLOAD -object:gene -species:HUMAN -mapKey:38 -toDir:$LOGDIR/Gene/Human/ -chr:* -compress  &> humanGene38.log
+$RUNLOAD -object:gene -species:HUMAN -mapKey:13 -toDir:$LOGDIR/Gene/Human/ -chr:* -compress  > humanGene36.log &
+$RUNLOAD -object:gene -species:HUMAN -mapKey:17 -toDir:$LOGDIR/Gene/Human/ -chr:* -compress  > humanGene37.log &
+$RUNLOAD -object:gene -species:HUMAN -mapKey:38 -toDir:$LOGDIR/Gene/Human/ -chr:* -compress  > humanGene38.log &
+wait
 
-$RUNLOAD -object:gene -species:MOUSE -mapKey:18 -toDir:$LOGDIR/Gene/Mouse/ -chr:* -compress  &> mouseGene37.log
-$RUNLOAD -object:gene -species:MOUSE -mapKey:35 -toDir:$LOGDIR/Gene/Mouse/ -chr:* -compress  &> mouseGene38.log
+$RUNLOAD -object:gene -species:MOUSE -mapKey:18 -toDir:$LOGDIR/Gene/Mouse/ -chr:* -compress  > mouseGene37.log &
+$RUNLOAD -object:gene -species:MOUSE -mapKey:35 -toDir:$LOGDIR/Gene/Mouse/ -chr:* -compress  > mouseGene38.log &
+wait
 
 mailx -s "[$SERVER]Pipeline to create Gff3 data for genes ran" $EMAILLIST < logs/gene.log
 
