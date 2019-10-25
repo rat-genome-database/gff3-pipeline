@@ -268,7 +268,7 @@ public class CreateGff4Gene {
                 gff3Writer.close();
                 RATMINEgff3Writer.close();
 
-                dumpCounters(counters, chr);
+                dumpCounters(counters, chr, assemblySymbol);
 
                 allChrCounters.merge(counters);
             } catch(Exception e) {
@@ -276,7 +276,7 @@ public class CreateGff4Gene {
             }
         });
 
-        dumpCounters(allChrCounters, null);
+        dumpCounters(allChrCounters, null, assemblySymbol);
 
         log.info("OK!  elapsed "+Utils.formatElapsedTime(time0, System.currentTimeMillis()));
         log.info("========");
@@ -310,18 +310,29 @@ public class CreateGff4Gene {
         return geneMap;
     }
 
-    void dumpCounters(CounterPool counters, String chr) {
+    void dumpCounters(CounterPool counters, String chr, String assembly) {
 
         String dump = counters.dumpAlphabetically();
+        String msg;
         if( chr!=null ) {
-            log.debug("");
-            log.debug("Counts For: Chr" + chr);
-            log.debug(dump);
-            log.debug("DONE with Chromosome:" + chr);
-            log.debug("GFF3 File SUCCESSFUL!");
-            log.debug("=============================");
+            msg = "\n"+
+                "Counts For: Chr"+chr+"\n"+
+                dump+
+                "DONE with Chromosome: "+chr+"\n"+
+                "GFF3 File SUCCESSFUL!\n"+
+                "=============================\n";
         } else {
-            log.info(dump);
+            msg = dump;
+        }
+
+        // prepend all lines with 'assembly'
+        String[] lines = msg.split("[\\n]", -1);
+        for( String line: lines ) {
+            if( chr!=null ) {
+                log.debug(assembly+"  "+line);
+            } else {
+                log.info(assembly+"  "+line);
+            }
         }
     }
 
