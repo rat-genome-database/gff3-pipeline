@@ -146,17 +146,16 @@ public class CreateGff4GeneAgr {
                             attributes.put("protein_id", tr.getProteinAccId());
                         }
 
-                        gff3Writer.writeFirst8Columns(trMd.getChromosome(), "RGD", "mRNA", trMd.getStartPos(),trMd.getStopPos(), ".", trMd.getStrand(), ".");
+                        gff3Writer.writeFirst8Columns(trMd.getChromosome(), "RGD", "mRNA", trMd.getStartPos(), trMd.getStopPos(), ".", trMd.getStrand(), ".");
                         gff3Writer.writeAttributes4Gff3(attributes);
 
-                        String cdsId = null;
                         List<CodingFeature> cfList = utils.buildCfList(trMd);
                         for(CodingFeature cf: cfList){
                             String featureId;
 
                             if(cf.getFeatureType()== TranscriptFeature.FeatureType.CDS){
                                 // one CDS id per multiple fragments of CDS (as it is in NCBI RefSeq gff3 file for rat)
-                                featureId = cdsId==null ? getUniqueId("cds") : cdsId;
+                                featureId = getUniqueId("cds");
 
                                 counters.cdsCount++;
                             }
@@ -310,6 +309,33 @@ public class CreateGff4GeneAgr {
                 return "snoRNA_gene";
             case "scrna":
                 return "scRNA_gene";
+            default:
+                throw new Exception("unsupported gene type "+geneType);
+        }
+    }
+
+    String getSoTermAccForGene(String geneType) throws Exception {
+
+        switch(geneType) {
+            case "protein-coding":
+                return "SO:0001217";
+            case "pseudogene":
+            case "pseudo":
+                return "SO:0000336";
+            case "ncrna":
+                return "SO:0001263";
+            case "trna":
+                return "SO:0001272";
+            case "rrna":
+                return "SO:0001637";
+            case "gene":
+                return "SO:0000704";
+            case "snrna":
+                return "SO:0001268";
+            case "snorna":
+                return "SO:0001267";
+            case "scrna":
+                return "SO:0001266";
             default:
                 throw new Exception("unsupported gene type "+geneType);
         }

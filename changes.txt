@@ -1,3 +1,6 @@
+Oct 25, 2019
+  gene files: generate only one file for all chromosomes
+
 Oct 18, 2019
   disease and chebi ontology tracks:
     generates only one file for all chromosomes

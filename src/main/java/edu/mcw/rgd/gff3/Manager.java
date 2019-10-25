@@ -20,6 +20,7 @@ public class Manager {
     private int objectTypeKey;
     private List<String> chromosomes;
     private String toFile;
+    private String toDir;
     private String fromFile;
     int sampleID;
     int patientID;
@@ -133,12 +134,12 @@ public class Manager {
     void handleObjects() throws Exception {
         switch(objectTypeKey) {
             case RgdId.OBJECT_KEY_GENES:
-                if((mapKey!=null)&&(getChromosomes()!=null)&&(toFile!=null)&&(speciesTypekey!=0)){
+                if((mapKey!=null)&&(getChromosomes()!=null)&&(toDir!=null)&&(speciesTypekey!=0)){
                     if( flavor==null ) {
                         CreateGff4Gene createGff = new CreateGff4Gene();
                         createGff.setMapKey(Integer.parseInt(mapKey));
                         createGff.setChromosomes(getChromosomes());
-                        createGff.setNewPathGff3(toFile);
+                        createGff.setNewPathGff3(toDir);
                         createGff.setSpeciesTypeKey(speciesTypekey);
                         createGff.createGeneGff3(compress);
                     } else if( flavor.equals("AGR") ){
@@ -308,6 +309,9 @@ public class Manager {
                 }else
                 if(obj.startsWith("-toFile:")){
                     toFile = argArr[1];
+                }else
+                if(obj.startsWith("-toDir:")){
+                    toDir = argArr[1];
                 }else
                 if(obj.startsWith("-fromFile:")){
                     fromFile=argArr[1];

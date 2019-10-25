@@ -67,6 +67,16 @@ public class RgdGff3Dao {
     static private Map<Integer, Gene> _cacheGenes = new HashMap<>();
 
     public List<Gene> getActiveGenes(String chr, long startPos, long stopPos, int mapKey) throws Exception {
+        // handle all chromosomes
+        if( chr.equals("*") ) {
+            List<Gene> results = new ArrayList<>();
+            for( Chromosome c: getChromosomes(mapKey) ) {
+                results.addAll(geneDAO.getActiveGenes(c.getChromosome(), startPos, stopPos, mapKey));
+            }
+            return results;
+        }
+
+        // handle single chromosome
         return geneDAO.getActiveGenes(chr, startPos, stopPos, mapKey);
     }
 

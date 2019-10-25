@@ -3,7 +3,6 @@ package edu.mcw.rgd.gff3;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
-import edu.mcw.rgd.process.mapping.MapManager;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -41,7 +40,9 @@ public class CreateGff4Gene {
         String species = SpeciesType.getCommonName(speciesTypeKey);
         idMap.clear();
 
-        log.info("Generate GFF3 file for "+species+", MAP_KEY="+mapKey+" ("+ MapManager.getInstance().getMap(mapKey).getName()+")");
+        String assemblySymbol = Gff3Utils.getAssemblySymbol(mapKey);
+
+        log.info("Generate GFF3 file for "+species+", MAP_KEY="+mapKey+" ("+assemblySymbol+")");
         log.info("    "+dao.getConnectionInfo());
 
         // March 2 2016: RATMINE gff3 loader does not allow one gene to have multiple loci
@@ -50,25 +51,21 @@ public class CreateGff4Gene {
 
         CounterPool allChrCounters = new CounterPool();
 
-//        for(String chr: getChromosomes()){
         getChromosomes().parallelStream().forEach( chr -> {
 
             try {
 
                 CounterPool counters = new CounterPool();
 
-                Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(newPathGff3+species+"_RGDChr"+chr+".gff3", false, compress);
-                Gff3ColumnWriter RATMINEgff3Writer = new Gff3ColumnWriter(newPathGff3+species+"_RATMINE_RGDChr"+chr+".gff3", false, compress);
+                Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(newPathGff3+"/"+assemblySymbol+"_genes.gff3", false, compress);
+                Gff3ColumnWriter RATMINEgff3Writer = new Gff3ColumnWriter(newPathGff3+"/RATMINE_"+assemblySymbol+"_genes.gff3", false, compress);
                 RATMINEgff3Writer.setRatmineCompatibleFormat(true);
 
                 List<Gene> activeGenes = chr.equals("Scaffold") ? dao.getActiveGenes(speciesTypeKey) : dao.getActiveGenes(chr, 1, Long.MAX_VALUE, mapKey);
 
                 for( Gene gene: activeGenes ){
                     int geneRgdId = gene.getRgdId();
-if(geneRgdId==732975){
-    System.out.println("SORBS2");
-}
-                    List<MapData> geneMap = getMapData(geneRgdId, mapKey, chr, counters);
+                    List<MapData> geneMap = getMapData(geneRgdId, mapKey, counters);
                     if( geneMap.isEmpty() ) {
                         //System.out.println("no map positions");
                         continue;
@@ -94,7 +91,6 @@ if(geneRgdId==732975){
                         boolean writeRATMINE = geneRgdIdsEmitted.add(map.getRgdId());
                         if( !writeRATMINE ) {
                             counters.increment(" Gene Loci skipped for RATMINE");
-
                         }
 
                         List<Transcript> trsOnMap = getTranscriptsForMap(geneTrs, map, utils);
@@ -302,18 +298,9 @@ if(geneRgdId==732975){
         return trsOnMap;
     }
 
-    List<MapData> getMapData(int geneRgdId, int mapKey, String chr, CounterPool counters) throws Exception {
+    List<MapData> getMapData(int geneRgdId, int mapKey, CounterPool counters) throws Exception {
 
         List<MapData> geneMap = dao.getMapData(geneRgdId, mapKey);
-
-        // filter out duplicates (when a gene has loci on multiple chromosomes)
-        if( !chr.equals("Scaffold") ) {
-            Iterator<MapData> it = geneMap.iterator();
-            while (it.hasNext()) {
-                if (!it.next().getChromosome().equals(chr))
-                    it.remove();
-            }
-        }
 
         if( !geneMap.isEmpty() ) {
             if(geneMap.size()>1){
