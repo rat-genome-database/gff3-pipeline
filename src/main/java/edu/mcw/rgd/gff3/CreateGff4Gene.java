@@ -61,7 +61,7 @@ public class CreateGff4Gene {
                 Gff3ColumnWriter RATMINEgff3Writer = new Gff3ColumnWriter(newPathGff3+"/RATMINE_"+assemblySymbol+"_genes.gff3", false, compress);
                 RATMINEgff3Writer.setRatmineCompatibleFormat(true);
 
-                List<Gene> activeGenes = chr.equals("Scaffold") ? dao.getActiveGenes(speciesTypeKey) : dao.getActiveGenes(chr, 1, Long.MAX_VALUE, mapKey);
+                List<Gene> activeGenes = (chr.equals("Scaffold") || chr.equals("*")) ? dao.getActiveGenes(speciesTypeKey) : dao.getActiveGenes(chr, 1, Long.MAX_VALUE, mapKey);
 
                 for( Gene gene: activeGenes ){
                     int geneRgdId = gene.getRgdId();
