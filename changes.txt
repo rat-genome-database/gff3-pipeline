@@ -1,3 +1,6 @@
+Oct 28, 2019
+  ontologies: fix NullPointerException for genes without names
+
 Oct 25, 2019
   gene files: generate only one file for all chromosomes
 

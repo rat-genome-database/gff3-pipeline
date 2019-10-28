@@ -102,8 +102,6 @@ public class CreateGff4Ontology {
 
         List<RGDInfo> rgdInfoList = new ArrayList<>();
 
-        Ontology ont = ontXdao.getOntologyFromAspect(getOntAspect());
-
         String ontPrefix = getOntAspect().equals("E") ? "CHEBI" : getOntAspect().equals("D") ? "DOID" : "UNKNOWN";
         FileGuard fileGuard = new FileGuard();
         fileGuard.init(fname, ontPrefix);
@@ -212,7 +210,7 @@ public class CreateGff4Ontology {
     void processGene(Gff3Entry entry) throws Exception {
 
         Gene geneObj = dao.getGeneWithDescription(entry.rgdId);
-        entry.name = geneObj.getName();
+        entry.name = Utils.defaultString(geneObj.getName()); // ensure gene name is not null
         entry.symbol = geneObj.getSymbol();
 
 

@@ -37,7 +37,7 @@ public class CreateGff4GeneAgr {
         Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gff3Path+species+"_RGD_AGR.gff3", false, compress);
         gff3Writer.setAgrCompatibleFormat(true);
 
-        gff3Writer.print("# RAT GENOME DATABASE (https://https://rgd.mcw.edu/)\n");
+        gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
         gff3Writer.print("# Species: "+ species+"\n");
         gff3Writer.print("# Assembly: "+ MapManager.getInstance().getMap(mapKey).getName()+"\n");
         gff3Writer.print("# Primary Contact: mtutaj@mcw.edu\n");
