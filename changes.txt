@@ -1,3 +1,6 @@
+Oct 30, 2019
+  protein domains: extended to handle non-primary assemblies
+
 Oct 28, 2019
   ontologies: fix NullPointerException for genes without names
 

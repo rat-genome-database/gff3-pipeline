@@ -23,13 +23,18 @@ RUNLOAD="$APP_HOME/run.sh"
 ##### PROTEIN DOMAINS -- currently there is data only for primary assembly
 
 $RUNLOAD -object:proteinDomain -species:PIG -mapKey:911 -toFile:$LOGDIR/ProteinDomain/pig11_domains.gff3 -compress  > pig11Domains.log &
+$RUNLOAD -object:proteinDomain -species:PIG -mapKey:910 -toFile:$LOGDIR/ProteinDomain/pig10_domains.gff3 -compress  > pig10Domains.log &
 $RUNLOAD -object:proteinDomain -species:CHINCHILLA -mapKey:44 -toFile:$LOGDIR/ProteinDomain/chinchilla10_domains.gff3 -compress  > chinchilla10Domains.log &
 $RUNLOAD -object:proteinDomain -species:SQUIRREL -mapKey:720 -toFile:$LOGDIR/ProteinDomain/squirrel20_domains.gff3 -compress  > squirrel20Domains.log &
 $RUNLOAD -object:proteinDomain -species:BONOBO -mapKey:511 -toFile:$LOGDIR/ProteinDomain/bonobo11_domains.gff3 -compress  > bonobo31Domains.log &
 $RUNLOAD -object:proteinDomain -species:DOG -mapKey:631 -toFile:$LOGDIR/ProteinDomain/dog31_domains.gff3 -compress  > dog31Domains.log &
 $RUNLOAD -object:proteinDomain -species:RAT -mapKey:360 -toFile:$LOGDIR/ProteinDomain/rat60_domains.gff3 -compress  > rat60Domains.log &
+$RUNLOAD -object:proteinDomain -species:RAT -mapKey:70 -toFile:$LOGDIR/ProteinDomain/rat50_domains.gff3 -compress  > rat50Domains.log &
+$RUNLOAD -object:proteinDomain -species:RAT -mapKey:60 -toFile:$LOGDIR/ProteinDomain/rat34_domains.gff3 -compress  > rat34Domains.log &
 $RUNLOAD -object:proteinDomain -species:HUMAN -mapKey:38 -toFile:$LOGDIR/ProteinDomain/human38_domains.gff3 -compress  > human38Domains.log &
+$RUNLOAD -object:proteinDomain -species:HUMAN -mapKey:17 -toFile:$LOGDIR/ProteinDomain/human37_domains.gff3 -compress  > human37Domains.log &
 $RUNLOAD -object:proteinDomain -species:MOUSE -mapKey:35 -toFile:$LOGDIR/ProteinDomain/mouse38_domains.gff3 -compress  > mouse38Domains.log &
+$RUNLOAD -object:proteinDomain -species:MOUSE -mapKey:18 -toFile:$LOGDIR/ProteinDomain/mouse37_domains.gff3 -compress  > mouse37Domains.log &
 
 wait
 mailx -s "[$SERVER]Pipeline to create Gff3 data for protein domains ran" $EMAILLIST < logs/domains.log
