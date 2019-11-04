@@ -5,6 +5,7 @@ import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
 import org.apache.log4j.Logger;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -87,9 +88,18 @@ public class CreateGff4ProteinDomains {
                 dataLinesWritten++;
             }
         }
+
+        String outFileName = gff3Writer.getFileName();
         gff3Writer.close();
 
         log.info("  data lines written:  " + dataLinesWritten);
+
+        // remove gff3 file is total lines written is zero
+        if( dataLinesWritten==0 ) {
+            boolean r = new File(outFileName).delete();
+            log.info("  no data lines, file " + outFileName + "deleted: "+r);
+        }
+
         log.info("OK!  elapsed " + Utils.formatElapsedTime(time0, System.currentTimeMillis()));
         log.info("========");
     }

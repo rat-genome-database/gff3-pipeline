@@ -1,3 +1,6 @@
+Nov 04, 2019
+  protein domains: only generates gff3 file if there is any data for given assembly
+
 Oct 30, 2019
   protein domains: extended to handle non-primary assemblies
 

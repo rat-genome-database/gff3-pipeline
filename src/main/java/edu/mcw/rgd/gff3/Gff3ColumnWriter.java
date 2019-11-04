@@ -16,6 +16,7 @@ public class Gff3ColumnWriter {
     private PrintWriter gff3Writer;
     private boolean ratmineCompatibleFormat;
     private boolean agrCompatibleFormat;
+    private String gff3FileName;
 
     // init gff writer in gff3 format; do not compress output
     public Gff3ColumnWriter(String fileName) throws IOException {
@@ -43,17 +44,22 @@ public class Gff3ColumnWriter {
 
         String outFileName = fileName;
         if( compress ) {
-            if( !outFileName.endsWith(".gz") )
+            if( !outFileName.endsWith(".gz") ) {
                 outFileName += ".gz";
-
+            }
             gff3Writer = new PrintWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(outFileName))));
         }
         else {
-            gff3Writer = new PrintWriter(fileName);
+            gff3Writer = new PrintWriter(outFileName);
         }
+        gff3FileName = fileName;
 
         if( !useGffFormat )
             gff3Writer.println("##gff-version 3");
+    }
+
+    public String getFileName() {
+        return gff3FileName;
     }
 
     public void close() {
