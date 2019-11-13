@@ -139,10 +139,10 @@ public class CreateGff4CarpeNovo {
                     varPPProbably = 0;
 
 
-                    HashMap<Integer, VarTranscript> varTransHashObj;
-                    HashMap<Integer, Variant> varhashOB = getVariants(chr);
+                    HashMap<Long, VarTranscript> varTransHashObj;
+                    HashMap<Long, Variant> varhashOB = getVariants(chr);
 
-                    for (int variantid : varhashOB.keySet()) {
+                    for (long variantid : varhashOB.keySet()) {
                         varNumCount++;
 
                         Variant v = varhashOB.get(variantid);
@@ -210,7 +210,7 @@ public class CreateGff4CarpeNovo {
 
 
 
-    void printTranscriptGff3(String chr, Gff3ColumnWriter gffWriter, Variant varOB, HashMap<Integer, VarTranscript> varTransHashObj) throws Exception {
+    void printTranscriptGff3(String chr, Gff3ColumnWriter gffWriter, Variant varOB, HashMap<Long, VarTranscript> varTransHashObj) throws Exception {
 
         String transcriptId="";
         String transcriptRgdId="";
@@ -231,7 +231,7 @@ public class CreateGff4CarpeNovo {
         attributesHashMap.put("Depth", String.valueOf(varOB.getDepth()));
         attributesHashMap.put("Frequency", String.valueOf(varOB.getFreq()));
 
-        for(int transcriptID : varTransHashObj.keySet() ){
+        for(long transcriptID : varTransHashObj.keySet() ){
             VarTranscript vt = varTransHashObj.get(transcriptID);
             if(!vt.getLocName().equals("NA")){
                 transcriptId += transcriptID+",";
@@ -319,7 +319,7 @@ public class CreateGff4CarpeNovo {
         gffWriter.writeFirst8Columns(chr,getFileSource(),"SNV_"+this.sampleID,varOB.getStart(),varOB.getStart(),".",".",".");
         gffWriter.writeAttributes4Gff3(attributesHashMap);
     }
-    void printDamagingTranscriptGff3(String chr, Gff3ColumnWriter gffDmgVariantWriter, Variant varOB, HashMap<Integer, VarTranscript> varTransHashObj) throws Exception {
+    void printDamagingTranscriptGff3(String chr, Gff3ColumnWriter gffDmgVariantWriter, Variant varOB, HashMap<Long, VarTranscript> varTransHashObj) throws Exception {
 
 
 
@@ -333,7 +333,7 @@ public class CreateGff4CarpeNovo {
         String transcriptPolyPred="";
         String synStatus="";
         boolean damaging= false;
-        for(int transcriptID : varTransHashObj.keySet() ) {
+        for(long transcriptID : varTransHashObj.keySet() ) {
             VarTranscript vt = varTransHashObj.get(transcriptID);
 
             if (!vt.getLocName().equals("NA")) {
@@ -400,9 +400,9 @@ public class CreateGff4CarpeNovo {
     }
 
 
-    HashMap<Integer, Variant> getVariants(String chrNum) throws Exception{
+    HashMap<Long, Variant> getVariants(String chrNum) throws Exception{
 
-        HashMap<Integer, Variant> newvarHash = new HashMap<Integer, Variant>();
+        HashMap<Long, Variant> newvarHash = new HashMap<Long, Variant>();
 
         Connection connection = getConnection();
         // System.out.println("here is the connection:" + connection);
@@ -418,7 +418,7 @@ public class CreateGff4CarpeNovo {
         while (rsvar.next()) {
             Variant newVar = new Variant();
 
-            newVar.setVariantID(rsvar.getInt(1));
+            newVar.setVariantID(rsvar.getLong(1));
             newVar.setChr(rsvar.getString(2).trim());
             newVar.setStart(rsvar.getInt(3));
             newVar.setStop(rsvar.getInt(4));
@@ -436,10 +436,10 @@ public class CreateGff4CarpeNovo {
         return newvarHash;
     }
 
-    HashMap<Integer, VarTranscript> getVarGeneTransInfo(int varObj, Connection conn) throws Exception {
+    HashMap<Long, VarTranscript> getVarGeneTransInfo(long varObj, Connection conn) throws Exception {
 
         VarTranscript newvarTransObj = new VarTranscript();
-        HashMap<Integer, VarTranscript> newvarTransHash = new HashMap<Integer, VarTranscript>();
+        HashMap<Long, VarTranscript> newvarTransHash = new HashMap<Long, VarTranscript>();
 
         String getvarTranscript = "select vt.VARIANT_TRANSCRIPT_ID, vt.SYN_STATUS, vt.TRANSCRIPT_RGD_ID, vt.REF_AA, " +
                 "vt.VAR_AA, g.RGD_ID, vt.LOCATION_NAME, vt.NEAR_SPLICE_SITE, g.GENE_SYMBOL " +
@@ -455,14 +455,14 @@ public class CreateGff4CarpeNovo {
 
         PreparedStatement findPph = conn.prepareStatement(getpph);
 
-        findVarTran.setInt(1, varObj);
+        findVarTran.setLong(1, varObj);
         ResultSet rsvarTran= findVarTran.executeQuery();
 
         while (rsvarTran.next()){
-            int vartranid = rsvarTran.getInt(1);
+            long vartranid = rsvarTran.getLong(1);
             newvarTransObj.setVariantTranscriptID(vartranid);
 
-            findPph.setInt(1, vartranid);
+            findPph.setLong(1, vartranid);
             ResultSet rspph= findPph.executeQuery();
 
             while(rspph.next()){
@@ -499,7 +499,7 @@ public class CreateGff4CarpeNovo {
                 newvarTransObj.setPpObj(ppO);
             }
 
-            int tranRgdid = rsvarTran.getInt(3);
+            long tranRgdid = rsvarTran.getLong(3);
             newvarTransObj.setTranscriptRgdId(tranRgdid);
 
             String refaa;

@@ -4,8 +4,8 @@ package edu.mcw.rgd.gff3.dataModel;
  * Created by hsnalabolu on 2/22/2019.
  */
 public class VarTranscript{
-    private int variantTranscriptID=0;
-    private int transcriptRgdId=0;
+    private long variantTranscriptID=0;
+    private long transcriptRgdId=0;
     private String refAA;
     private String varAA;
     private String SynStat;
@@ -23,19 +23,19 @@ public class VarTranscript{
         this.ppObj = ppObj;
     }
 
-    public int getVariantTranscriptID() {
+    public long getVariantTranscriptID() {
         return variantTranscriptID;
     }
 
-    public void setVariantTranscriptID(int variantTranscriptID) {
+    public void setVariantTranscriptID(long variantTranscriptID) {
         this.variantTranscriptID = variantTranscriptID;
     }
 
-    public int getTranscriptRgdId() {
+    public long getTranscriptRgdId() {
         return transcriptRgdId;
     }
 
-    public void setTranscriptRgdId(int transcriptRgdId) {
+    public void setTranscriptRgdId(long transcriptRgdId) {
         this.transcriptRgdId = transcriptRgdId;
     }
 
