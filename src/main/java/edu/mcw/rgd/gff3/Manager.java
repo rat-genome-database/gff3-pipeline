@@ -145,7 +145,7 @@ public class Manager {
                     } else if( flavor.equals("AGR") ){
                         CreateGff4GeneAgr createGff = new CreateGff4GeneAgr();
                         createGff.setMapKey(Integer.parseInt(mapKey));
-                        createGff.setGff3Path(toFile);
+                        createGff.setGff3Path(toDir);
                         createGff.setSpeciesTypeKey(speciesTypekey);
                         createGff.createGeneGff3(compress);
                     } else {
