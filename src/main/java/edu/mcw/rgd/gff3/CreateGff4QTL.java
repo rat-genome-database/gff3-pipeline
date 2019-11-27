@@ -1,7 +1,7 @@
 package edu.mcw.rgd.gff3;
 
-import edu.mcw.rgd.dao.impl.AssociationDAO;
 import edu.mcw.rgd.datamodel.*;
+import edu.mcw.rgd.process.mapping.MapManager;
 
 import java.io.PrintWriter;
 import java.net.URLEncoder;
@@ -14,54 +14,87 @@ import java.util.Map;
  */
 public class CreateGff4QTL {
 
-    String toFile;
-    int mapKey;
-    int speciesTypeKey;
-    AssociationDAO assDao = new AssociationDAO();
-    RgdGff3Dao dao = new RgdGff3Dao();
+    private RgdGff3Dao dao = new RgdGff3Dao();
+    private List<String> processedAssemblies;
 
     // counts
-    int activeQtlCount=0;
-    int qtlsWithMapPos=0;
-    int qtlsMoreThanOneMapPos=0;
-    int qtlsNoMapPos=0;
-    int qtlsFlanking=0;
-    int qtlsFlankingPeak=0;
-    int qtlsPeakOnly=0;
-    int qtlsSingleFlanking=0;
-    int qtlsPeakWithSizeAdjusted=0;
-    int qtlsImportedFromExternal=0;
-    int noMapsPosMethodId=0;
-    int qtlsWithRelStrains=0;
-    int qtlsWithNoRelStrains=0;
-    int qtlsWithRelGenes=0;
-    int qtlswithNoRelGenes=0;
-    int qtlsWithRelQtls=0;
-    int qtlswithNoRelQtls=0;
+    int activeQtlCount;
+    int qtlsWithMapPos;
+    int qtlsMoreThanOneMapPos;
+    int qtlsNoMapPos;
+    int qtlsFlanking;
+    int qtlsFlankingPeak;
+    int qtlsPeakOnly;
+    int qtlsSingleFlanking;
+    int qtlsPeakWithSizeAdjusted;
+    int qtlsImportedFromExternal;
+    int noMapsPosMethodId;
+    int qtlsWithRelStrains;
+    int qtlsWithNoRelStrains;
+    int qtlsWithRelGenes;
+    int qtlswithNoRelGenes;
+    int qtlsWithRelQtls;
+    int qtlswithNoRelQtls;
 
+    void clearCounts() {
+        activeQtlCount=0;
+        qtlsWithMapPos=0;
+        qtlsMoreThanOneMapPos=0;
+        qtlsNoMapPos=0;
+        qtlsFlanking=0;
+        qtlsFlankingPeak=0;
+        qtlsPeakOnly=0;
+        qtlsSingleFlanking=0;
+        qtlsPeakWithSizeAdjusted=0;
+        qtlsImportedFromExternal=0;
+        noMapsPosMethodId=0;
+        qtlsWithRelStrains=0;
+        qtlsWithNoRelStrains=0;
+        qtlsWithRelGenes=0;
+        qtlswithNoRelGenes=0;
+        qtlsWithRelQtls=0;
+        qtlswithNoRelQtls=0;
+    }
 
+    /**
+     * load the species list and assemblies from properties/AppConfigure.xml
+     */
+    public void run() throws Exception {
+        for( String assemblyInfo: processedAssemblies ) {
+            CreateInfo info = new CreateInfo();
+            info.parseFromString(assemblyInfo);
+
+            creategff4QTL(info);
+        }
+    }
 
     /**
      * create Gff3 for Rat, Human and Mouse.. only for Rat it will print out related strains
      * @throws Exception
      */
-    public void creategff4QTL(boolean compress) throws Exception {
+    public void creategff4QTL(CreateInfo info) throws Exception {
 
-        String speciesName = SpeciesType.getCommonName(speciesTypeKey);
-        String gffFile = getToFile()+speciesName+"_RGDQTLS.gff3";
-        String RATMINEGffFile = getToFile()+speciesName+"_RATMINE_RGDQTLS.gff3";
+        clearCounts();
 
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, compress);
-        Gff3ColumnWriter RATMINEgff3Writer = new Gff3ColumnWriter(RATMINEGffFile, false, compress);
+        String speciesName = SpeciesType.getCommonName(info.getSpeciesTypeKey());
+
+        System.out.println("START QTL GFF3 Generator for  "+speciesName+"  MAP_KEY="+info.getMapKey()+"  ASSEMBLY "+ MapManager.getInstance().getMap(info.getMapKey()).getName());
+        System.out.println("========================");
+
+        String gffFile = info.getToDir()+speciesName+"_RGDQTLS.gff3";
+        String RATMINEGffFile = info.getToDir()+speciesName+"_RATMINE_RGDQTLS.gff3";
+
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, info.isCompress());
+        Gff3ColumnWriter RATMINEgff3Writer = new Gff3ColumnWriter(RATMINEGffFile, false, info.isCompress());
         RATMINEgff3Writer.setRatmineCompatibleFormat(true);
 
-        PrintWriter densityFile = new PrintWriter(getToFile()+speciesName+"_density.gff");
+        PrintWriter densityFile = new PrintWriter(info.getToDir()+speciesName+"_density.gff");
 
-        List<QTL> qtlList = dao.getActiveQTLs(speciesTypeKey);
+        List<QTL> qtlList = dao.getActiveQTLs(info.getSpeciesTypeKey());
         List<RGDInfo> rgdInfoList = new ArrayList<RGDInfo>();
 
         for(QTL qtlObj: qtlList){
-            createGffFromQtlObject(qtlObj, gff3Writer, RATMINEgff3Writer, rgdInfoList);
+            createGffFromQtlObject(qtlObj, gff3Writer, RATMINEgff3Writer, rgdInfoList, info.getMapKey(), info.getSpeciesTypeKey());
         }
 
         System.out.println("Number of Active Qtls processed:"+ activeQtlCount);
@@ -82,7 +115,7 @@ public class CreateGff4QTL {
         System.out.println("Qtls NOT related to Genes:" + qtlswithNoRelGenes);
         System.out.println("Qtls related to Qtls:" + qtlsWithRelQtls);
         System.out.println("Qtls NOT related to Qtls:" + qtlswithNoRelQtls);
-        System.out.print("\nGFF3 File SUCCESSFUL!");
+        System.out.println("\nGFF3 File SUCCESSFUL!\n");
 
          //close file
         gff3Writer.close();
@@ -90,12 +123,14 @@ public class CreateGff4QTL {
 
         CalculateDensity calcDensity = new CalculateDensity();
         calcDensity.setRgdInfoList(rgdInfoList);
-        calcDensity.setDensityDiseaseWriter(densityFile);
-        calcDensity.runDensityCalculator();
+        calcDensity.setDensityWriter(densityFile);
+
+        boolean verbose = false;
+        calcDensity.runDensityCalculator(verbose);
     }
 
     public void createGffFromQtlObject(QTL qtlObject, Gff3ColumnWriter gff3Writer, Gff3ColumnWriter RATMINEgff3Writer,
-                                       List<RGDInfo> rgdInfoList) throws Exception {
+                                       List<RGDInfo> rgdInfoList, int mapKey, int speciesTypeKey) throws Exception {
 
         int qtlKey = qtlObject.getKey();
         int rgdId = qtlObject.getRgdId();
@@ -215,7 +250,7 @@ public class CreateGff4QTL {
                 //get related strains
                 String relStrain="";
                 if(speciesTypeKey==3){
-                    List<Strain> relatedStrainsList = assDao.getStrainAssociationsForQTL(rgdId);
+                    List<Strain> relatedStrainsList = dao.getStrainAssociationsForQtl(rgdId);
 
                     if(relatedStrainsList.size()>0){
 
@@ -240,7 +275,7 @@ public class CreateGff4QTL {
 
                 //get related genes.
                 String relGenes="";
-                List<Gene> relatedGenesList = assDao.getGeneAssociationsByQTL(rgdId);
+                List<Gene> relatedGenesList = dao.getGeneAssociationsForQtl(rgdId);
                 if(relatedGenesList.size()>0){
 
                     qtlsWithRelGenes++;
@@ -260,7 +295,7 @@ public class CreateGff4QTL {
 
 
                 //get qtl - qtl associations.
-                Map<Integer, String> relatedQtlMap = assDao.getQtlToQtlAssociations(qtlKey);
+                Map<Integer, String> relatedQtlMap = dao.getQtlToQtlAssociations(qtlKey);
 
                 String relQtls="";
                 if(relatedQtlMap!=null){
@@ -325,28 +360,11 @@ public class CreateGff4QTL {
         }
     }
 
-    public String getToFile() {
-        return toFile;
+    public void setProcessedAssemblies(List processedAssemblies) {
+        this.processedAssemblies = processedAssemblies;
     }
 
-    public void setToFile(String toFile) {
-        this.toFile = toFile;
+    public List getProcessedAssemblies() {
+        return processedAssemblies;
     }
-
-    public int getMapKey() {
-        return mapKey;
-    }
-
-    public void setMapKey(int mapKey) {
-        this.mapKey = mapKey;
-    }
-
-    public int getSpeciesTypeKey() {
-        return speciesTypeKey;
-    }
-
-    public void setSpeciesTypeKey(int speciesTypeKey) {
-        this.speciesTypeKey = speciesTypeKey;
-    }
-
 }

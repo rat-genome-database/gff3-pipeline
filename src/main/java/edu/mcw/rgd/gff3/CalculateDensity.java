@@ -10,14 +10,14 @@ import java.util.*;
 public class CalculateDensity {
     public final static long BLOCK_SIZE = 1000000;
     List<RGDInfo> rgdInfoList = new ArrayList<RGDInfo>();
-    PrintWriter densityDiseaseWriter;
+    PrintWriter densityWriter;
 
-    public PrintWriter getDensityDiseaseWriter() {
-        return densityDiseaseWriter;
+    public PrintWriter getDensityWriter() {
+        return densityWriter;
     }
 
-    public void setDensityDiseaseWriter(PrintWriter densityDiseaseWriter) {
-        this.densityDiseaseWriter = densityDiseaseWriter;
+    public void setDensityWriter(PrintWriter densityWriter) {
+        this.densityWriter = densityWriter;
     }
 
     public List<RGDInfo> getRgdInfoList() {
@@ -28,9 +28,11 @@ public class CalculateDensity {
         this.rgdInfoList = rgdInfoList;
     }
 
-    void runDensityCalculator() throws Exception {
+    void runDensityCalculator(boolean verbose) throws Exception {
 
-        System.out.print("\nDensity counts:\n  ");
+        if( verbose ) {
+            System.out.print("\nDensity counts:\n  ");
+        }
 
         // map of chromosome block nr to hit count
         // f.e. '1-0' => 5  means on chromosome 1 block 0 located at pos 1..QTL_BLOCK_SIZE has 5 hits
@@ -77,18 +79,22 @@ public class CalculateDensity {
             }
             else {
                 if( !prevChr.isEmpty() ){
-                    System.out.print("c"+prevChr + ":" + countPerChr+", ");
+                    if( verbose ) {
+                        System.out.print("c" + prevChr + ":" + countPerChr + ", ");
+                    }
                 }
                 countPerChr = cnt;
                 prevChr = chrom;
             }
-            densityDiseaseWriter.println("Chr"+chrom+"\tdensity\tbin\t"+strt+"\t"+stp+"\t"+cnt+"\t+\t.\tbin Chr"+chrom+":density");
+            densityWriter.println("Chr"+chrom+"\tdensity\tbin\t"+strt+"\t"+stp+"\t"+cnt+"\t+\t.\tbin Chr"+chrom+":density");
 
         }
         if( !prevChr.isEmpty() ){
-            System.out.println("c"+prevChr + ":" + countPerChr);
+            if( verbose ) {
+                System.out.println("c" + prevChr + ":" + countPerChr);
+            }
         }
 
-        densityDiseaseWriter.close();
+        densityWriter.close();
     }
 }

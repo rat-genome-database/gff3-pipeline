@@ -65,71 +65,49 @@ wait
 mailx -s "[$SERVER]Pipeline to create Gff3 data for genes ran" $EMAILLIST < logs/gene.log
 
 
-##### QTLS, STRAINS, SSLPS
+##### QTLS
 
-$RUNLOAD -object:qtl -species:RAT -mapKey:60 -toFile:$LOGDIR/Qtl/Rat/rat34/ -compress  > ratQtl34.log &
-mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Qtl assembly 3.4 ran" $EMAILLIST < ratQtl34.log
+# assemblies, species info and output dirs are read from properties file AppConfigure.xml
+$RUNLOAD -object:qtls > qtls.log
+mailx -s "[$SERVER]Pipeline to create Gff3 data for QTLS ran" $EMAILLIST < qtls.log
 
-$RUNLOAD -object:strain -species:RAT -mapKey:60 -toFile:$LOGDIR/Strain/Rat/rat34/ -compress  > ratStrain34.log &
+
+##### STRAINS, SSLPS
+
+$RUNLOAD -object:strain -species:RAT -mapKey:60 -toFile:$LOGDIR/Strain/Rat/rat34/ -compress  > ratStrain34.log
 mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Strain assembly 3.4 ran" $EMAILLIST < ratStrain34.log
 
-$RUNLOAD -object:sslp -species:RAT -mapKey:60 -toFile:$LOGDIR/Sslp/Rat/rat34/ -compress  > ratSslp34.log &
+$RUNLOAD -object:sslp -species:RAT -mapKey:60 -toFile:$LOGDIR/Sslp/Rat/rat34/ -compress  > ratSslp34.log
 mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Sslp assembly 3.4 ran" $EMAILLIST < ratSslp34.log
 
 
-$RUNLOAD -object:qtl -species:RAT -mapKey:70 -toFile:$LOGDIR/Qtl/Rat/rat50/ -compress > ratQtl50.log &
-mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Qtl assembly 5.0 ran" $EMAILLIST < ratQtl50.log
-
-$RUNLOAD -object:strain -species:RAT -mapKey:70 -toFile:$LOGDIR/Strain/Rat/rat50/ -compress > ratStrain50.log &
+$RUNLOAD -object:strain -species:RAT -mapKey:70 -toFile:$LOGDIR/Strain/Rat/rat50/ -compress > ratStrain50.log
 mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Strain assembly 5.0 ran" $EMAILLIST < ratStrain50.log
 
-$RUNLOAD -object:sslp -species:RAT -mapKey:70 -toFile:$LOGDIR/Sslp/Rat/rat50/ -compress > ratSslp50.log &
+$RUNLOAD -object:sslp -species:RAT -mapKey:70 -toFile:$LOGDIR/Sslp/Rat/rat50/ -compress > ratSslp50.log
 mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Sslp assembly 5.0 ran" $EMAILLIST < ratSslp50.log
 
 
-$RUNLOAD -object:qtl -species:RAT -mapKey:360 -toFile:$LOGDIR/Qtl/Rat/rat60/ -compress > ratQtl60.log &
-mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Qtl assembly 6.0 ran" $EMAILLIST < ratQtl60.log
-
-$RUNLOAD -object:strain -species:RAT -mapKey:360 -toFile:$LOGDIR/Strain/Rat/rat60/ -compress > ratStrain60.log &
+$RUNLOAD -object:strain -species:RAT -mapKey:360 -toFile:$LOGDIR/Strain/Rat/rat60/ -compress > ratStrain60.log
 mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Strain assembly 6.0 ran" $EMAILLIST < ratStrain60.log
 
-$RUNLOAD -object:sslp -species:RAT -mapKey:360 -toFile:$LOGDIR/Sslp/Rat/rat60/ -compress > ratSslp60.log &
+$RUNLOAD -object:sslp -species:RAT -mapKey:360 -toFile:$LOGDIR/Sslp/Rat/rat60/ -compress > ratSslp60.log
 mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Sslp assembly 6.0 ran" $EMAILLIST < ratSslp60.log
 
-wait
 
-$RUNLOAD -object:qtl -species:HUMAN -mapKey:13 -toFile:$LOGDIR/Qtl/Human/human36/ -compress > humanQtl36.log &
-mailx -s "[$SERVER]Pipeline to create Gff3 data for Human Qtl Build 36 ran" $EMAILLIST < humanQtl36.log
-
-$RUNLOAD -object:qtl -species:HUMAN -mapKey:17 -toFile:$LOGDIR/Qtl/Human/human37/ -compress > humanQtl37.log &
-mailx -s "[$SERVER]Pipeline to create Gff3 data for Human Qtl Build 37 ran" $EMAILLIST < humanQtl37.log
-
-$RUNLOAD -object:qtl -species:HUMAN -mapKey:38 -toFile:$LOGDIR/Qtl/Human/human38/ -compress > humanQtl38.log &
-mailx -s "[$SERVER]Pipeline to create Gff3 data for Human Qtl Build 38 ran" $EMAILLIST < humanQtl38.log
-
-
-$RUNLOAD -object:sslp -species:HUMAN -mapKey:13 -toFile:$LOGDIR/Sslp/Human/human36/ -compress > humanSslp36.log &
+$RUNLOAD -object:sslp -species:HUMAN -mapKey:13 -toFile:$LOGDIR/Sslp/Human/human36/ -compress > humanSslp36.log
 mailx -s "[$SERVER]Pipeline to create Gff3 data for Human Sslp assembly 36 ran" $EMAILLIST < humanSslp36.log
 
-$RUNLOAD -object:sslp -species:HUMAN -mapKey:17 -toFile:$LOGDIR/Sslp/Human/human37/ -compress > humanSslp37.log &
+$RUNLOAD -object:sslp -species:HUMAN -mapKey:17 -toFile:$LOGDIR/Sslp/Human/human37/ -compress > humanSslp37.log
 mailx -s "[$SERVER]Pipeline to create Gff3 data for Human Sslp assembly 37 ran" $EMAILLIST < humanSslp37.log
 
-wait
 
-$RUNLOAD -object:sslp -species:MOUSE -mapKey:18 -toFile:$LOGDIR/Sslp/Mouse/mouse37/ -compress > mouseSslp37.log &
+$RUNLOAD -object:sslp -species:MOUSE -mapKey:18 -toFile:$LOGDIR/Sslp/Mouse/mouse37/ -compress > mouseSslp37.log
 mailx -s "[$SERVER]Pipeline to create Gff3 data for Mouse Sslp assembly 37 ran" $EMAILLIST < mouseSslp37.log
 
-$RUNLOAD -object:qtl -species:MOUSE -mapKey:18 -toFile:$LOGDIR/Qtl/Mouse/mouse37/ -compress > mouseQtl37.log &
-mailx -s "[$SERVER]Pipeline to create Gff3 data for Mouse Qtl assembly 37 ran" $EMAILLIST < mouseQtl37.log
-
-
-$RUNLOAD -object:sslp -species:MOUSE -mapKey:35 -toFile:$LOGDIR/Sslp/Mouse/mouse38/ -compress > mouseSslp38.log &
+$RUNLOAD -object:sslp -species:MOUSE -mapKey:35 -toFile:$LOGDIR/Sslp/Mouse/mouse38/ -compress > mouseSslp38.log
 mailx -s "[$SERVER]Pipeline to create Gff3 data for Mouse Sslp assembly 38 ran" $EMAILLIST < mouseSslp38.log
 
-$RUNLOAD -object:qtl -species:MOUSE -mapKey:35 -toFile:$LOGDIR/Qtl/Mouse/mouse38/ -compress > mouseQtl38.log &
-mailx -s "[$SERVER]Pipeline to create Gff3 data for Mouse Qtl assembly 38 ran" $EMAILLIST < mouseQtl38.log
-
-wait
 
 ##### DISEASE ONTOLOGY
 

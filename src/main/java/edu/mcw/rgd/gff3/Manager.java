@@ -52,8 +52,6 @@ public class Manager {
         System.out.println(creator.getVersion());
 
         try{
-            System.out.println("starting gff3 pipeline.. ");
-
             String codeUsage =
                     "USAGE for RGD OBjects:\n" +
                         "-object:gene/qtl/sslp/chromosome\n" +
@@ -79,14 +77,16 @@ public class Manager {
                         "Note: either sampleID or patientID is mandatory\n" +
                         "\n-------------------------------------------------------\n";
             creator.setUsage(codeUsage);
-            creator.doMain(args);
+            creator.doMain(args, bf);
         }catch (Exception createNewGffException){
             createNewGffException.printStackTrace();
         }
     }
 
-    public void doMain(String[] args) throws Exception {
-        parseArgs(args);
+    public void doMain(String[] args, DefaultListableBeanFactory bf) throws Exception {
+        if( parseArgs(args, bf) ) {
+            return;
+        }
 
         if(objectTypeKey!=0){
             handleObjects();
@@ -160,14 +160,16 @@ public class Manager {
             case RgdId.OBJECT_KEY_QTLS:
                 if(speciesTypekey!=0){
                     CreateGff4QTL createGff = new CreateGff4QTL();
-                    if((mapKey!=null)&&(toFile!=null)){
-                        createGff.setMapKey(Integer.parseInt(mapKey));
-                        createGff.setToFile(toFile);
-                        createGff.setSpeciesTypeKey(speciesTypekey);
-                        createGff.creategff4QTL(compress);
+                    if((mapKey!=null)&&(toDir!=null)){
+                        CreateInfo info = new CreateInfo();
+                        info.setMapKey(Integer.parseInt(mapKey));
+                        info.setToDir(toDir);
+                        info.setSpeciesTypeKey(speciesTypekey);
+                        info.setCompress(compress);
+                        createGff.creategff4QTL(info);
 
                     }else{
-                        throw new ArgumentsException("This Script requires '-mapKey: and -toFile:' " +
+                        throw new ArgumentsException("This Script requires '-mapKey: and -toDir:' " +
                                 "as parameters:\n" + getUsage());
                     }
                 }else{
@@ -264,7 +266,7 @@ public class Manager {
         }
     }
 
-    void parseArgs(String[] args) throws Exception {
+    boolean parseArgs(String[] args, DefaultListableBeanFactory bf) throws Exception {
 
         if(args.length>0){
             for(String obj: args ){
@@ -278,6 +280,10 @@ public class Manager {
                         case "qtl":
                             objectTypeKey = RgdId.OBJECT_KEY_QTLS;
                             break;
+                        case "qtls":
+                            CreateGff4QTL manager = (CreateGff4QTL) (bf.getBean("qtlManager"));
+                            manager.run();
+                            return true;
                         case "strain":
                             objectTypeKey = RgdId.OBJECT_KEY_STRAINS;
                             break;
@@ -344,6 +350,7 @@ public class Manager {
         }else{
             throw new ArgumentsException("Arguments not found..this script needs parameters.\n" + getUsage());
         }
+        return false;
     }
 
     public void setVersion(String version) {

@@ -24,6 +24,7 @@ public class RgdGff3Dao {
 
     private AliasDAO aliasDAO = new AliasDAO();
     private AnnotationDAO annotationDAO = new AnnotationDAO();
+    private AssociationDAO assocDao = new AssociationDAO();
     private GeneDAO geneDAO = new GeneDAO();
     private MapDAO mapDAO = new MapDAO();
     private OntologyXDAO ontologyXDAO = new OntologyXDAO();
@@ -224,5 +225,18 @@ public class RgdGff3Dao {
         return result;
     }
 
+    /// ASSOCIATION DAO
+    //
+    public List<Gene> getGeneAssociationsForQtl(int qtlRgdId) throws Exception {
+        return assocDao.getGeneAssociationsByQTL(qtlRgdId);
+    }
+
+    public List<Strain> getStrainAssociationsForQtl(int qtlRgdId) throws Exception {
+        return assocDao.getStrainAssociationsForQTL(qtlRgdId);
+    }
+
+    public Map<Integer, String> getQtlToQtlAssociations(int qtlKey) throws Exception {
+        return assocDao.getQtlToQtlAssociations(qtlKey);
+    }
 
 }

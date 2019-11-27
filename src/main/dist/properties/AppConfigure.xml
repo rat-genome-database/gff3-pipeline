@@ -2,7 +2,22 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Nov 14, 2019 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Nov 26, 2019 --" />
+    </bean>
+
+    <bean id="qtlManager" class="edu.mcw.rgd.gff3.CreateGff4QTL">
+        <property name="processedAssemblies">
+            <list>
+                <value>species:RAT    mapKey:60  toDir:data/Qtl/Rat/rat34/ compress:yes</value>
+                <value>species:RAT    mapKey:70  toDir:data/Qtl/Rat/rat50/ compress:yes</value>
+                <value>species:RAT    mapKey:360 toDir:data/Qtl/Rat/rat60/ compress:yes</value>
+                <value>species:HUMAN  mapKey:13  toDir:data/Qtl/Human/human36/ compress:yes</value>
+                <value>species:HUMAN  mapKey:17  toDir:data/Qtl/Human/human37/ compress:yes</value>
+                <value>species:HUMAN  mapKey:38  toDir:data/Qtl/Human/human38/ compress:yes</value>
+                <value>species:MOUSE  mapKey:18  toDir:data/Qtl/Mouse/mouse37/ compress:yes</value>
+                <value>species:MOUSE  mapKey:35  toDir:data/Qtl/Mouse/mouse38/ compress:yes</value>
+            </list>
+        </property>
     </bean>
 </beans>
 
