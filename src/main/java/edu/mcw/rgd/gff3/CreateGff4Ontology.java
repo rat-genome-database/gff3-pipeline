@@ -445,8 +445,8 @@ public class CreateGff4Ontology {
         CalculateDensity calcDensity = new CalculateDensity();
         calcDensity.setRgdInfoList(listOfRgdInfos);
         PrintWriter densityWriter = new PrintWriter(getToFile() + "density.gff");
-        calcDensity.setDensityDiseaseWriter(densityWriter);
-        calcDensity.runDensityCalculator();
+        calcDensity.setDensityWriter(densityWriter);
+        calcDensity.runDensityCalculator(true);
     }
 
     boolean isTermAnnotated(String termAcc) throws Exception {
