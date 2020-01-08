@@ -209,14 +209,11 @@ public class Manager {
             case RgdId.OBJECT_KEY_PROMOTERS:
                 CreatePromoters4Gene createPromoters4Gene = new CreatePromoters4Gene();
 
-                if( mapKey!=null && toFile!=null && speciesTypekey!=0 ){
-                    createPromoters4Gene.setMapKey(Integer.parseInt(mapKey));
-                    createPromoters4Gene.setObjectKey(objectTypeKey);
-                    createPromoters4Gene.setToFile(toFile);
-                    createPromoters4Gene.setSpeciesTypekey(speciesTypekey);
+                if( toDir!=null ){
+                    createPromoters4Gene.setToDir(toDir);
                     createPromoters4Gene.createGenomicElements(compress);
                 }else{
-                    throw new ArgumentsException("This Script requires '-mapKey: -species: -toFile:' " +
+                    throw new ArgumentsException("This Script requires -toDir:' " +
                             "as parameters:\n" + getUsage());
                 }
                 break;

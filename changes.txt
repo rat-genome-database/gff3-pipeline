@@ -1,3 +1,6 @@
+Jan 08, 2020
+  generation of gff3 files for all promoters in RGD
+
 Nov 26, 2019
   qtls: condensed summary emails into one
 
