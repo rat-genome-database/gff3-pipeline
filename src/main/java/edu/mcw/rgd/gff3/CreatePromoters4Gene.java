@@ -55,9 +55,6 @@ public class CreatePromoters4Gene {
 
                     String strand = Utils.NVL(mdObject.getStrand(), ".");
 
-                    gff3Writer.writeFirst8Columns(mdObject.getChromosome(), ge.getSource() + "_RGD", ge.getSoAccId(), mdObject.getStartPos(),
-                            mdObject.getStopPos(), ".", strand, ".");
-
                     Map<String, String> attributeHashMap = new HashMap<String, String>();
                     attributeHashMap.put("ID", ge.getRgdId() + "_" + mdObject.getStartPos() + "_" + mdObject.getStopPos());
                     attributeHashMap.put("Name", ge.getSymbol());
@@ -213,7 +210,12 @@ public class CreatePromoters4Gene {
                     if (!series.isEmpty())
                         attributeHashMap.put("series", series);
 
-                    gff3Writer.writeAttributes4Gff3(attributeHashMap);
+                    synchronized(gff3Writer) {
+                        gff3Writer.writeFirst8Columns(mdObject.getChromosome(), ge.getSource() + "_RGD", ge.getSoAccId(), mdObject.getStartPos(),
+                                mdObject.getStopPos(), ".", strand, ".");
+
+                        gff3Writer.writeAttributes4Gff3(attributeHashMap);
+                    }
 
                     incrementRowsWritten(mdObject.getMapKey(), rowsWritten);
                 }
