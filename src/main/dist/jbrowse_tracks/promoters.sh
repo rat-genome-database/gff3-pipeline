@@ -11,8 +11,8 @@ echo "RAT 6.0"
 
 ./remove-track.pl --dir /jbrowse/data_rgd6 --trackLabel Promoters --delete
 
-if [ -f $GFF3_LOC/Rnor_6.0_promoters.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/Rnor_6.0_promoters.gff3.gz > /tmp/rat60_promoters.gff3
+if [ -f $GFF3_LOC/Rat/Rnor_6.0_promoters.gff3.gz ]; then
+    gunzip -c $GFF3_LOC/Rat/Rnor_6.0_promoters.gff3.gz > /tmp/rat60_promoters.gff3
 
     ./flatfile-to-json.pl \
       --gff /tmp/rat60_promoters.gff3 \
@@ -28,8 +28,8 @@ echo "RAT 3.4"
 
 ./remove-track.pl --dir /jbrowse/data_rgd3_4 --trackLabel Promoters --delete
 
-if [ -f $GFF3_LOC/RGSC_v3.4_promoters.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/RGSC_v3.4_promoters.gff3.gz > /tmp/rat34_promoters.gff3
+if [ -f $GFF3_LOC/Rat/RGSC_v3.4_promoters.gff3.gz ]; then
+    gunzip -c $GFF3_LOC/Rat/RGSC_v3.4_promoters.gff3.gz > /tmp/rat34_promoters.gff3
 
     ./flatfile-to-json.pl \
       --gff /tmp/rat34_promoters.gff3 \
@@ -45,8 +45,8 @@ echo "HUMAN 38"
 
 ./remove-track.pl --dir /jbrowse/data_hg38 --trackLabel Promoters --delete
 
-if [ -f $GFF3_LOC/GRCh38_promoters.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/GRCh38_promoters.gff3.gz > /tmp/human38_promoters.gff3
+if [ -f $GFF3_LOC/Human/GRCh38_promoters.gff3.gz ]; then
+    gunzip -c $GFF3_LOC/Human/GRCh38_promoters.gff3.gz > /tmp/human38_promoters.gff3
 
     ./flatfile-to-json.pl \
       --gff /tmp/human38_promoters.gff3 \
@@ -62,8 +62,8 @@ echo "HUMAN 36"
 
 ./remove-track.pl --dir /jbrowse/data_hg18 --trackLabel Promoters --delete
 
-if [ -f "${GFF3_LOC}/Build 36_promoters.gff3.gz" ]; then
-    gunzip -c "${GFF3_LOC}/Build 36_promoters.gff3.gz" > /tmp/human36_promoters.gff3
+if [ -f "${GFF3_LOC}/Human/Build 36_promoters.gff3.gz" ]; then
+    gunzip -c "${GFF3_LOC}/Human/Build 36_promoters.gff3.gz" > /tmp/human36_promoters.gff3
 
     ./flatfile-to-json.pl \
       --gff /tmp/human36_promoters.gff3 \
@@ -79,8 +79,8 @@ echo "MOUSE 38"
 
 ./remove-track.pl --dir /jbrowse/data_mm38 --trackLabel Promoters --delete
 
-if [ -f $GFF3_LOC/GRCm38_promoters.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/GRCm38_promoters.gff3.gz > /tmp/mouse38_promoters.gff3
+if [ -f $GFF3_LOC/Mouse/GRCm38_promoters.gff3.gz ]; then
+    gunzip -c $GFF3_LOC/Mouse/GRCm38_promoters.gff3.gz > /tmp/mouse38_promoters.gff3
 
     ./flatfile-to-json.pl \
       --gff /tmp/mouse38_promoters.gff3 \
@@ -96,8 +96,8 @@ echo "MOUSE 37"
 
 ./remove-track.pl --dir /jbrowse/data_mm37 --trackLabel Promoters --delete
 
-if [ -f $GFF3_LOC/MGSCv37_promoters.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/MGSCv37_promoters.gff3.gz > /tmp/mouse37_promoters.gff3
+if [ -f $GFF3_LOC/Mouse/MGSCv37_promoters.gff3.gz ]; then
+    gunzip -c $GFF3_LOC/Mouse/MGSCv37_promoters.gff3.gz > /tmp/mouse37_promoters.gff3
 
     ./flatfile-to-json.pl \
       --gff /tmp/mouse37_promoters.gff3 \
@@ -113,8 +113,8 @@ echo "DOG"
 
 ./remove-track.pl --dir /jbrowse/data_dog3_1 --trackLabel Promoters --delete
 
-if [ -f $GFF3_LOC/CanFam3.1_promoters.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/CanFam3.1_promoters.gff3.gz > /tmp/dog31_promoters.gff3
+if [ -f $GFF3_LOC/Dog/CanFam3.1_promoters.gff3.gz ]; then
+    gunzip -c $GFF3_LOC/Dog/CanFam3.1_promoters.gff3.gz > /tmp/dog31_promoters.gff3
 
     ./flatfile-to-json.pl \
       --gff /tmp/dog31_promoters.gff3 \
