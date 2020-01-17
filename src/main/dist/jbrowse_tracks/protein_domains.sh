@@ -43,7 +43,7 @@ fi
 
 echo "RAT 3.4"
 
-./remove-track.pl --dir /jbrowse/data_rgd5 --trackLabel ProteinDomain --delete
+./remove-track.pl --dir /jbrowse/data_rgd3_4 --trackLabel ProteinDomain --delete
 
 if [ -f $GFF3_LOC/rat34_domains.gff3.gz ]; then
     gunzip -c $GFF3_LOC/rat34_domains.gff3.gz > /tmp/rat34_domains.gff3

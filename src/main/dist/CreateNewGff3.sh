@@ -206,12 +206,11 @@ mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for pig DrugGene assemb
 
 
 ##### PROMOTERS
+#     all species: rat, mouse, human, dog
 
-$RUNLOAD -object:promoter -species:RAT -mapKey:60 -toFile:$LOGDIR/Promoter/Rat/rat34/ -compress &> cron_ratPromoter34.log
-mailx -s "[$SERVER]Pipeline to create Promoter Gff3 data for rat assembly 3.4 ran" $EMAILLIST<cron_ratPromoter34.log
+$RUNLOAD -object:promoter -toDir:$LOGDIR/Promoter/ -compress &> promoters.log
+mailx -s "[$SERVER]Pipeline to create promoter gff3 files ran" $EMAILLIST<promoters.log
 
-$RUNLOAD -object:promoter -species:HUMAN -mapKey:13 -toFile:$LOGDIR/Promoter/Human/human36/ -compress &> cron_humanPromoter34.log
-mailx -s "[$SERVER]Pipeline to create Promoter Gff3 data for human assembly 36 ran" $EMAILLIST<cron_humanPromoter34.log
 
 
 ##### FINAL WRAPUP
