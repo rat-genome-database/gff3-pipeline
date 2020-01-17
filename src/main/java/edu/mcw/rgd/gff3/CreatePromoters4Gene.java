@@ -248,14 +248,15 @@ public class CreatePromoters4Gene {
 
         Gff3ColumnWriter gff3Writer = gff3Writers.get(mapKey);
         if( gff3Writer==null ) {
-            String assemblySymbol = Gff3Utils.getAssemblySymbol(mapKey);
-            int speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
+            //String assemblySymbol = Gff3Utils.getAssemblySymbol(mapKey);
+            edu.mcw.rgd.datamodel.Map map = MapManager.getInstance().getMap(mapKey);
+            int speciesTypeKey = map.getSpeciesTypeKey();
             String species = SpeciesType.getCommonName(speciesTypeKey);
 
-            gff3Writer = new Gff3ColumnWriter(getToDir()+species+"_"+assemblySymbol+"_RGD_promoters.gff3", false, compress);
+            gff3Writer = new Gff3ColumnWriter(getToDir()+species+"/"+map.getName()+"_promoters.gff3", false, compress);
             gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
             gff3Writer.print("# Species: "+ species+"\n");
-            gff3Writer.print("# Assembly: "+ MapManager.getInstance().getMap(mapKey).getName()+"\n");
+            gff3Writer.print("# Assembly: "+ map.getName()+"\n");
             gff3Writer.print("# Primary Contact: mtutaj@mcw.edu\n");
             gff3Writer.print("# Generated: "+new Date()+"\n");
             gff3Writers.put(mapKey, gff3Writer);
