@@ -1,3 +1,6 @@
+Jan 24, 2020
+  gene files: added generation of files for vervet (green monkey)
+
 Jan 17, 2020
   added loading of promoter gff3 files into JBrowse
 

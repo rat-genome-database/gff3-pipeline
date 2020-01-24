@@ -57,7 +57,8 @@ public class CreatePromoters4Gene {
 
                     Map<String, String> attributeHashMap = new HashMap<String, String>();
                     attributeHashMap.put("ID", ge.getRgdId() + "_" + mdObject.getStartPos() + "_" + mdObject.getStopPos());
-                    attributeHashMap.put("Name", ge.getSymbol());
+
+                    attributeHashMap.put("Name", Utils.NVL(ge.getName(), ge.getSymbol()));
 
                     List<Association> rgdIdsList = assDao.getAssociationsForMasterRgdId(rgdid, "promoter_to_gene");
                     String promoterGeneAssoc = "";
@@ -82,12 +83,11 @@ public class CreatePromoters4Gene {
                     }
                     attributeHashMap.put("Alias", +ge.getRgdId() + "," + geName + "," + geDesc);
 
-                    String geNotes = "NA";
-                    if ((ge.getNotes() != null) && (!(ge.getNotes().equals("")))) {
-                        String notes = ge.getNotes().replaceAll(";", ",");
-                        geNotes = notes.replaceAll("=", "->");
+                    String geNotes = Utils.defaultString(ge.getNotes());
+                    if( !Utils.isStringEmpty(geNotes) ) {
+                        String notes = geNotes.replaceAll(";", ",").replaceAll("=", "->");
+                        attributeHashMap.put("Note", notes);
                     }
-                    attributeHashMap.put("Note", geNotes);
 
                     String geObjectType = "NA";
                     if ((ge.getObjectType() != null) && (!(ge.getObjectType().equals("")))) {
@@ -125,7 +125,7 @@ public class CreatePromoters4Gene {
                         DecimalFormat df = new DecimalFormat("#.####");
                         String modChipSeqReads = df.format(expd.getChipSeqReadDensity());
 
-                        if( !modChipSeqReads.equals("0.0") ) {
+                        if( !(modChipSeqReads.equals("0.0") || modChipSeqReads.equals("0")) ) {
                             if( chipSeqDensity==null ) {
                                 chipSeqDensity = modChipSeqReads;
                             } else {
