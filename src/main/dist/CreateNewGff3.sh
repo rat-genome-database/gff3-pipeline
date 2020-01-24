@@ -42,6 +42,7 @@ mailx -s "[$SERVER]Pipeline to create Gff3 data for protein domains ran" $EMAILL
 
 ##### GENES
 
+$RUNLOAD -object:gene -species:VERVET -mapKey:1311 -toDir:$LOGDIR/Gene/Vervet/ -chr:* -compress  > vervetGene11.log &
 $RUNLOAD -object:gene -species:PIG -mapKey:911 -toDir:$LOGDIR/Gene/Pig/ -chr:* -compress  > pigGene11.log &
 $RUNLOAD -object:gene -species:PIG -mapKey:910 -toDir:$LOGDIR/Gene/Pig/ -chr:* -compress  > pigGene10.log &
 $RUNLOAD -object:gene -species:CHINCHILLA -mapKey:44 -toDir:$LOGDIR/Gene/Chinchilla/ -chr:* -compress  > chinchillaGene10.log &

@@ -57,7 +57,8 @@ public class CreatePromoters4Gene {
 
                     Map<String, String> attributeHashMap = new HashMap<String, String>();
                     attributeHashMap.put("ID", ge.getRgdId() + "_" + mdObject.getStartPos() + "_" + mdObject.getStopPos());
-                    attributeHashMap.put("Name", ge.getSymbol());
+
+                    attributeHashMap.put("Name", Utils.NVL(ge.getName(), ge.getSymbol()));
 
                     List<Association> rgdIdsList = assDao.getAssociationsForMasterRgdId(rgdid, "promoter_to_gene");
                     String promoterGeneAssoc = "";
@@ -82,12 +83,11 @@ public class CreatePromoters4Gene {
                     }
                     attributeHashMap.put("Alias", +ge.getRgdId() + "," + geName + "," + geDesc);
 
-                    String geNotes = "NA";
-                    if ((ge.getNotes() != null) && (!(ge.getNotes().equals("")))) {
-                        String notes = ge.getNotes().replaceAll(";", ",");
-                        geNotes = notes.replaceAll("=", "->");
+                    String geNotes = Utils.defaultString(ge.getNotes());
+                    if( !Utils.isStringEmpty(geNotes) ) {
+                        String notes = geNotes.replaceAll(";", ",").replaceAll("=", "->");
+                        attributeHashMap.put("Note", notes);
                     }
-                    attributeHashMap.put("Note", geNotes);
 
                     String geObjectType = "NA";
                     if ((ge.getObjectType() != null) && (!(ge.getObjectType().equals("")))) {
@@ -96,119 +96,92 @@ public class CreatePromoters4Gene {
                     attributeHashMap.put("objectType", geObjectType);
 
 
-                    ArrayList<String> tissueArr = new ArrayList<String>();
+                    Set<String> tissueArr = new TreeSet<String>();
+                    Set<String> transcriptSet = new TreeSet<String>();
 
-                    String tissues = "", chipSeqDensity = "", transcripts = "", expMethods = "";
-                    String regul = "", series = "";
-                    String modTissues = "NA", modTranscripts = "NA", modChipSeqDensity = "0.0";
-                    String modExpMethods = "NA", modRegul = "NA";
+                    String chipSeqDensity = null, transcripts = null, expMethods = null, regul = null, tissues = null;
 
                     List<ExpressionData> promExprData = genEleDao.getExpressionData(rgdid);
 
-
                     for (ExpressionData expd : promExprData) {
 
-                        if ((expd.getTissue() != null) && (!expd.getTissue().equals(""))) {
-                            if (!(tissueArr.contains(expd.getTissue()))) {
-                                //tissues+=expd.getTissue()+",";
-                                tissueArr.add(expd.getTissue());
-                            }
-                        } else {
-                            if (!(tissues.contains("NA"))) {
-                                //tissues+="NA,";
-                                tissueArr.add("NA");
+                        String tissue = Utils.defaultString(expd.getTissue());
+                        if( !Utils.isStringEmpty(tissue) ) {
+                            if( !tissueArr.contains(tissue) ) {
+                                tissueArr.add(tissue);
                             }
                         }
 
-
-                        if ((expd.getTranscripts() != null) && (!expd.getTranscripts().equals(""))) {
-                            if (!(transcripts.contains(expd.getTranscripts()))) {
-                                transcripts += expd.getTranscripts() + ",";
-                            }
-                        } else {
-                            if (!(transcripts.contains("NA"))) {
-                                transcripts += "NA,";
+                        String transcriptList = Utils.defaultString(expd.getTranscripts());
+                        String[] transcriptArr = transcriptList.split("[\\,]");
+                        for( String tr: transcriptArr ) {
+                            if( !Utils.isStringEmpty(tr) ) {
+                                if( !transcriptSet.contains(tr) ) {
+                                    transcriptSet.add(tr);
+                                }
                             }
                         }
 
                         DecimalFormat df = new DecimalFormat("#.####");
                         String modChipSeqReads = df.format(expd.getChipSeqReadDensity());
 
-                        if ((!modChipSeqReads.equals(""))) {
-                            if (!(chipSeqDensity.contains(modChipSeqReads))) {
-                                chipSeqDensity += modChipSeqReads + ",";
-                            }
-
-                            if (!(series.contains(modChipSeqReads))) {
-                                series = modChipSeqReads;
-                            }
-                        } else {
-                            if (!(chipSeqDensity.contains("0.0"))) {
-                                chipSeqDensity += "0.0,";
-                            }
-
-                            if (!(series.contains("0.0"))) {
-                                series = "0.0";
+                        if( !(modChipSeqReads.equals("0.0") || modChipSeqReads.equals("0")) ) {
+                            if( chipSeqDensity==null ) {
+                                chipSeqDensity = modChipSeqReads;
+                            } else {
+                                chipSeqDensity += "," + modChipSeqReads;
                             }
                         }
 
 
-                        if ((expd.getExperimentMethods() != null) && (!expd.getExperimentMethods().equals(""))) {
-                            if (!(expMethods.contains(expd.getExperimentMethods()))) {
-                                expMethods += expd.getExperimentMethods().replaceAll(";", " AND ") + ",";
-                            }
-                        } else {
-                            if (!(expMethods.contains("NA"))) {
-                                expMethods += "NA,";
+                        if( !Utils.isStringEmpty(expd.getExperimentMethods()) ) {
+
+                            String expMeStr = expd.getExperimentMethods().replaceAll(";", " ");
+                            if( expMethods==null ) {
+                                expMethods = expMeStr;
+                            } else {
+                                if( !expMethods.contains(expMeStr) ) {
+                                    expMethods += "," + expMeStr;
+                                }
                             }
                         }
 
 
-                        if ((expd.getRegulation() != null) && (!expd.getRegulation().equals(""))) {
-                            if (!(regul.contains(expd.getRegulation()))) {
-                                regul += expd.getRegulation().replaceAll(";", " AND ") + ",";
-                            }
-                        } else {
-                            if (!(regul.contains("NA"))) {
-                                regul += "NA,";
+                        if( !Utils.isStringEmpty(expd.getRegulation()) ) {
+                            String regulStr = expd.getRegulation().replaceAll(";", " AND ");
+                            if( regul==null ) {
+                                regul = regulStr;
+                            } else {
+                                if( !regul.contains(regulStr) ) {
+                                    regul += "," + regulStr;
+                                }
                             }
                         }
-
                     }
 
                     if (tissueArr.size() > 0) {
-                        for (String tiss : tissueArr) {
-                            tissues += tiss + ",";
-                        }
-                        if (tissues.endsWith(",")) {
-                            modTissues = tissues.substring(0, (tissues.length() - 1));
-                        }
-                    } else {
-                        modTissues = "NA";
+                        tissues = Utils.concatenate(tissueArr, ",");
+                    }
+                    if( !transcriptSet.isEmpty() ) {
+                        transcripts = Utils.concatenate(transcriptSet, ",");
                     }
 
 
-                    if (transcripts.endsWith(",")) {
-                        modTranscripts = transcripts.substring(0, (transcripts.length() - 1));
+                    if( tissues!=null ) {
+                        attributeHashMap.put("tissues", tissues);
                     }
-                    if (chipSeqDensity.endsWith(",")) {
-                        modChipSeqDensity = chipSeqDensity.substring(0, (chipSeqDensity.length() - 1));
+                    if( transcripts!=null ) {
+                        attributeHashMap.put("transcripts", transcripts);
                     }
-                    if (expMethods.endsWith(",")) {
-                        modExpMethods = expMethods.substring(0, (expMethods.length() - 1));
+                    if( chipSeqDensity!=null ) {
+                        attributeHashMap.put("chipSeqDensityValues", chipSeqDensity);
                     }
-                    if (regul.endsWith(",")) {
-                        modRegul = regul.substring(0, (regul.length() - 1));
+                    if( expMethods!=null ) {
+                        attributeHashMap.put("experimentMethods", expMethods);
                     }
-
-
-                    attributeHashMap.put("tissues", modTissues);
-                    attributeHashMap.put("transcripts", modTranscripts);
-                    attributeHashMap.put("chipSeqDensityValues", modChipSeqDensity);
-                    attributeHashMap.put("experimentMethods", modExpMethods);
-                    attributeHashMap.put("regulation", modRegul);
-                    if (!series.isEmpty())
-                        attributeHashMap.put("series", series);
+                    if( regul!=null ) {
+                        attributeHashMap.put("regulation", regul);
+                    }
 
                     synchronized(gff3Writer) {
                         gff3Writer.writeFirst8Columns(mdObject.getChromosome(), ge.getSource() + "_RGD", ge.getSoAccId(), mdObject.getStartPos(),
