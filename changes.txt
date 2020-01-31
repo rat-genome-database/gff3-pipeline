@@ -1,3 +1,6 @@
+Jan 31, 2020
+  fasta preprocessor updated to preprocess scaffold reference sequence for 'naked mole rat'
+
 Jan 24, 2020
   gene files: added generation of files for vervet (green monkey)
 
