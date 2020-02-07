@@ -42,26 +42,9 @@ mailx -s "[$SERVER]Pipeline to create Gff3 data for protein domains ran" $EMAILL
 
 ##### GENES
 
-$RUNLOAD -object:gene -species:VERVET -mapKey:1311 -toDir:$LOGDIR/Gene/Vervet/ -chr:* -compress  > vervetGene11.log &
-$RUNLOAD -object:gene -species:PIG -mapKey:911 -toDir:$LOGDIR/Gene/Pig/ -chr:* -compress  > pigGene11.log &
-$RUNLOAD -object:gene -species:PIG -mapKey:910 -toDir:$LOGDIR/Gene/Pig/ -chr:* -compress  > pigGene10.log &
-$RUNLOAD -object:gene -species:CHINCHILLA -mapKey:44 -toDir:$LOGDIR/Gene/Chinchilla/ -chr:* -compress  > chinchillaGene10.log &
-$RUNLOAD -object:gene -species:SQUIRREL -mapKey:720 -toDir:$LOGDIR/Gene/Squirrel/ -chr:* -compress  > squirrelGene20.log &
-$RUNLOAD -object:gene -species:BONOBO -mapKey:511 -toDir:$LOGDIR/Gene/Bonobo/ -chr:* -compress  > bonoboGene31.log &
-$RUNLOAD -object:gene -species:DOG -mapKey:631 -toDir:$LOGDIR/Gene/Dog/ -chr:* -compress  > dogGene31.log &
-
-$RUNLOAD -object:gene -species:MOUSE -mapKey:18 -toDir:$LOGDIR/Gene/Mouse/ -chr:* -compress  > mouseGene37.log &
-$RUNLOAD -object:gene -species:MOUSE -mapKey:35 -toDir:$LOGDIR/Gene/Mouse/ -chr:* -compress  > mouseGene38.log &
-wait
-
-$RUNLOAD -object:gene -species:RAT -mapKey:60 -toDir:$LOGDIR/Gene/Rat/ -chr:* -compress  > ratGene34.log &
-$RUNLOAD -object:gene -species:RAT -mapKey:70 -toDir:$LOGDIR/Gene/Rat/ -chr:* -compress  > ratGene50.log &
-$RUNLOAD -object:gene -species:RAT -mapKey:360 -toDir:$LOGDIR/Gene/Rat/ -chr:* -compress  > ratGene60.log &
-
-$RUNLOAD -object:gene -species:HUMAN -mapKey:13 -toDir:$LOGDIR/Gene/Human/ -chr:* -compress  > humanGene36.log &
-$RUNLOAD -object:gene -species:HUMAN -mapKey:17 -toDir:$LOGDIR/Gene/Human/ -chr:* -compress  > humanGene37.log &
-$RUNLOAD -object:gene -species:HUMAN -mapKey:38 -toDir:$LOGDIR/Gene/Human/ -chr:* -compress  > humanGene38.log &
-wait
+# assemblies, species info and output dirs are read from properties file AppConfigure.xml
+$RUNLOAD -object:genes > gene.log
+mailx -s "[$SERVER]Pipeline to create Gff3 data for Genes ran" $EMAILLIST < gene.log
 
 mailx -s "[$SERVER]Pipeline to create Gff3 data for genes ran" $EMAILLIST < logs/gene.log
 

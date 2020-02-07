@@ -17,271 +17,275 @@ public class CreateGff4Gene {
     RgdGff3Dao dao = new RgdGff3Dao();
     Logger log = Logger.getLogger("gene");
 
-    private String newPathGff3;
-    private int speciesTypeKey;
-    private int mapKey;
-    private List<String> chromosomes;
+    private List<String> processedAssemblies;
 
-    public void setNewPathGff3(String newPathGff3) {
-        this.newPathGff3 = newPathGff3;
-    }
+    /**
+     * load the species list and assemblies from properties/AppConfigure.xml
+     */
+    public void run() throws Exception {
 
-    public String getNewPathGff3() {
-        return newPathGff3;
+        processedAssemblies.parallelStream().forEach( assemblyInfo -> {
+
+            CreateInfo info = new CreateInfo();
+            try {
+                info.parseFromString(assemblyInfo);
+
+                createGeneGff3(info);
+            } catch(Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     Map<String, AtomicInteger> idMap = new ConcurrentHashMap<>();
 
-    public void createGeneGff3(boolean compress) throws Exception{
+    public void createGeneGff3(CreateInfo info) throws Exception{
+
+        StringBuffer msgBuf = new StringBuffer();
 
         long time0 = System.currentTimeMillis();
 
-        CdsUtils utils = new CdsUtils(dao, mapKey);
+        CdsUtils utils = new CdsUtils(dao, info.getMapKey());
 
-        String species = SpeciesType.getCommonName(speciesTypeKey);
+        String species = SpeciesType.getCommonName(info.getSpeciesTypeKey());
         idMap.clear();
 
-        String assemblySymbol = Gff3Utils.getAssemblySymbol(mapKey);
+        String assemblySymbol = Gff3Utils.getAssemblySymbol(info.getMapKey());
 
-        log.info("Generate GFF3 file for "+species+", MAP_KEY="+mapKey+" ("+assemblySymbol+")");
-        log.info("    "+dao.getConnectionInfo());
+        msgBuf.append("Generate GFF3 file for "+species+", MAP_KEY="+info.getMapKey()+" ("+assemblySymbol+")\n");
+        msgBuf.append("    "+dao.getConnectionInfo()+"\n");
 
         // March 2 2016: RATMINE gff3 loader does not allow one gene to have multiple loci
         //               so we emit only first loci per gene
         Set<Integer> geneRgdIdsEmitted = new ConcurrentSkipListSet<>();
 
-        CounterPool allChrCounters = new CounterPool();
+        CounterPool counters = new CounterPool();
 
-        for( String chr: getChromosomes() ) {
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(info.getToDir()+"/"+assemblySymbol+"_genes.gff3", false, info.isCompress());
+        gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
+        gff3Writer.print("# Species: "+ species+"\n");
+        gff3Writer.print("# Assembly: "+ MapManager.getInstance().getMap(info.getMapKey()).getName()+"\n");
+        gff3Writer.print("# Primary Contact: mtutaj@mcw.edu\n");
+        gff3Writer.print("# Generated: "+new Date()+"\n");
 
-            CounterPool counters = new CounterPool();
+        Gff3ColumnWriter RATMINEgff3Writer = new Gff3ColumnWriter(info.getToDir()+"/RATMINE_"+assemblySymbol+"_genes.gff3", false, info.isCompress());
+        RATMINEgff3Writer.setRatmineCompatibleFormat(true);
 
-            Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(newPathGff3+"/"+assemblySymbol+"_genes.gff3", false, compress);
-            gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
-            gff3Writer.print("# Species: "+ species+"\n");
-            gff3Writer.print("# Assembly: "+ MapManager.getInstance().getMap(mapKey).getName()+"\n");
-            gff3Writer.print("# Primary Contact: mtutaj@mcw.edu\n");
-            gff3Writer.print("# Generated: "+new Date()+"\n");
+        List<Gene> activeGenes = dao.getActiveGenes(info.getSpeciesTypeKey());
 
-            Gff3ColumnWriter RATMINEgff3Writer = new Gff3ColumnWriter(newPathGff3+"/RATMINE_"+assemblySymbol+"_genes.gff3", false, compress);
-            RATMINEgff3Writer.setRatmineCompatibleFormat(true);
+        for( Gene gene: activeGenes ){
+            int geneRgdId = gene.getRgdId();
+            List<MapData> geneMap = getMapData(geneRgdId, info.getMapKey(), counters);
+            if( geneMap.isEmpty() ) {
+                //System.out.println("no map positions");
+                continue;
+            }
+            counters.increment(" Genes processed");
 
-            List<Gene> activeGenes = (chr.equals("Scaffold") || chr.equals("*")) ? dao.getActiveGenes(speciesTypeKey) : dao.getActiveGenes(chr, 1, Long.MAX_VALUE, mapKey);
+            String nameOfgene = getNameOfGene(gene, counters);
 
-            for( Gene gene: activeGenes ){
-                int geneRgdId = gene.getRgdId();
-                List<MapData> geneMap = getMapData(geneRgdId, mapKey, counters);
-                if( geneMap.isEmpty() ) {
-                    //System.out.println("no map positions");
-                    continue;
+            List<Transcript> geneTrs = dao.getTranscriptsForGene(geneRgdId);
+
+            String annotDesc = Utils.getGeneDescription(gene);
+            if( Utils.isStringEmpty(annotDesc) ){
+                annotDesc = null;
+            }else{
+                annotDesc = annotDesc.replaceAll(";"," AND ").replaceAll(",", " ");
+            }
+
+
+            String nc="N";
+
+            for(MapData map : geneMap){
+
+                boolean writeRATMINE = geneRgdIdsEmitted.add(map.getRgdId());
+                if( !writeRATMINE ) {
+                    counters.increment(" Gene Loci skipped for RATMINE");
                 }
-                counters.increment(" Genes processed");
 
-                String nameOfgene = getNameOfGene(gene, counters);
+                List<Transcript> trsOnMap = getTranscriptsForMap(geneTrs, map, utils);
 
-                List<Transcript> geneTrs = dao.getTranscriptsForGene(geneRgdId);
+                String gType;
+                if(gene.getType()==null){
+                    gType="gene";
+                    counters.increment(" Genes with NULL geneType");
 
-                String annotDesc = Utils.getGeneDescription(gene);
-                if( Utils.isStringEmpty(annotDesc) ){
-                    annotDesc = null;
                 }else{
-                    annotDesc = annotDesc.replaceAll(";"," AND ").replaceAll(",", " ");
+                    gType=gene.getType();
+
+                    if(gene.getType().contains("pseudo")){
+                        counters.increment(" Pseudo Genes");
+                    }
                 }
 
+                List<XdbId> xdbIds = getXdbIds(geneRgdId);
 
-                String nc="N";
+                Map<String,String> attributesHashMap = new HashMap<>();
+                Map<String,String> RATMINEattributesHashMap = new HashMap<>();
 
-                for(MapData map : geneMap){
+                String uniqueGeneId = getUniqueId("RGD"+gene.getRgdId());
+                attributesHashMap.put("ID", uniqueGeneId);
+                attributesHashMap.put("Name", gene.getSymbol());
+                attributesHashMap.put("fullName", nameOfgene);
+                attributesHashMap.put("Alias", gene.getSymbol()+","+"RGD"+gene.getRgdId()+","+gene.getRgdId()
+                        + "," + nameOfgene + getHgncMgiIds(xdbIds));
+                attributesHashMap.put("geneType", gType.replaceAll("\\-","_"));
+                attributesHashMap.put("species",species);
+                if( gene.getRefSeqStatus()!=null )
+                    attributesHashMap.put("refSeqStatus",gene.getRefSeqStatus());
+                if( annotDesc!=null )
+                    attributesHashMap.put("Note",annotDesc);
+                if( !Utils.isStringEmpty(gene.getNcbiAnnotStatus()) ) {
+                    attributesHashMap.put("nomenclatureStatus", gene.getNcbiAnnotStatus());
+                }
 
-                    boolean writeRATMINE = geneRgdIdsEmitted.add(map.getRgdId());
-                    if( !writeRATMINE ) {
-                        counters.increment(" Gene Loci skipped for RATMINE");
+                String RATMINEuniqueGeneId = getUniqueId("RGD:"+gene.getRgdId());
+                RATMINEattributesHashMap.put("ID", RATMINEuniqueGeneId);
+                RATMINEattributesHashMap.put("Name", gene.getSymbol());
+                RATMINEattributesHashMap.put("fullName", nameOfgene);
+                RATMINEattributesHashMap.put("Alias", "RGD"+gene.getRgdId()+","+gene.getRgdId()+","+nameOfgene);
+                if( annotDesc!=null )
+                    RATMINEattributesHashMap.put("Note",annotDesc);
+                RATMINEattributesHashMap.put("geneType",gene.getType());
+                RATMINEattributesHashMap.put("nomenclatureStatus", gene.getNcbiAnnotStatus());
+
+
+                String extDbString = getXdbString(xdbIds, counters, false);
+                if( !extDbString.isEmpty() ){
+                    attributesHashMap.put("Dbxref",extDbString);
+
+                    extDbString = getXdbString(xdbIds, counters, true);
+                    RATMINEattributesHashMap.put("Dbxref", extDbString);
+                }
+
+                gff3Writer.writeFirst8Columns(map.getChromosome(),"RGD", "gene", map.getStartPos(),map.getStopPos(),".",map.getStrand(),".");
+                gff3Writer.writeAttributes4Gff3(attributesHashMap);
+
+                if( writeRATMINE ) {
+                    if(RATMINEuniqueGeneId.contains("_")) {
+                        msgBuf.append("RATMINE error: dash in ID\n");
                     }
+                    RATMINEgff3Writer.writeFirst8Columns(map.getChromosome(), "RGD", "gene", map.getStartPos(), map.getStopPos(), ".", map.getStrand(), ".");
+                    RATMINEgff3Writer.writeAttributes4Gff3(RATMINEattributesHashMap);
+                }
 
-                    List<Transcript> trsOnMap = getTranscriptsForMap(geneTrs, map, utils);
+                if(trsOnMap.size()>1){
+                    counters.increment(" Genes with more than one mapped transcript");
+                }
+                if(trsOnMap.size()>0){
+                    counters.increment(" Genes with transcripts");
 
-                    String gType;
-                    if(gene.getType()==null){
-                        gType="gene";
-                        counters.increment(" Genes with NULL geneType");
+                    for( Transcript tr: trsOnMap ){
 
-                    }else{
-                        gType=gene.getType();
-
-                        if(gene.getType().contains("pseudo")){
-                            counters.increment(" Pseudo Genes");
+                        if(tr.isNonCoding()){
+                            nc="Y";
+                            counters.increment(" NonCoding transcripts");
                         }
-                    }
+                        for( MapData trMd: tr.getGenomicPositions() ) {
+                            if( !utils.transcriptPositionOverlapsGenePosition(trMd, map) )
+                                continue;
 
-                    List<XdbId> xdbIds = getXdbIds(geneRgdId);
+                            String id = getUniqueId("mRNARGD"+tr.getRgdId());
 
-                    Map<String,String> attributesHashMap = new HashMap<>();
-                    Map<String,String> RATMINEattributesHashMap = new HashMap<>();
+                            counters.increment(" Mapped Transcripts");
 
-                    String uniqueGeneId = getUniqueId("RGD"+gene.getRgdId());
-                    attributesHashMap.put("ID", uniqueGeneId);
-                    attributesHashMap.put("Name", gene.getSymbol());
-                    attributesHashMap.put("fullName", nameOfgene);
-                    attributesHashMap.put("Alias", gene.getSymbol()+","+"RGD"+gene.getRgdId()+","+gene.getRgdId()
-                            + "," + nameOfgene + getHgncMgiIds(xdbIds));
-                    attributesHashMap.put("geneType", gType.replaceAll("\\-","_"));
-                    attributesHashMap.put("species",species);
-                    if( gene.getRefSeqStatus()!=null )
-                        attributesHashMap.put("refSeqStatus",gene.getRefSeqStatus());
-                    if( annotDesc!=null )
-                        attributesHashMap.put("Note",annotDesc);
-                    if( !Utils.isStringEmpty(gene.getNcbiAnnotStatus()) ) {
-                        attributesHashMap.put("nomenclatureStatus", gene.getNcbiAnnotStatus());
-                    }
+                            attributesHashMap.put("ID", id);
+                            attributesHashMap.put("Name", tr.getAccId());
+                            attributesHashMap.put("Parent", uniqueGeneId);
+                            attributesHashMap.put("Alias", "RGD:"+tr.getRgdId());
+                            if( tr.getRefSeqStatus()!=null )
+                                attributesHashMap.put("refSeqStatus", tr.getRefSeqStatus());
+                            attributesHashMap.put("isNonCoding", nc);
+                            attributesHashMap.put("gene", gene.getSymbol());
 
-                    String RATMINEuniqueGeneId = getUniqueId("RGD:"+gene.getRgdId());
-                    RATMINEattributesHashMap.put("ID", RATMINEuniqueGeneId);
-                    RATMINEattributesHashMap.put("Name", gene.getSymbol());
-                    RATMINEattributesHashMap.put("fullName", nameOfgene);
-                    RATMINEattributesHashMap.put("Alias", "RGD"+gene.getRgdId()+","+gene.getRgdId()+","+nameOfgene);
-                    if( annotDesc!=null )
-                        RATMINEattributesHashMap.put("Note",annotDesc);
-                    RATMINEattributesHashMap.put("geneType",gene.getType());
-                    RATMINEattributesHashMap.put("nomenclatureStatus", gene.getNcbiAnnotStatus());
+                            RATMINEattributesHashMap.put("ID", id);
+                            RATMINEattributesHashMap.put("Name", tr.getAccId());
+                            RATMINEattributesHashMap.put("Parent", RATMINEuniqueGeneId);
+                            RATMINEattributesHashMap.put("Alias", "RGD:"+tr.getRgdId());
+                            if( tr.getRefSeqStatus()!=null )
+                                RATMINEattributesHashMap.put("RefSeqStatus", tr.getRefSeqStatus());
+                            RATMINEattributesHashMap.put("isNon-Coding", nc);
+                            RATMINEattributesHashMap.put("gene", gene.getSymbol());
 
+                            gff3Writer.writeFirst8Columns(trMd.getChromosome(), "RGD", "mRNA", trMd.getStartPos(),trMd.getStopPos(), ".", trMd.getStrand(), ".");
+                            gff3Writer.writeAttributes4Gff3(attributesHashMap);
 
-                    String extDbString = getXdbString(xdbIds, counters, false);
-                    if( !extDbString.isEmpty() ){
-                        attributesHashMap.put("Dbxref",extDbString);
-
-                        extDbString = getXdbString(xdbIds, counters, true);
-                        RATMINEattributesHashMap.put("Dbxref", extDbString);
-                    }
-
-                    gff3Writer.writeFirst8Columns(map.getChromosome(),"RGD", "gene", map.getStartPos(),map.getStopPos(),".",map.getStrand(),".");
-                    gff3Writer.writeAttributes4Gff3(attributesHashMap);
-
-                    if( writeRATMINE ) {
-                        if(RATMINEuniqueGeneId.contains("_")) {
-                            log.warn("RATMINE error: dash in ID");
-                        }
-                        RATMINEgff3Writer.writeFirst8Columns(map.getChromosome(), "RGD", "gene", map.getStartPos(), map.getStopPos(), ".", map.getStrand(), ".");
-                        RATMINEgff3Writer.writeAttributes4Gff3(RATMINEattributesHashMap);
-                    }
-
-                    if(trsOnMap.size()>1){
-                        counters.increment(" Genes with more than one mapped transcript");
-                    }
-                    if(trsOnMap.size()>0){
-                        counters.increment(" Genes with transcripts");
-
-                        for( Transcript tr: trsOnMap ){
-
-                            if(tr.isNonCoding()){
-                                nc="Y";
-                                counters.increment(" NonCoding transcripts");
+                            if( writeRATMINE ) {
+                                RATMINEgff3Writer.writeFirst8Columns(trMd.getChromosome(), "RGD", "mRNA", trMd.getStartPos(), trMd.getStopPos(), ".", trMd.getStrand(), ".");
+                                RATMINEgff3Writer.writeAttributes4Gff3(RATMINEattributesHashMap);
                             }
-                            for( MapData trMd: tr.getGenomicPositions() ) {
-                                if( !utils.transcriptPositionOverlapsGenePosition(trMd, map) )
-                                    continue;
 
-                                String id = getUniqueId("mRNARGD"+tr.getRgdId());
+                            List<edu.mcw.rgd.gff3.CodingFeature> cfList = utils.buildCfList(trMd);
+                            for(edu.mcw.rgd.gff3.CodingFeature cf: cfList){
+                                String featureId;
 
-                                counters.increment(" Mapped Transcripts");
+                                if(cf.getFeatureType()== TranscriptFeature.FeatureType.CDS){
+                                    featureId = getUniqueId("trFeatureCDS"+cf.getRgdId());
 
-                                attributesHashMap.put("ID", id);
-                                attributesHashMap.put("Name", tr.getAccId());
-                                attributesHashMap.put("Parent", uniqueGeneId);
-                                attributesHashMap.put("Alias", "RGD:"+tr.getRgdId());
-                                if( tr.getRefSeqStatus()!=null )
-                                    attributesHashMap.put("refSeqStatus", tr.getRefSeqStatus());
-                                attributesHashMap.put("isNonCoding", nc);
-                                attributesHashMap.put("gene", gene.getSymbol());
+                                    counters.increment(" Mapped CDSs");
+                                }
+                                else {
+                                    featureId = getUniqueId("trFeature"+cf.getRgdId());
 
-                                RATMINEattributesHashMap.put("ID", id);
-                                RATMINEattributesHashMap.put("Name", tr.getAccId());
-                                RATMINEattributesHashMap.put("Parent", RATMINEuniqueGeneId);
-                                RATMINEattributesHashMap.put("Alias", "RGD:"+tr.getRgdId());
-                                if( tr.getRefSeqStatus()!=null )
-                                    RATMINEattributesHashMap.put("RefSeqStatus", tr.getRefSeqStatus());
-                                RATMINEattributesHashMap.put("isNon-Coding", nc);
-                                RATMINEattributesHashMap.put("gene", gene.getSymbol());
+                                    if(cf.getFeatureType()== TranscriptFeature.FeatureType.EXON){
+                                        counters.increment(" Mapped Exons");
+                                    }else
+                                    if(cf.getFeatureType()== TranscriptFeature.FeatureType.UTR5){
+                                        counters.increment(" Mapped UTR5");
+                                    }else
+                                    if(cf.getFeatureType()== TranscriptFeature.FeatureType.UTR3){
+                                        counters.increment(" Mapped UTR3");
+                                    }
+                                }
 
-                                gff3Writer.writeFirst8Columns(trMd.getChromosome(), "RGD", "mRNA", trMd.getStartPos(),trMd.getStopPos(), ".", trMd.getStrand(), ".");
+                                gff3Writer.writeFirst8Columns(cf.getChromosome(), "RGD", cf.getCanonicalName(), cf.getStartPos(), cf.getStopPos(), ".", cf.getStrand(), cf.getCodingPhaseStr());
+
+
+                                attributesHashMap.put("ID", featureId);
+                                attributesHashMap.put("Parent", id);
+                                if( cf.getNotes()!=null )
+                                    attributesHashMap.put("Note", cf.getNotes());
+
+                                RATMINEattributesHashMap.put("ID", featureId);
+                                RATMINEattributesHashMap.put("Parent", id);
+                                if( cf.getNotes()!=null )
+                                    RATMINEattributesHashMap.put("Note", cf.getNotes());
+
+
                                 gff3Writer.writeAttributes4Gff3(attributesHashMap);
 
                                 if( writeRATMINE ) {
-                                    RATMINEgff3Writer.writeFirst8Columns(trMd.getChromosome(), "RGD", "mRNA", trMd.getStartPos(), trMd.getStopPos(), ".", trMd.getStrand(), ".");
+                                    RATMINEgff3Writer.writeFirst8Columns(cf.getChromosome(), "RGD", String.valueOf(cf.getFeatureType()), cf.getStartPos(), cf.getStopPos(), ".", cf.getStrand(), cf.getCodingPhaseStr());
                                     RATMINEgff3Writer.writeAttributes4Gff3(RATMINEattributesHashMap);
-                                }
-
-                                List<edu.mcw.rgd.gff3.CodingFeature> cfList = utils.buildCfList(trMd);
-                                for(edu.mcw.rgd.gff3.CodingFeature cf: cfList){
-                                    String featureId;
-
-                                    if(cf.getFeatureType()== TranscriptFeature.FeatureType.CDS){
-                                        featureId = getUniqueId("trFeatureCDS"+cf.getRgdId());
-
-                                        counters.increment(" Mapped CDSs");
-                                    }
-                                    else {
-                                        featureId = getUniqueId("trFeature"+cf.getRgdId());
-
-                                        if(cf.getFeatureType()== TranscriptFeature.FeatureType.EXON){
-                                            counters.increment(" Mapped Exons");
-                                        }else
-                                        if(cf.getFeatureType()== TranscriptFeature.FeatureType.UTR5){
-                                            counters.increment(" Mapped UTR5");
-                                        }else
-                                        if(cf.getFeatureType()== TranscriptFeature.FeatureType.UTR3){
-                                            counters.increment(" Mapped UTR3");
-                                        }
-                                    }
-
-                                    gff3Writer.writeFirst8Columns(cf.getChromosome(), "RGD", cf.getCanonicalName(), cf.getStartPos(), cf.getStopPos(), ".", cf.getStrand(), cf.getCodingPhaseStr());
-
-
-                                    attributesHashMap.put("ID", featureId);
-                                    attributesHashMap.put("Parent", id);
-                                    if( cf.getNotes()!=null )
-                                        attributesHashMap.put("Note", cf.getNotes());
-
-                                    RATMINEattributesHashMap.put("ID", featureId);
-                                    RATMINEattributesHashMap.put("Parent", id);
-                                    if( cf.getNotes()!=null )
-                                        RATMINEattributesHashMap.put("Note", cf.getNotes());
-
-
-                                    gff3Writer.writeAttributes4Gff3(attributesHashMap);
-
-                                    if( writeRATMINE ) {
-                                        RATMINEgff3Writer.writeFirst8Columns(cf.getChromosome(), "RGD", String.valueOf(cf.getFeatureType()), cf.getStartPos(), cf.getStopPos(), ".", cf.getStrand(), cf.getCodingPhaseStr());
-                                        RATMINEgff3Writer.writeAttributes4Gff3(RATMINEattributesHashMap);
-                                    }
                                 }
                             }
                         }
                     }
-                    else{
-                        counters.increment(" Genes with NO transcripts");
+                }
+                else{
+                    counters.increment(" Genes with NO transcripts");
 
-                        // generate fake feature for genes without features
-                        gff3Writer.writeFirst8Columns(map.getChromosome(), "RGD", getSoFeatureType(gType), map.getStartPos(),map.getStopPos(), ".", map.getStrand(), ".");
+                    // generate fake feature for genes without features
+                    gff3Writer.writeFirst8Columns(map.getChromosome(), "RGD", getSoFeatureType(gType), map.getStartPos(),map.getStopPos(), ".", map.getStrand(), ".");
 
-                        attributesHashMap.put("ID", getUniqueId("ftRGD"+geneRgdId));
-                        attributesHashMap.put("Parent", uniqueGeneId);
-                        gff3Writer.writeAttributes4Gff3(attributesHashMap);
-                    }
-                }//end of map data loop
-            }
-
-            gff3Writer.close();
-            RATMINEgff3Writer.close();
-
-            dumpCounters(counters, chr, assemblySymbol);
-
-            allChrCounters.merge(counters);
+                    attributesHashMap.put("ID", getUniqueId("ftRGD"+geneRgdId));
+                    attributesHashMap.put("Parent", uniqueGeneId);
+                    gff3Writer.writeAttributes4Gff3(attributesHashMap);
+                }
+            }//end of map data loop
         }
 
-        dumpCounters(allChrCounters, null, assemblySymbol);
+        gff3Writer.close();
+        RATMINEgff3Writer.close();
 
-        log.info("OK!  elapsed "+Utils.formatElapsedTime(time0, System.currentTimeMillis()));
-        log.info("========");
+
+        dumpCounters(counters, assemblySymbol, msgBuf);
+
+        msgBuf.append("OK!  elapsed "+Utils.formatElapsedTime(time0, System.currentTimeMillis())+"\n");
+        msgBuf.append("========\n");
+        synchronized( this.getClass() ) {
+            log.info(msgBuf);
+        }
     }
 
     // get a subset of transcripts having position on a given map, and overlapping the given gene position
@@ -312,29 +316,14 @@ public class CreateGff4Gene {
         return geneMap;
     }
 
-    void dumpCounters(CounterPool counters, String chr, String assembly) {
+    void dumpCounters(CounterPool counters, String assembly, StringBuffer msgBuf) {
 
-        String dump = counters.dumpAlphabetically();
-        String msg;
-        if( chr!=null ) {
-            msg = "\n"+
-                "Counts For: Chr"+chr+"\n"+
-                dump+
-                "DONE with Chromosome: "+chr+"\n"+
-                "GFF3 File SUCCESSFUL!\n"+
-                "=============================\n";
-        } else {
-            msg = dump;
-        }
+        String msg = counters.dumpAlphabetically();
 
         // prepend all lines with 'assembly'
         String[] lines = msg.split("[\\n]", -1);
         for( String line: lines ) {
-            if( chr!=null ) {
-                log.debug(assembly+"  "+line);
-            } else {
-                log.info(assembly+"  "+line);
-            }
+            msgBuf.append(assembly).append("  ").append(line).append("\n");
         }
     }
 
@@ -503,27 +492,11 @@ public class CreateGff4Gene {
         return idBase+"_"+cnt;
     }
 
-    public void setSpeciesTypeKey(int speciesTypeKey) {
-        this.speciesTypeKey = speciesTypeKey;
+    public void setProcessedAssemblies(List<String> processedAssemblies) {
+        this.processedAssemblies = processedAssemblies;
     }
 
-    public int getSpeciesTypeKey() {
-        return speciesTypeKey;
-    }
-
-    public void setMapKey(int mapKey) {
-        this.mapKey = mapKey;
-    }
-
-    public int getMapKey() {
-        return mapKey;
-    }
-
-    public List<String> getChromosomes() {
-        return chromosomes;
-    }
-
-    public void setChromosomes(List<String> chromosomes) {
-        this.chromosomes = chromosomes;
+    public List<String> getProcessedAssemblies() {
+        return processedAssemblies;
     }
 }
