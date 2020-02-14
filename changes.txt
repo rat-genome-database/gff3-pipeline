@@ -1,3 +1,6 @@
+Feb 14, 2020
+  agr: updated to latest 1.0.1.0 AGR spec
+
 Feb 06, 2020
   gene files: code redone to process gene assemblies as specified in the app property file
 
