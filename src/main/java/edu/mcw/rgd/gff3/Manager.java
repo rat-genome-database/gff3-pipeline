@@ -134,14 +134,15 @@ public class Manager {
     void handleObjects() throws Exception {
         switch(objectTypeKey) {
             case RgdId.OBJECT_KEY_GENES:
-                if((mapKey!=null)&&(getChromosomes()!=null)&&(toDir!=null)&&(speciesTypekey!=0)){
+                if((mapKey!=null)&&(toDir!=null)&&(speciesTypekey!=0)){
                     if( flavor==null ) {
                         CreateGff4Gene createGff = new CreateGff4Gene();
-                        createGff.setMapKey(Integer.parseInt(mapKey));
-                        createGff.setChromosomes(getChromosomes());
-                        createGff.setNewPathGff3(toDir);
-                        createGff.setSpeciesTypeKey(speciesTypekey);
-                        createGff.createGeneGff3(compress);
+                        CreateInfo info = new CreateInfo();
+                        info.setMapKey(Integer.parseInt(mapKey));
+                        info.setToDir(toDir);
+                        info.setSpeciesTypeKey(speciesTypekey);
+                        info.setCompress(compress);
+                        createGff.createGeneGff3(info);
                     } else if( flavor.equals("AGR") ){
                         CreateGff4GeneAgr createGff = new CreateGff4GeneAgr();
                         createGff.setMapKey(Integer.parseInt(mapKey));
@@ -152,8 +153,7 @@ public class Manager {
                         throw new ArgumentsException("unknown gene flavor: "+flavor);
                     }
                 }else{
-                    throw new ArgumentsException("This Script requires '-mapKey:','-toFile:'," +
-                            "'-chr:','-species:' as parameters:\n" + getUsage());
+                    throw new ArgumentsException("This Script requires '-mapKey:','-toDir:','-species:' as parameters:\n" + getUsage());
                 }
                 break;
 
@@ -271,16 +271,22 @@ public class Manager {
                 if(obj.startsWith("-object:")){
 
                     switch (argArr[1]) {
+                        // all species // assemblies version
+                        case "genes":
+                            CreateGff4Gene gm = (CreateGff4Gene) (bf.getBean("geneManager"));
+                            gm.run();
+                            return true;
+                        case "qtls":
+                            CreateGff4QTL qm = (CreateGff4QTL) (bf.getBean("qtlManager"));
+                            qm.run();
+                            return true;
+
                         case "gene":
                             objectTypeKey = RgdId.OBJECT_KEY_GENES;
                             break;
                         case "qtl":
                             objectTypeKey = RgdId.OBJECT_KEY_QTLS;
                             break;
-                        case "qtls":
-                            CreateGff4QTL manager = (CreateGff4QTL) (bf.getBean("qtlManager"));
-                            manager.run();
-                            return true;
                         case "strain":
                             objectTypeKey = RgdId.OBJECT_KEY_STRAINS;
                             break;

@@ -10,7 +10,7 @@ import edu.mcw.rgd.process.mapping.MapManager;
 public class Gff3Utils {
 
     /// return human friendly assembly symbol
-    static public String getAssemblySymbol(int mapKey) throws Exception {
+    synchronized static public String getAssemblySymbol(int mapKey) throws Exception {
 
         // first, return UCSC assembly symbol, if available
         Map map = MapManager.getInstance().getMap(mapKey);

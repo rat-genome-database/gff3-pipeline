@@ -63,4 +63,11 @@ public class CreateInfo {
     public void setCompress(boolean compress) {
         this.compress = compress;
     }
+
+    public void dump() {
+        System.out.println("toDir = "+toDir);
+        System.out.println("mapKey = "+mapKey);
+        System.out.println("speciesTypeKey = "+speciesTypeKey);
+        System.out.println("compress = "+compress);
+    }
 }
