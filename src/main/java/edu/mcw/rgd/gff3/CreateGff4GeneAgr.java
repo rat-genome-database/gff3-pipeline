@@ -32,17 +32,19 @@ public class CreateGff4GeneAgr {
         String species = SpeciesType.getCommonName(speciesTypeKey);
         idMap.clear();
 
+        Map<Integer, String> dbXrefsForTranscripts = loadDbXrefsForTranscripts(speciesTypeKey);
+
         Counters counters = new Counters();
 
         Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gff3Path+species+"_RGD_AGR.gff3", false, compress);
         gff3Writer.setAgrCompatibleFormat(true);
 
-        gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
-        gff3Writer.print("# Species: "+ species+"\n");
-        gff3Writer.print("# Assembly: "+ MapManager.getInstance().getMap(mapKey).getName()+"\n");
-        gff3Writer.print("# Primary Contact: mtutaj@mcw.edu\n");
-        gff3Writer.print("# Tool: AGR GFF3 extractor  v 2019-10-01 (single locus genes)\n");
-        gff3Writer.print("# Generated: "+new Date()+"\n");
+        gff3Writer.print("#!data-source RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
+        gff3Writer.print("#!assembly: "+ MapManager.getInstance().getMap(mapKey).getName()+"\n");
+        gff3Writer.print("#!date-produced "+new Date()+"\n");
+        gff3Writer.print("#!species "+ species+"\n");
+        gff3Writer.print("#!primary-contact mtutaj@mcw.edu\n");
+        gff3Writer.print("#!tool AGR GFF3 extractor  v 2020-02-14 (single locus genes)\n");
 
         List<Gene> activeGenes = dao.getActiveGenes(speciesTypeKey);
         Collections.sort(activeGenes, new Comparator<Gene>() {
@@ -51,6 +53,7 @@ public class CreateGff4GeneAgr {
                 return Utils.stringsCompareToIgnoreCase(o1.getSymbol(), o2.getSymbol());
             }
         });
+
 
         for( Gene gene: activeGenes ){
             int geneRgdId = gene.getRgdId();
@@ -116,6 +119,7 @@ public class CreateGff4GeneAgr {
                 attributes.put("Dbxref",extDbString);
             }
             attributes.put("so_term_name", getSoTermNameForGene(gType));
+            attributes.put("Ontology_term", getSoTermAccForGene(gType));
 
             gff3Writer.writeFirst8Columns(map.getChromosome(),"RGD", "gene", map.getStartPos(),map.getStopPos(),".",map.getStrand(),".");
             gff3Writer.writeAttributes4Gff3(attributes);
@@ -146,6 +150,21 @@ public class CreateGff4GeneAgr {
                         attributes.put("biotype", getTrBiotype(gType, gene.getName(), tr));
                         if( !Utils.isStringEmpty(tr.getProteinAccId()) ) {
                             attributes.put("protein_id", tr.getProteinAccId());
+                        }
+                        attributes.put("Ontology_term", "SO:0000673"); // transcript
+
+                        // transcript curie: acc id prefixed with either 'RefSeq:' or 'Ensembl:'
+                        String curieTr;
+                        if( tr.getAccId().startsWith("ENS") ) {
+                            curieTr = "ENSEMBL:"+tr.getAccId();
+                        } else {
+                            curieTr = "RefSeq:"+tr.getAccId();
+                        }
+                        attributes.put("curie", curieTr);
+
+                        String trDbXrefs = dbXrefsForTranscripts.get(tr.getRgdId());
+                        if( trDbXrefs!=null ) {
+                            attributes.put("Dbxref", trDbXrefs);
                         }
 
                         gff3Writer.writeFirst8Columns(trMd.getChromosome(), "RGD", "mRNA", trMd.getStartPos(), trMd.getStopPos(), ".", trMd.getStrand(), ".");
@@ -445,6 +464,25 @@ public class CreateGff4GeneAgr {
         idMap.put(idBase, cnt);
 
         return idBase+cnt;
+    }
+
+    // currently we have only UniProtKB accessions as DbXrefs
+    Map<Integer, String> loadDbXrefsForTranscripts(int speciesTypeKey) throws Exception {
+        XdbId filter = new XdbId();
+        filter.setXdbKey(XdbId.XDB_KEY_UNIPROT);
+        List<XdbId> ids = dao.getXdbIds(filter, speciesTypeKey, RgdId.OBJECT_KEY_TRANSCRIPTS);
+        Map<Integer, String> results = new HashMap<>();
+        for( XdbId xdbId: ids ) {
+            String uniprotAcc = xdbId.getAccId();
+            String str = results.get(xdbId.getRgdId());
+            if( str==null ) {
+                str = "UniProtKB:"+uniprotAcc;
+            } else if( !str.contains(uniprotAcc) ) {
+                str += ",UniProtKB:"+uniprotAcc;
+            }
+            results.put(xdbId.getRgdId(), str);
+        }
+        return results;
     }
 
     public void setSpeciesTypeKey(int speciesTypeKey) {

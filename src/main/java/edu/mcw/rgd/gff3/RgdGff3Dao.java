@@ -158,6 +158,10 @@ public class RgdGff3Dao {
         return xdbDao.getXdbIds(filter);
     }
 
+    public List<XdbId> getXdbIds(XdbId filter, int speciesType, int objectKey) throws Exception {
+        return xdbDao.getXdbIds(filter, speciesType, objectKey);
+    }
+
     public Strain getStrain(int rgdId) throws Exception {
         return strainDAO.getStrain(rgdId);
     }
