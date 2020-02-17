@@ -233,14 +233,15 @@ public class Manager {
 
             case RgdId.OBJECT_KEY_PROTEIN_DOMAINS:
                 CreateGff4ProteinDomains pdcreator = new CreateGff4ProteinDomains();
-                if( mapKey!=null && toFile!=null && speciesTypekey!=0 ){
-                    pdcreator.setMapKey(Integer.parseInt(mapKey));
-                    pdcreator.setToFile(toFile);
-                    pdcreator.setSpeciesTypeKey(speciesTypekey);
-                    pdcreator.run(compress);
+                if( mapKey!=null && toDir!=null && speciesTypekey!=0 ){
+                    CreateInfo info = new CreateInfo();
+                    info.setMapKey(Integer.parseInt(mapKey));
+                    info.setToDir(toDir);
+                    info.setSpeciesTypeKey(speciesTypekey);
+                    info.setCompress(compress);
+                    pdcreator.run(info);
                 }else{
-                    throw new ArgumentsException("This Script requires '-mapKey: -species: -toFile:' " +
-                            "as parameters:\n" + getUsage());
+                    throw new ArgumentsException("This Script requires '-mapKey: -species: -toDir:' as parameters:\n" + getUsage());
                 }
                 break;
 
@@ -279,6 +280,10 @@ public class Manager {
                         case "qtls":
                             CreateGff4QTL qm = (CreateGff4QTL) (bf.getBean("qtlManager"));
                             qm.run();
+                            return true;
+                        case "proteinDomains":
+                            CreateGff4ProteinDomains pdm = (CreateGff4ProteinDomains) (bf.getBean("proteinDomainManager"));
+                            pdm.run();
                             return true;
 
                         case "gene":

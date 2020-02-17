@@ -6,9 +6,7 @@ import edu.mcw.rgd.process.mapping.MapManager;
 import org.apache.log4j.Logger;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map;
 
 /**
@@ -17,40 +15,58 @@ import java.util.Map;
  */
 public class CreateGff4ProteinDomains {
 
-    private int mapKey;
-    private int speciesTypeKey;
-    private String toFile;
-    private boolean compress;
     private RgdGff3Dao dao = new RgdGff3Dao();
     Logger log = Logger.getLogger("domains");
+    private List<String> processedAssemblies;
 
     /**
-     * generate gff3 file for protein domains
-     * @param compress
+     * load the species list and assemblies from properties/AppConfigure.xml
      */
-    public void run(boolean compress) throws Exception {
-        this.compress = compress;
+    public void run() throws Exception {
+
+        log.info("PROTEIN DOMAIN GFF3 GENERATOR -- all species");
+        log.info(dao.getConnectionInfo());
+        log.info("");
 
         long time0 = System.currentTimeMillis();
 
-        String species = SpeciesType.getCommonName(speciesTypeKey);
+        getProcessedAssemblies().parallelStream().forEach( assemblyInfo -> {
 
-        String gffFile = getToFile();
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, compress);
+            try {
+                CreateInfo info = new CreateInfo();
+                info.parseFromString(assemblyInfo);
 
-        List<String> chromosomes = getChromosomes();
+                run(info);
+            } catch(Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        log.info("");
+        log.info("OK  elapsed "+Utils.formatElapsedTime(time0, System.currentTimeMillis()));
+        log.info("");
+    }
+
+    /**
+     * generate gff3 file for protein domains
+     */
+    public void run(CreateInfo info) throws Exception {
+
+        String species = SpeciesType.getCommonName(info.getSpeciesTypeKey());
+
+        String assemblyName = MapManager.getInstance().getMap(info.getMapKey()).getName();
+        Gff3ColumnWriter gff3Writer = null;
+
+        List<String> chromosomes = getChromosomes(info.getMapKey());
 
         Map<Integer, String> domainNamesMap = dao.getProteinDomainNames();
-
-        log.info("Generate GFF3 file for "+species+", MAP_KEY="+mapKey+" ("+ MapManager.getInstance().getMap(mapKey).getName()+")");
-        log.info("    "+dao.getConnectionInfo());
 
         int dataLinesWritten = 0;
         for( String chr: chromosomes ) {
 
-            List<MapData> mds = dao.getMapDataByMapKeyChr(chr, mapKey, RgdId.OBJECT_KEY_PROTEIN_DOMAINS);
+            List<MapData> mds = dao.getMapDataByMapKeyChr(chr, info.getMapKey(), RgdId.OBJECT_KEY_PROTEIN_DOMAINS);
 
-            log.debug("  data lines written for chr "+chr+":  "+mds.size());
+            log.debug("  "+assemblyName+": data lines written for chr "+chr+":  "+mds.size());
 
             for (MapData md : mds) {
                 Map<String, String> attributesHashMap = new HashMap<>();
@@ -83,28 +99,34 @@ public class CreateGff4ProteinDomains {
                     attributesHashMap.put("Note", proteins);
                 }
 
+                // lazy create of gff3 writer
+                if( gff3Writer==null ) {
+                    String gffFile = info.getToDir()+assemblyName+"_domains.gff3";
+                    gff3Writer = new Gff3ColumnWriter(gffFile, false, info.isCompress());
+
+                    gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
+                    gff3Writer.print("# Species: "+ species+"\n");
+                    gff3Writer.print("# Assembly: "+ assemblyName+"\n");
+                    gff3Writer.print("# Primary Contact: mtutaj@mcw.edu\n");
+                    gff3Writer.print("# Generated: "+new Date()+"\n");
+                }
+
                 gff3Writer.writeFirst8Columns(md.getChromosome(), "RGD", "sequence feature", md.getStartPos(), md.getStopPos(), ".", md.getStrand(), ".");
                 gff3Writer.writeAttributes4Gff3(attributesHashMap);
                 dataLinesWritten++;
             }
         }
 
-        String outFileName = gff3Writer.getFileName();
-        gff3Writer.close();
-
-        log.info("  data lines written:  " + dataLinesWritten);
-
-        // remove gff3 file is total lines written is zero
-        if( dataLinesWritten==0 ) {
-            boolean r = new File(outFileName).delete();
-            log.info("  no data lines, file " + outFileName + "deleted: "+r);
+        if( gff3Writer!=null ) {
+            gff3Writer.close();
         }
 
-        log.info("OK!  elapsed " + Utils.formatElapsedTime(time0, System.currentTimeMillis()));
-        log.info("========");
+        synchronized( this.getClass() ) {
+            log.info(species+", MAP_KEY="+info.getMapKey()+" ("+ assemblyName+")   -- data lines: "+Utils.formatThousands(dataLinesWritten));
+        }
     }
 
-    List<String> getChromosomes() throws Exception {
+    List<String> getChromosomes(int mapKey) throws Exception {
 
         // truncate version numbers from scaffold accessions
         List<String> result = new ArrayList<>();
@@ -123,31 +145,11 @@ public class CreateGff4ProteinDomains {
         return result;
     }
 
-    public int getMapKey() {
-        return mapKey;
+    public void setProcessedAssemblies(List<String> processedAssemblies) {
+        this.processedAssemblies = processedAssemblies;
     }
 
-    public void setMapKey(int mapKey) {
-        this.mapKey = mapKey;
-    }
-
-    public int getSpeciesTypeKey() {
-        return speciesTypeKey;
-    }
-
-    public void setSpeciesTypeKey(int speciesTypeKey) {
-        this.speciesTypeKey = speciesTypeKey;
-    }
-
-    public String getToFile() {
-        return toFile;
-    }
-
-    public void setToFile(String toFile) {
-        this.toFile = toFile;
-    }
-
-    public boolean isCompress() {
-        return compress;
+    public List<String> getProcessedAssemblies() {
+        return processedAssemblies;
     }
 }

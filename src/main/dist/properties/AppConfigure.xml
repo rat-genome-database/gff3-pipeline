@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Feb 06, 2020 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Feb 17, 2020 --" />
     </bean>
 
     <bean id="geneManager" class="edu.mcw.rgd.gff3.CreateGff4Gene">
@@ -40,6 +40,29 @@
                 <value>species:HUMAN  mapKey:38  toDir:data/Qtl/Human/human38/ compress:yes</value>
                 <value>species:MOUSE  mapKey:18  toDir:data/Qtl/Mouse/mouse37/ compress:yes</value>
                 <value>species:MOUSE  mapKey:35  toDir:data/Qtl/Mouse/mouse38/ compress:yes</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="proteinDomainManager" class="edu.mcw.rgd.gff3.CreateGff4ProteinDomains">
+        <property name="processedAssemblies">
+            <list>
+                <value>species:RAT    mapKey:60  toDir:data/ProteinDomain/ compress:yes</value>
+                <value>species:RAT    mapKey:70  toDir:data/ProteinDomain/ compress:yes</value>
+                <value>species:RAT    mapKey:360 toDir:data/ProteinDomain/ compress:yes</value>
+                <value>species:HUMAN  mapKey:17  toDir:data/ProteinDomain/ compress:yes</value>
+                <value>species:HUMAN  mapKey:38  toDir:data/ProteinDomain/ compress:yes</value>
+                <value>species:MOUSE  mapKey:18  toDir:data/ProteinDomain/ compress:yes</value>
+                <value>species:MOUSE  mapKey:35  toDir:data/ProteinDomain/ compress:yes</value>
+
+                <value>species:BONOBO     mapKey:511  toDir:data/ProteinDomain/ compress:yes</value>
+                <value>species:CHINCHILLA mapKey:44   toDir:data/ProteinDomain/ compress:yes</value>
+                <value>species:DOG        mapKey:631  toDir:data/ProteinDomain/ compress:yes</value>
+                <value>species:MOLERAT    mapKey:1410 toDir:data/ProteinDomain/ compress:yes</value>
+                <value>species:PIG        mapKey:910  toDir:data/ProteinDomain/ compress:yes</value>
+                <value>species:PIG        mapKey:911  toDir:data/ProteinDomain/ compress:yes</value>
+                <value>species:SQUIRREL   mapKey:720  toDir:data/ProteinDomain/ compress:yes</value>
+                <value>species:VERVET     mapKey:1311 toDir:data/ProteinDomain/ compress:yes</value>
             </list>
         </property>
     </bean>

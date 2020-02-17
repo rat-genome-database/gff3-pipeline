@@ -1,3 +1,6 @@
+Feb 17, 2020
+  protein domains: simplified gff3 generation and loading for all species
+
 Feb 14, 2020
   agr: updated to latest 1.0.1.0 AGR spec
 
