@@ -55,15 +55,7 @@ public class CreateGff4ProteinDomains {
         String species = SpeciesType.getCommonName(info.getSpeciesTypeKey());
 
         String assemblyName = MapManager.getInstance().getMap(info.getMapKey()).getName();
-        String gffFile = info.getToDir()+assemblyName+"_domains.gff3";
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, info.isCompress());
-
-        StringBuilder gff3Header = new StringBuilder();
-        gff3Header.append("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
-        gff3Header.append("# Species: "+ species+"\n");
-        gff3Header.append("# Assembly: "+ assemblyName+"\n");
-        gff3Header.append("# Primary Contact: mtutaj@mcw.edu\n");
-        gff3Header.append("# Generated: "+new Date()+"\n");
+        Gff3ColumnWriter gff3Writer = null;
 
         List<String> chromosomes = getChromosomes(info.getMapKey());
 
@@ -107,9 +99,16 @@ public class CreateGff4ProteinDomains {
                     attributesHashMap.put("Note", proteins);
                 }
 
-                // lazy write of gff3 header
-                if( dataLinesWritten==0 ) {
-                    gff3Writer.print(gff3Header.toString());
+                // lazy create of gff3 writer
+                if( gff3Writer==null ) {
+                    String gffFile = info.getToDir()+assemblyName+"_domains.gff3";
+                    gff3Writer = new Gff3ColumnWriter(gffFile, false, info.isCompress());
+
+                    gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
+                    gff3Writer.print("# Species: "+ species+"\n");
+                    gff3Writer.print("# Assembly: "+ assemblyName+"\n");
+                    gff3Writer.print("# Primary Contact: mtutaj@mcw.edu\n");
+                    gff3Writer.print("# Generated: "+new Date()+"\n");
                 }
 
                 gff3Writer.writeFirst8Columns(md.getChromosome(), "RGD", "sequence feature", md.getStartPos(), md.getStopPos(), ".", md.getStrand(), ".");
@@ -118,7 +117,9 @@ public class CreateGff4ProteinDomains {
             }
         }
 
-        gff3Writer.close();
+        if( gff3Writer!=null ) {
+            gff3Writer.close();
+        }
 
         synchronized( this.getClass() ) {
             log.info(species+", MAP_KEY="+info.getMapKey()+" ("+ assemblyName+")   -- data lines: "+Utils.formatThousands(dataLinesWritten));
