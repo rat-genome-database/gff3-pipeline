@@ -1,6 +1,8 @@
 #!/bin/bash
 # load ProteinDomain tracks
 
+SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
+EMAILLIST=mtutaj@mcw.edu
 JBROWSE_HOME="/rgd/JBrowse-1.16.3/"
 GFF3_LOC="/home/rgddata/pipelines/RGDGff3Pipeline/data/ProteinDomain"
 
@@ -9,10 +11,11 @@ cd $JBROWSE_HOME/bin
 echo
 echo "RAT 6.0"
 
-./remove-track.pl --dir /jbrowse/data_rgd6 --trackLabel ProteinDomain --delete
+TMP_INPUT_FILE=$GFF3_LOC/Rnor_6.0_domains.gff3.gz
+if [ -f $TMP_INPUT_FILE ]; then
+    gunzip -c $TMP_INPUT_FILE > /tmp/rat60_domains.gff3
 
-if [ -f $GFF3_LOC/rat60_domains.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/rat60_domains.gff3.gz > /tmp/rat60_domains.gff3
+    ./remove-track.pl --dir /jbrowse/data_rgd6 --trackLabel ProteinDomain --delete
 
     ./flatfile-to-json.pl \
       --gff /tmp/rat60_domains.gff3 \
@@ -21,15 +24,18 @@ if [ -f $GFF3_LOC/rat60_domains.gff3.gz ]; then
       --out /jbrowse/data_rgd6 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Protein Domains\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 
 echo "RAT 5.0"
 
-./remove-track.pl --dir /jbrowse/data_rgd5 --trackLabel ProteinDomain --delete
+TMP_INPUT_FILE=$GFF3_LOC/Rnor_5.0_domains.gff3.gz
+if [ -f $TMP_INPUT_FILE ]; then
+    gunzip -c $TMP_INPUT_FILE > /tmp/rat50_domains.gff3
 
-if [ -f $GFF3_LOC/rat50_domains.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/rat50_domains.gff3.gz > /tmp/rat50_domains.gff3
+    ./remove-track.pl --dir /jbrowse/data_rgd5 --trackLabel ProteinDomain --delete
 
     ./flatfile-to-json.pl \
       --gff /tmp/rat50_domains.gff3 \
@@ -38,15 +44,18 @@ if [ -f $GFF3_LOC/rat50_domains.gff3.gz ]; then
       --out /jbrowse/data_rgd5 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Protein Domains\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 
 echo "RAT 3.4"
 
-./remove-track.pl --dir /jbrowse/data_rgd3_4 --trackLabel ProteinDomain --delete
+TMP_INPUT_FILE=$GFF3_LOC/RGSC_v3.4_domains.gff3.gz
+if [ -f $TMP_INPUT_FILE ]; then
+    gunzip -c $TMP_INPUT_FILE > /tmp/rat34_domains.gff3
 
-if [ -f $GFF3_LOC/rat34_domains.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/rat34_domains.gff3.gz > /tmp/rat34_domains.gff3
+    ./remove-track.pl --dir /jbrowse/data_rgd3_4 --trackLabel ProteinDomain --delete
 
     ./flatfile-to-json.pl \
       --gff /tmp/rat34_domains.gff3 \
@@ -55,15 +64,18 @@ if [ -f $GFF3_LOC/rat34_domains.gff3.gz ]; then
       --out /jbrowse/data_rgd3_4 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Protein Domains\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 
 echo "HUMAN 38"
 
-./remove-track.pl --dir /jbrowse/data_hg38 --trackLabel ProteinDomain --delete
+TMP_INPUT_FILE=$GFF3_LOC/GRCh38_domains.gff3.gz
+if [ -f $TMP_INPUT_FILE ]; then
+    gunzip -c $TMP_INPUT_FILE > /tmp/human38_domains.gff3
 
-if [ -f $GFF3_LOC/human38_domains.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/human38_domains.gff3.gz > /tmp/human38_domains.gff3
+    ./remove-track.pl --dir /jbrowse/data_hg38 --trackLabel ProteinDomain --delete
 
     ./flatfile-to-json.pl \
       --gff /tmp/human38_domains.gff3 \
@@ -72,15 +84,18 @@ if [ -f $GFF3_LOC/human38_domains.gff3.gz ]; then
       --out /jbrowse/data_hg38 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Protein Domains\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 
 echo "HUMAN 37"
 
-./remove-track.pl --dir /jbrowse/data_hg19 --trackLabel ProteinDomain --delete
+TMP_INPUT_FILE=$GFF3_LOC/GRCh37_domains.gff3.gz
+if [ -f $TMP_INPUT_FILE ]; then
+    gunzip -c $TMP_INPUT_FILE > /tmp/human37_domains.gff3
 
-if [ -f $GFF3_LOC/human37_domains.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/human37_domains.gff3.gz > /tmp/human37_domains.gff3
+    ./remove-track.pl --dir /jbrowse/data_hg19 --trackLabel ProteinDomain --delete
 
     ./flatfile-to-json.pl \
       --gff /tmp/human37_domains.gff3 \
@@ -89,15 +104,18 @@ if [ -f $GFF3_LOC/human37_domains.gff3.gz ]; then
       --out /jbrowse/data_hg19 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Protein Domains\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 
 echo "MOUSE 38"
 
-./remove-track.pl --dir /jbrowse/data_mm38 --trackLabel ProteinDomain --delete
+TMP_INPUT_FILE=$GFF3_LOC/GRCm38_domains.gff3.gz
+if [ -f $TMP_INPUT_FILE ]; then
+    gunzip -c $TMP_INPUT_FILE > /tmp/mouse38_domains.gff3
 
-if [ -f $GFF3_LOC/mouse38_domains.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/mouse38_domains.gff3.gz > /tmp/mouse38_domains.gff3
+    ./remove-track.pl --dir /jbrowse/data_mm38 --trackLabel ProteinDomain --delete
 
     ./flatfile-to-json.pl \
       --gff /tmp/mouse38_domains.gff3 \
@@ -106,15 +124,18 @@ if [ -f $GFF3_LOC/mouse38_domains.gff3.gz ]; then
       --out /jbrowse/data_mm38 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Protein Domains\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 
 echo "MOUSE 37"
 
-./remove-track.pl --dir /jbrowse/data_mm37 --trackLabel ProteinDomain --delete
+TMP_INPUT_FILE=$GFF3_LOC/MGSCv37_domains.gff3.gz
+if [ -f $TMP_INPUT_FILE ]; then
+    gunzip -c $TMP_INPUT_FILE > /tmp/mouse37_domains.gff3
 
-if [ -f $GFF3_LOC/mouse37_domains.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/mouse37_domains.gff3.gz > /tmp/mouse37_domains.gff3
+    ./remove-track.pl --dir /jbrowse/data_mm37 --trackLabel ProteinDomain --delete
 
     ./flatfile-to-json.pl \
       --gff /tmp/mouse37_domains.gff3 \
@@ -123,15 +144,18 @@ if [ -f $GFF3_LOC/mouse37_domains.gff3.gz ]; then
       --out /jbrowse/data_mm37 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Protein Domains\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 
 echo "DOG"
 
-./remove-track.pl --dir /jbrowse/data_dog3_1 --trackLabel ProteinDomain --delete
+TMP_INPUT_FILE=$GFF3_LOC/CanFam3.1_domains.gff3.gz
+if [ -f $TMP_INPUT_FILE ]; then
+    gunzip -c $TMP_INPUT_FILE > /tmp/dog31_domains.gff3
 
-if [ -f $GFF3_LOC/dog31_domains.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/dog31_domains.gff3.gz > /tmp/dog31_domains.gff3
+    ./remove-track.pl --dir /jbrowse/data_dog3_1 --trackLabel ProteinDomain --delete
 
     ./flatfile-to-json.pl \
       --gff /tmp/dog31_domains.gff3 \
@@ -140,15 +164,18 @@ if [ -f $GFF3_LOC/dog31_domains.gff3.gz ]; then
       --out /jbrowse/data_dog3_1 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Protein Domains\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 
 echo "BONOBO"
 
-./remove-track.pl --dir /jbrowse/data_bonobo1_1 --trackLabel ProteinDomain --delete
+TMP_INPUT_FILE=$GFF3_LOC/PanPan1.1_domains.gff3.gz
+if [ -f $TMP_INPUT_FILE ]; then
+    gunzip -c $TMP_INPUT_FILE > /tmp/bonobo11_domains.gff3
 
-if [ -f $GFF3_LOC/bonobo11_domains.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/bonobo11_domains.gff3.gz > /tmp/bonobo11_domains.gff3
+    ./remove-track.pl --dir /jbrowse/data_bonobo1_1 --trackLabel ProteinDomain --delete
 
     ./flatfile-to-json.pl \
       --gff /tmp/bonobo11_domains.gff3 \
@@ -157,15 +184,18 @@ if [ -f $GFF3_LOC/bonobo11_domains.gff3.gz ]; then
       --out /jbrowse/data_bonobo1_1 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Protein Domains\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 
 echo "SQUIRREL"
 
-./remove-track.pl --dir /jbrowse/data_squirrel2_0 --trackLabel ProteinDomain --delete
+TMP_INPUT_FILE=$GFF3_LOC/SpeTri2.0_domains.gff3.gz
+if [ -f $TMP_INPUT_FILE ]; then
+    gunzip -c $TMP_INPUT_FILE > /tmp/squirrel20_domains.gff3
 
-if [ -f $GFF3_LOC/squirrel20_domains.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/squirrel20_domains.gff3.gz > /tmp/squirrel20_domains.gff3
+    ./remove-track.pl --dir /jbrowse/data_squirrel2_0 --trackLabel ProteinDomain --delete
 
     ./flatfile-to-json.pl \
       --gff /tmp/squirrel20_domains.gff3 \
@@ -174,14 +204,18 @@ if [ -f $GFF3_LOC/squirrel20_domains.gff3.gz ]; then
       --out /jbrowse/data_squirrel2_0 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Protein Domains\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
+
 
 echo "CHINCHILLA"
 
-./remove-track.pl --dir /jbrowse/data_cl1_0 --trackLabel ProteinDomain --delete
+TMP_INPUT_FILE=$GFF3_LOC/ChiLan1.0_domains.gff3.gz
+if [ -f $TMP_INPUT_FILE ]; then
+    gunzip -c $TMP_INPUT_FILE > /tmp/chinchilla10_domains.gff3
 
-if [ -f $GFF3_LOC/chinchilla10_domains.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/chinchilla10_domains.gff3.gz > /tmp/chinchilla10_domains.gff3
+    ./remove-track.pl --dir /jbrowse/data_cl1_0 --trackLabel ProteinDomain --delete
 
     ./flatfile-to-json.pl \
       --gff /tmp/chinchilla10_domains.gff3 \
@@ -190,15 +224,18 @@ if [ -f $GFF3_LOC/chinchilla10_domains.gff3.gz ]; then
       --out /jbrowse/data_cl1_0 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Protein Domains\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 
-echo "PIG 11"
+echo "PIG Sscrofa11.1"
 
-./remove-track.pl --dir /jbrowse/data_pig11_1 --trackLabel ProteinDomain --delete
+TMP_INPUT_FILE=$GFF3_LOC/Sscrofa11.1_domains.gff3.gz
+if [ -f $GFF3_LOC/TMP_INPUT_FILE ]; then
+    gunzip -c $GFF3_LOC/TMP_INPUT_FILE > /tmp/pig11_domains.gff3
 
-if [ -f $GFF3_LOC/pig11_domains.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/pig11_domains.gff3.gz > /tmp/pig11_domains.gff3
+    ./remove-track.pl --dir /jbrowse/data_pig11_1 --trackLabel ProteinDomain --delete
 
     ./flatfile-to-json.pl \
       --gff /tmp/pig11_domains.gff3 \
@@ -207,15 +244,23 @@ if [ -f $GFF3_LOC/pig11_domains.gff3.gz ]; then
       --out /jbrowse/data_pig11_1 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Protein Domains\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
+### SO FAR, NO DATA FOR PIG Sscrofa10.2, Vervet 1.1 and HetGla 1.0
+echo "=== OK ==="
+exit 0
 
-echo "PIG 10"
 
-./remove-track.pl --dir /jbrowse/data_pig10_2 --trackLabel ProteinDomain --delete
 
-if [ -f $GFF3_LOC/pig10_domains.gff3.gz ]; then
-    gunzip -c $GFF3_LOC/pig10_domains.gff3.gz > /tmp/pig10_domains.gff3
+echo "PIG Sscrofa10.2"
+
+TMP_INPUT_FILE=$GFF3_LOC/Sscrofa10.2_domains.gff3.gz
+if [ -f $TMP_INPUT_FILE ]; then
+    gunzip -c $TMP_INPUT_FILE > /tmp/pig10_domains.gff3
+
+    ./remove-track.pl --dir /jbrowse/data_pig10_2 --trackLabel ProteinDomain --delete
 
     ./flatfile-to-json.pl \
       --gff /tmp/pig10_domains.gff3 \
@@ -224,6 +269,8 @@ if [ -f $GFF3_LOC/pig10_domains.gff3.gz ]; then
       --out /jbrowse/data_pig10_2 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Protein Domains\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 echo "=== OK ==="
