@@ -56,6 +56,7 @@ public class CreateGff4Eva {
 
         List<String> chromosomes = getChromosomes(info.getMapKey());
 
+        int dataLinesWritten = 0;
         for(String chr : chromosomes) {
             if(gff3Writer==null) {
                 String gffFile = info.getToDir()+"EVA_"+assemblyName+"_chr"+chr +".gff3";
@@ -77,10 +78,15 @@ public class CreateGff4Eva {
                 attributes.put("allele", eva.getRefNuc()+"/"+eva.getVarNuc());
 
                 gff3Writer.writeAttributes4Gff3(attributes);
+                dataLinesWritten++;
             }
         }
         if(gff3Writer!=null)
             gff3Writer.close();
+
+        synchronized( this.getClass() ) {
+            log.info(species+", MAP_KEY="+info.getMapKey()+" ("+ assemblyName+")   -- data lines: "+Utils.formatThousands(dataLinesWritten));
+        }
     }
 
     public void setProcessedAssemblies(List<String> processedAssemblies) {
