@@ -25,5 +25,5 @@ mailx -s "[$SERVER]Pipeline to create Gff3 data for Eva Variants ran" $EMAILLIST
 
 echo "copy generated gff3 files to data_release directory:"
 echo "  rsync -avd $LOGDIR/DbSnp/ $DATA_RELEASE_DIR/Eva/"
-rsync -avd $LOGDIR/DbSnp/ $DATA_RELEASE_DIR/DbSnp/
+rsync -avd $LOGDIR/DbSnp/ $DATA_RELEASE_DIR/Eva/
 echo "  rsync OK!"
