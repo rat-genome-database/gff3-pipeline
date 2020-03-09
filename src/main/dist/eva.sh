@@ -5,7 +5,7 @@
 APP_HOME=/home/rgddata/pipelines/RGDGff3Pipeline
 cd $APP_HOME
 
-LOGDIR=$APP_HOME/data
+LOGDIR=$APP_HOME/logs
 DATA_RELEASE_DIR=/home/rgddata/data_release/GFF3
 
 
@@ -17,7 +17,7 @@ else
   EMAILLIST=mtutaj@mcw.edu,llamers@mcw.edu
 fi
 
-#RUNLOAD="$APP_HOME/run.sh"
+RUNLOAD="$APP_HOME/run.sh"
 
 $RUNLOAD -object:Eva > Eva.log
 
