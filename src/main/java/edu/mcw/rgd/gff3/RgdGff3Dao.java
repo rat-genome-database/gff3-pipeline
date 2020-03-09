@@ -25,6 +25,7 @@ public class RgdGff3Dao {
     private AliasDAO aliasDAO = new AliasDAO();
     private AnnotationDAO annotationDAO = new AnnotationDAO();
     private AssociationDAO assocDao = new AssociationDAO();
+    private EvaDAO evaDAO = new EvaDAO();
     private GeneDAO geneDAO = new GeneDAO();
     private MapDAO mapDAO = new MapDAO();
     private OntologyXDAO ontologyXDAO = new OntologyXDAO();
@@ -241,6 +242,10 @@ public class RgdGff3Dao {
 
     public Map<Integer, String> getQtlToQtlAssociations(int qtlKey) throws Exception {
         return assocDao.getQtlToQtlAssociations(qtlKey);
+    }
+
+    public List<Eva> getEvaObjectsbyKeyandChrom(int mapKey, String chr) throws Exception {
+        return evaDAO.getEvaObjectsFromMapKeyAndChromosome(mapKey,chr);
     }
 
 }
