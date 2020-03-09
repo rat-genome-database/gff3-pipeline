@@ -1,3 +1,6 @@
+Mar 09, 2020
+  protein domains: improved logging of exceptions
+
 Feb 17, 2020
   protein domains: simplified gff3 generation and loading for all species
 
