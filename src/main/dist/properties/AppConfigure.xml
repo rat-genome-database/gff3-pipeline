@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Feb 17, 2020 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build March 9, 2020 --" />
     </bean>
 
     <bean id="geneManager" class="edu.mcw.rgd.gff3.CreateGff4Gene">

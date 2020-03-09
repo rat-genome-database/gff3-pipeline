@@ -24,27 +24,33 @@ public class CreateGff4ProteinDomains {
      */
     public void run() throws Exception {
 
-        log.info("PROTEIN DOMAIN GFF3 GENERATOR -- all species");
-        log.info(dao.getConnectionInfo());
-        log.info("");
+        try {
+            log.info("PROTEIN DOMAIN GFF3 GENERATOR -- all species");
+            log.info(dao.getConnectionInfo());
+            log.info("");
 
-        long time0 = System.currentTimeMillis();
+            long time0 = System.currentTimeMillis();
 
-        getProcessedAssemblies().parallelStream().forEach( assemblyInfo -> {
+            getProcessedAssemblies().parallelStream().forEach(assemblyInfo -> {
 
-            try {
-                CreateInfo info = new CreateInfo();
-                info.parseFromString(assemblyInfo);
+                try {
+                    CreateInfo info = new CreateInfo();
+                    info.parseFromString(assemblyInfo);
 
-                run(info);
-            } catch(Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+                    run(info);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
 
-        log.info("");
-        log.info("OK  elapsed "+Utils.formatElapsedTime(time0, System.currentTimeMillis()));
-        log.info("");
+            log.info("");
+            log.info("OK  elapsed " + Utils.formatElapsedTime(time0, System.currentTimeMillis()));
+            log.info("");
+
+        } catch( Exception e ) {
+            Utils.printStackTrace(e, log);
+            throw e;
+        }
     }
 
     /**
