@@ -52,6 +52,10 @@ public class CreateGff4Eva {
         int mapKey = info.getMapKey();
         String assemblyName = MapManager.getInstance().getMap(mapKey).getName();
         Gff3ColumnWriter gff3Writer = null;
+        if(gff3Writer==null) {
+            String gffFile = info.getToDir() + "EVA_" + assemblyName+ ".gff3";
+            gff3Writer = new Gff3ColumnWriter(gffFile, false, info.isCompress());
+        }
         List<String> chromosomes = getChromosomes(info.getMapKey());
 
         int dataLinesWritten = 0;
@@ -61,12 +65,6 @@ public class CreateGff4Eva {
 
             if(data.size()==0)
                 continue;
-
-
-            if(gff3Writer==null) {
-                String gffFile = info.getToDir() + "EVA_" + assemblyName+ ".gff3";
-                gff3Writer = new Gff3ColumnWriter(gffFile, false, info.isCompress());
-            }
 
             for(Eva eva:data)
             {
