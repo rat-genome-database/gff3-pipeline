@@ -51,7 +51,7 @@ public class CreateGff4Eva {
         String species = SpeciesType.getCommonName(info.getSpeciesTypeKey());
         int mapKey = info.getMapKey();
         String assemblyName = MapManager.getInstance().getMap(mapKey).getName();
-
+        Gff3ColumnWriter gff3Writer = null;
         List<String> chromosomes = getChromosomes(info.getMapKey());
 
         int dataLinesWritten = 0;
@@ -62,9 +62,9 @@ public class CreateGff4Eva {
             if(data.size()==0)
                 continue;
 
-            Gff3ColumnWriter gff3Writer = null;
+
             if(gff3Writer==null) {
-                String gffFile = info.getToDir() + "EVA_" + assemblyName + "_chr" + chr + ".gff3";
+                String gffFile = info.getToDir() + "EVA_" + assemblyName+ ".gff3";
                 gff3Writer = new Gff3ColumnWriter(gffFile, false, info.isCompress());
             }
 
@@ -80,9 +80,9 @@ public class CreateGff4Eva {
                 gff3Writer.writeAttributes4Gff3(attributes);
                 dataLinesWritten++;
             }
-            if(gff3Writer!=null)
-                gff3Writer.close();
         }
+        if(gff3Writer!=null)
+            gff3Writer.close();
 
         synchronized( this.getClass() ) {
             log.info(species+", MAP_KEY="+info.getMapKey()+" ("+ assemblyName+")   -- data lines: "+Utils.formatThousands(dataLinesWritten));
