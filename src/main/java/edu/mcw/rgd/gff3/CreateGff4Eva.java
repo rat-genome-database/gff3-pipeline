@@ -48,7 +48,6 @@ public class CreateGff4Eva {
     }
 
     public void run(CreateInfo info) throws Exception {
-
         String species = SpeciesType.getCommonName(info.getSpeciesTypeKey());
         int mapKey = info.getMapKey();
         String assemblyName = MapManager.getInstance().getMap(mapKey).getName();
@@ -57,17 +56,18 @@ public class CreateGff4Eva {
 
         int dataLinesWritten = 0;
         for(String chr : chromosomes) {
-            Gff3ColumnWriter gff3Writer = null;
-            if(gff3Writer==null) {
-                String gffFile = info.getToDir()+"EVA_"+assemblyName+"_chr"+chr +".gff3";
-                gff3Writer = new Gff3ColumnWriter(gffFile, false, info.isCompress());
-                gff3Writer.print("##gff-version 3\n");
-            }
-
             List<Eva> data = dao.getEvaObjectsbyKeyandChrom(mapKey,chr);
             log.debug(" "+assemblyName+": data lines for Eva in chrom "+chr+": "+data.size());
 
-            // for loop through eva mapkey chromosome
+            if(data.size()==0)
+                continue;
+
+            Gff3ColumnWriter gff3Writer = null;
+            if(gff3Writer==null) {
+                String gffFile = info.getToDir() + "EVA_" + assemblyName + "_chr" + chr + ".gff3";
+                gff3Writer = new Gff3ColumnWriter(gffFile, false, info.isCompress());
+            }
+
             for(Eva eva:data)
             {
                 gff3Writer.writeFirst8Columns(eva.getChromosome(),"EVA","SNP",eva.getPos(),eva.getPos(), ".", ".", ".");
