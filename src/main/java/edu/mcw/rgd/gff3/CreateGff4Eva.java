@@ -52,7 +52,7 @@ public class CreateGff4Eva {
         String species = SpeciesType.getCommonName(info.getSpeciesTypeKey());
         int mapKey = info.getMapKey();
         String assemblyName = MapManager.getInstance().getMap(mapKey).getName();
-        
+
         List<String> chromosomes = getChromosomes(info.getMapKey());
 
         int dataLinesWritten = 0;
@@ -61,7 +61,7 @@ public class CreateGff4Eva {
             if(gff3Writer==null) {
                 String gffFile = info.getToDir()+"EVA_"+assemblyName+"_chr"+chr +".gff3";
                 gff3Writer = new Gff3ColumnWriter(gffFile, false, info.isCompress());
-                gff3Writer.print("##gff-version 3");
+                gff3Writer.print("##gff-version 3\n");
             }
 
             List<Eva> data = dao.getEvaObjectsbyKeyandChrom(mapKey,chr);
