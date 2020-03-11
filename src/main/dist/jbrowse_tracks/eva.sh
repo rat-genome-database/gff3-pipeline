@@ -4,12 +4,14 @@
 SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
 EMAILLIST=mtutaj@mcw.edu,llamers@mcw.edu
 JBROWSE_HOME="/rgd/JBrowse-1.12.3/"
-GFF3_LOC="/home/rgddata/pipelines/RGDGff3Pipeline/data/Eva"
+GFF3_LOC="/rgd/data/gff3/Eva"
+#"/home/rgddata/pipelines/RGDGff3Pipeline/data/Eva"
 
 cd $JBROWSE_HOME/bin
 
 SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
 if [ "$SERVER" == "HANSEN" ]; then
+    cd /rgd/data/gff3/Eva
     scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Eva/EVA_Rnor_6.0.gff3.gz .
 fi
 
