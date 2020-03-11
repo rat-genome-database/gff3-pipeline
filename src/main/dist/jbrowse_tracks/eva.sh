@@ -3,7 +3,7 @@
 
 SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
 EMAILLIST=mtutaj@mcw.edu,llamers@mcw.edu
-JBROWSE_HOME="/rgd/JBrowse-1.16.3/"
+JBROWSE_HOME="/rgd/JBrowse-1.12.3/"
 GFF3_LOC="/home/rgddata/pipelines/RGDGff3Pipeline/data/Eva"
 
 cd $JBROWSE_HOME/bin
