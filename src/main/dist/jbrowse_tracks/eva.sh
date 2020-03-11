@@ -31,7 +31,7 @@ if [ -f $TMP_INPUT_FILE ]; then
       --key "RGD Rat (rn6) EVA" \
       --out /jbrowse/data_rgd6 \
       --trackType JBrowse/View/Track/CanvasFeatures \
-      --config "{ \"category\" : \"Variants\DbSNPs\EVA\" }"
+      --config "{ \"category\" : \"Variants/DbSNPs/EVA\" }"
 else
     echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
