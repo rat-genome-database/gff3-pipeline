@@ -28,10 +28,10 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/rat60_EVA.gff3 \
       --trackLabel EVA \
-      --key "RGD Rat (rn6) EVA" \
+      --key "EVA" \
       --out /jbrowse/data_rgd6 \
       --trackType JBrowse/View/Track/CanvasFeatures \
-      --config "{ \"category\" : \"Variants/DbSNPs/EVA\" }"
+      --config "{ \"category\" : \"Variants/DbSNPs\" }"
 else
     echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
