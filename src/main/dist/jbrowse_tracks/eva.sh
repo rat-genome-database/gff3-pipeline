@@ -8,6 +8,11 @@ GFF3_LOC="/home/rgddata/pipelines/RGDGff3Pipeline/data/Eva"
 
 cd $JBROWSE_HOME/bin
 
+SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
+if [ "$SERVER" == "HANSEN" ]; then
+    scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Eva/EVA_Rnor_6.0.gff3.gz
+fi
+
 echo
 echo "RAT 6.0"
 
