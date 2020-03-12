@@ -66,17 +66,39 @@ public class CreateGff4Eva {
             if(data.size()==0)
                 continue;
 
-            for(Eva eva:data)
-            {
-                gff3Writer.writeFirst8Columns(eva.getChromosome(),"EVA","SNP",eva.getPos(),eva.getPos(), ".", ".", ".");
-                HashMap<String,String> attributes = new HashMap<>();
-                attributes.put("ID", Integer.toString( eva.getEvaId() ) );
-                attributes.put("Name", eva.getRsId());
-                attributes.put("Alias", eva.getRsId());
-                attributes.put("allele", eva.getRefNuc()+"/"+eva.getVarNuc());
+            String prevRsId = null, prevVarNuc = null;
 
-                gff3Writer.writeAttributes4Gff3(attributes);
-                dataLinesWritten++;
+            for(int i = 0; i < data.size(); i++)
+            {
+                if(i+1==data.size()) {
+                    gff3Writer.writeFirst8Columns(data.get(i).getChromosome(), "EVA", "SNP", data.get(i).getPos(), data.get(i).getPos(), ".", ".", ".");
+                    HashMap<String, String> attributes = new HashMap<>();
+                    attributes.put("ID", Integer.toString(data.get(i).getEvaId()));
+                    attributes.put("Name", data.get(i).getRsId());
+                    attributes.put("Alias", data.get(i).getRsId());
+                    prevVarNuc = "/"+data.get(i).getVarNuc();
+                    attributes.put("allele", data.get(i).getRefNuc() + prevVarNuc);
+                    gff3Writer.writeAttributes4Gff3(attributes);
+                    dataLinesWritten++;
+                }
+                else { // check +1 rs id, if different add current data to file else add data to allele
+                    String nextRsId = data.get(i+1).getRsId();
+                    if(data.get(i).getRsId().equals(nextRsId)) {
+                        prevVarNuc.concat("/" + data.get(i).getVarNuc());
+                    }
+                    else {
+                        gff3Writer.writeFirst8Columns(data.get(i).getChromosome(), "EVA", "SNP", data.get(i).getPos(), data.get(i).getPos(), ".", ".", ".");
+                        HashMap<String, String> attributes = new HashMap<>();
+                        attributes.put("ID", Integer.toString(data.get(i).getEvaId()));
+                        attributes.put("Name", data.get(i).getRsId());
+                        attributes.put("Alias", data.get(i).getRsId());
+                        prevVarNuc.concat("/" + data.get(i).getVarNuc());
+                        attributes.put("allele", data.get(i).getRefNuc() + prevVarNuc);
+                        prevVarNuc = null;
+                        gff3Writer.writeAttributes4Gff3(attributes);
+                        dataLinesWritten++;
+                    }
+                }
             }
         }
         if(gff3Writer!=null)
