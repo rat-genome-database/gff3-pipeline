@@ -84,7 +84,7 @@ public class CreateGff4Eva {
                 else { // check +1 rs id, if different add current data to file else add data to allele
                     String nextRsId = data.get(i+1).getRsId();
                     if(data.get(i).getRsId().equals(nextRsId)) {
-                        prevVarNuc.concat("/" + data.get(i).getVarNuc());
+                        prevVarNuc += "/" + data.get(i).getVarNuc();
                     }
                     else {
                         gff3Writer.writeFirst8Columns(data.get(i).getChromosome(), "EVA", "SNP", data.get(i).getPos(), data.get(i).getPos(), ".", ".", ".");
@@ -92,7 +92,7 @@ public class CreateGff4Eva {
                         attributes.put("ID", Integer.toString(data.get(i).getEvaId()));
                         attributes.put("Name", data.get(i).getRsId());
                         attributes.put("Alias", data.get(i).getRsId());
-                        prevVarNuc.concat("/" + data.get(i).getVarNuc());
+                        prevVarNuc += "/" + data.get(i).getVarNuc();
                         attributes.put("allele", data.get(i).getRefNuc() + prevVarNuc);
                         prevVarNuc = null;
                         gff3Writer.writeAttributes4Gff3(attributes);
