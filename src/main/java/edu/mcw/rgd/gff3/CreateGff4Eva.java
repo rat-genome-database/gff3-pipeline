@@ -94,7 +94,7 @@ public class CreateGff4Eva {
                         attributes.put("Alias", data.get(i).getRsId());
                         prevVarNuc += "/" + data.get(i).getVarNuc();
                         attributes.put("allele", data.get(i).getRefNuc() + prevVarNuc);
-                        prevVarNuc = null;
+                        prevVarNuc = "";
                         gff3Writer.writeAttributes4Gff3(attributes);
                         dataLinesWritten++;
                     }
