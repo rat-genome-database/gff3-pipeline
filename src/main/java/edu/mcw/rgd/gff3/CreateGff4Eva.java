@@ -66,7 +66,7 @@ public class CreateGff4Eva {
             if(data.size()==0)
                 continue;
 
-            String prevRsId = null, prevVarNuc = null;
+            String prevVarNuc = "";
 
             for(int i = 0; i < data.size(); i++)
             {
