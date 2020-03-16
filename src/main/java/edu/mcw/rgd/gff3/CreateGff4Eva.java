@@ -94,11 +94,11 @@ public class CreateGff4Eva {
                         attributes.put("Name", data.get(i).getRsId());
                         attributes.put("Alias", data.get(i).getRsId());
                         String notHere = "-";
-                        if(data.get(i).getRefNuc().equals(null)) {
+                        if(data.get(i).getRefNuc()==null) {
                             prevVarNuc += "/" + data.get(i).getVarNuc();
                             attributes.put("allele", notHere+prevVarNuc);
                         }
-                        else if(data.get(i).getVarNuc().equals(null)) {
+                        else if(data.get(i).getVarNuc()==null) {
                             attributes.put("allele",data.get(i).getRefNuc()+"/"+notHere);
                         }
                         else {
