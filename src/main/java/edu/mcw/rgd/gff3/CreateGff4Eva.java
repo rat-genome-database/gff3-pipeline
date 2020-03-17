@@ -70,8 +70,30 @@ public class CreateGff4Eva {
 
             for(int i = 0; i < data.size(); i++)
             {
+                String soTerm;
+                String evaSoTerm = data.get(i).getSoTerm();
+                switch(evaSoTerm){
+                    case "0002007":
+                    soTerm = "MNP";
+                    break;
+                    case "0000159":
+                    soTerm = "DELETION";
+                    break;
+                    case "0000667":
+                    soTerm = "INSERTION";
+                    break;
+                    case "1000032":
+                    soTerm = "DELIN";
+                    break;
+                    case "0000705":
+                    soTerm = "TANDEM_REPEAT";
+                    break;
+                    default:
+                    soTerm = "SNP";
+                    break;
+                }
                 if(i+1==data.size()) {
-                    gff3Writer.writeFirst8Columns(data.get(i).getChromosome(), "EVA", "SNP", data.get(i).getPos(), data.get(i).getPos(), ".", ".", ".");
+                    gff3Writer.writeFirst8Columns(data.get(i).getChromosome(), "EVA", soTerm, data.get(i).getPos(), data.get(i).getPos(), ".", ".", ".");
                     HashMap<String, String> attributes = new HashMap<>();
                     attributes.put("ID", Integer.toString(data.get(i).getEvaId()));
                     attributes.put("Name", data.get(i).getRsId());
@@ -88,7 +110,7 @@ public class CreateGff4Eva {
                     }
                     else {
 
-                        gff3Writer.writeFirst8Columns(data.get(i).getChromosome(), "EVA", "SNP", data.get(i).getPos(), data.get(i).getPos(), ".", ".", ".");
+                        gff3Writer.writeFirst8Columns(data.get(i).getChromosome(), "EVA", soTerm, data.get(i).getPos(), data.get(i).getPos(), ".", ".", ".");
                         HashMap<String, String> attributes = new HashMap<>();
                         attributes.put("ID", Integer.toString(data.get(i).getEvaId()));
                         attributes.put("Name", data.get(i).getRsId());
