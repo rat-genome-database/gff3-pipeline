@@ -128,7 +128,7 @@ fi
 
 
 echo
-echo "PIG 10.2
+echo "PIG 10.2"
 
 TMP_INPUT_FILE=$GFF3_LOC/EVA_Sscrofa10.2.gff3.gz
 if [ -f $TMP_INPUT_FILE ]; then
