@@ -95,8 +95,8 @@ public class CreateGff4Eva {
                 if(i+1==data.size()) {
                     gff3Writer.writeFirst8Columns(data.get(i).getChromosome(), "EVA", soTerm, data.get(i).getPos(), data.get(i).getPos(), ".", ".", ".");
                     HashMap<String, String> attributes = new HashMap<>();
-                    attributes.put("ID", Integer.toString(data.get(i).getEvaId()));
-                    attributes.put("Name", data.get(i).getRsId());
+                    attributes.put("ID", data.get(i).getRsId());
+
                     attributes.put("Alias", data.get(i).getRsId());
                     prevVarNuc = "/"+data.get(i).getVarNuc();
                     attributes.put("allele", data.get(i).getRefNuc() + prevVarNuc);
@@ -112,8 +112,7 @@ public class CreateGff4Eva {
 
                         gff3Writer.writeFirst8Columns(data.get(i).getChromosome(), "EVA", soTerm, data.get(i).getPos(), data.get(i).getPos(), ".", ".", ".");
                         HashMap<String, String> attributes = new HashMap<>();
-                        attributes.put("ID", Integer.toString(data.get(i).getEvaId()));
-                        attributes.put("Name", data.get(i).getRsId());
+                        attributes.put("ID", data.get(i).getRsId());
                         attributes.put("Alias", data.get(i).getRsId());
                         String notHere = "-";
                         if(data.get(i).getRefNuc()==null) {
