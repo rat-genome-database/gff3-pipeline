@@ -285,7 +285,10 @@ public class Manager {
                             CreateGff4ProteinDomains pdm = (CreateGff4ProteinDomains) (bf.getBean("proteinDomainManager"));
                             pdm.run();
                             return true;
-
+                        case "Eva":
+                            CreateGff4Eva em = (CreateGff4Eva) (bf.getBean("evaManager"));
+                            em.run();
+                            return true;
                         case "gene":
                             objectTypeKey = RgdId.OBJECT_KEY_GENES;
                             break;
