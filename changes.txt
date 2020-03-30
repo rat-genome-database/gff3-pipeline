@@ -1,3 +1,6 @@
+Mar 30, 2020
+  agr genes: added handling of gene type 'biological-region'
+
 Mar 09, 2020
   protein domains: improved logging of exceptions
 
