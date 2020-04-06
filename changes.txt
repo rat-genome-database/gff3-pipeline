@@ -1,5 +1,9 @@
+Mar 30, 2020
+  agr genes: added handling of gene type 'biological-region'
+
 Mar 09, 2020
   protein domains: improved logging of exceptions
+  CreateGff4Eva and eva.sh were added for Eva variants
 
 Feb 17, 2020
   protein domains: simplified gff3 generation and loading for all species

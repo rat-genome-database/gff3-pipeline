@@ -330,6 +330,8 @@ public class CreateGff4GeneAgr {
                 return "snoRNA_gene";
             case "scrna":
                 return "scRNA_gene";
+            case "biological-region":
+                return "biological_region";
             default:
                 throw new Exception("unsupported gene type "+geneType);
         }
@@ -357,6 +359,8 @@ public class CreateGff4GeneAgr {
                 return "SO:0001267";
             case "scrna":
                 return "SO:0001266";
+            case "biological-region":
+                return "SO:0001411";
             default:
                 throw new Exception("unsupported gene type "+geneType);
         }
