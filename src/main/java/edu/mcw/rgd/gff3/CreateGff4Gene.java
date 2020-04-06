@@ -22,7 +22,7 @@ public class CreateGff4Gene {
     /**
      * load the species list and assemblies from properties/AppConfigure.xml
      */
-    public void run() throws Exception {
+    public void run() {
 
         processedAssemblies.parallelStream().forEach( assemblyInfo -> {
 
@@ -163,7 +163,7 @@ public class CreateGff4Gene {
 
                 if( writeRATMINE ) {
                     if(RATMINEuniqueGeneId.contains("_")) {
-                        msgBuf.append("RATMINE error: dash in ID\n");
+                        log.debug("RATMINE error: dash in ID="+RATMINEuniqueGeneId);
                     }
                     RATMINEgff3Writer.writeFirst8Columns(map.getChromosome(), "RGD", "gene", map.getStartPos(), map.getStopPos(), ".", map.getStrand(), ".");
                     RATMINEgff3Writer.writeAttributes4Gff3(RATMINEattributesHashMap);
@@ -419,13 +419,13 @@ public class CreateGff4Gene {
      */
     private String getHgncMgiIds(List<XdbId> xdbList) throws Exception{
 
-        String xdbIds = "";
+        StringBuilder xdbIds = new StringBuilder();
         for(XdbId externalId : xdbList ){
             if(externalId.getXdbKey()==XdbId.XDB_KEY_MGD || externalId.getXdbKey()==XdbId.XDB_KEY_HGNC) {
-                xdbIds += "," + externalId.getAccId();
+                xdbIds.append(",").append(externalId.getAccId());
             }
         }
-        return xdbIds;
+        return xdbIds.toString();
     }
 
     /**
