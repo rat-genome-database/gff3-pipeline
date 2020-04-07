@@ -22,7 +22,7 @@ public class CreateGff4Gene {
     /**
      * load the species list and assemblies from properties/AppConfigure.xml
      */
-    public void run() throws Exception {
+    public void run() {
 
         processedAssemblies.parallelStream().forEach( assemblyInfo -> {
 
@@ -37,8 +37,6 @@ public class CreateGff4Gene {
         });
     }
 
-    Map<String, AtomicInteger> idMap = new ConcurrentHashMap<>();
-
     public void createGeneGff3(CreateInfo info) throws Exception{
 
         StringBuffer msgBuf = new StringBuffer();
@@ -48,7 +46,7 @@ public class CreateGff4Gene {
         CdsUtils utils = new CdsUtils(dao, info.getMapKey());
 
         String species = SpeciesType.getCommonName(info.getSpeciesTypeKey());
-        idMap.clear();
+        Map<String, AtomicInteger> idMap = new ConcurrentHashMap<>();
 
         String assemblySymbol = Gff3Utils.getAssemblySymbol(info.getMapKey());
 
@@ -123,7 +121,7 @@ public class CreateGff4Gene {
                 Map<String,String> attributesHashMap = new HashMap<>();
                 Map<String,String> RATMINEattributesHashMap = new HashMap<>();
 
-                String uniqueGeneId = getUniqueId("RGD"+gene.getRgdId());
+                String uniqueGeneId = getUniqueId("RGD"+gene.getRgdId(), idMap);
                 attributesHashMap.put("ID", uniqueGeneId);
                 attributesHashMap.put("Name", gene.getSymbol());
                 attributesHashMap.put("fullName", nameOfgene);
@@ -139,7 +137,7 @@ public class CreateGff4Gene {
                     attributesHashMap.put("nomenclatureStatus", gene.getNcbiAnnotStatus());
                 }
 
-                String RATMINEuniqueGeneId = getUniqueId("RGD:"+gene.getRgdId());
+                String RATMINEuniqueGeneId = getUniqueId("RGD:"+gene.getRgdId(), idMap);
                 RATMINEattributesHashMap.put("ID", RATMINEuniqueGeneId);
                 RATMINEattributesHashMap.put("Name", gene.getSymbol());
                 RATMINEattributesHashMap.put("fullName", nameOfgene);
@@ -163,7 +161,7 @@ public class CreateGff4Gene {
 
                 if( writeRATMINE ) {
                     if(RATMINEuniqueGeneId.contains("_")) {
-                        msgBuf.append("RATMINE error: dash in ID\n");
+                        log.debug("RATMINE error: dash in ID="+RATMINEuniqueGeneId);
                     }
                     RATMINEgff3Writer.writeFirst8Columns(map.getChromosome(), "RGD", "gene", map.getStartPos(), map.getStopPos(), ".", map.getStrand(), ".");
                     RATMINEgff3Writer.writeAttributes4Gff3(RATMINEattributesHashMap);
@@ -185,7 +183,7 @@ public class CreateGff4Gene {
                             if( !utils.transcriptPositionOverlapsGenePosition(trMd, map) )
                                 continue;
 
-                            String id = getUniqueId("mRNARGD"+tr.getRgdId());
+                            String id = getUniqueId("mRNARGD"+tr.getRgdId(), idMap);
 
                             counters.increment(" Mapped Transcripts");
 
@@ -220,12 +218,12 @@ public class CreateGff4Gene {
                                 String featureId;
 
                                 if(cf.getFeatureType()== TranscriptFeature.FeatureType.CDS){
-                                    featureId = getUniqueId("trFeatureCDS"+cf.getRgdId());
+                                    featureId = getUniqueId("trFeatureCDS"+cf.getRgdId(), idMap);
 
                                     counters.increment(" Mapped CDSs");
                                 }
                                 else {
-                                    featureId = getUniqueId("trFeature"+cf.getRgdId());
+                                    featureId = getUniqueId("trFeature"+cf.getRgdId(), idMap);
 
                                     if(cf.getFeatureType()== TranscriptFeature.FeatureType.EXON){
                                         counters.increment(" Mapped Exons");
@@ -268,7 +266,7 @@ public class CreateGff4Gene {
                     // generate fake feature for genes without features
                     gff3Writer.writeFirst8Columns(map.getChromosome(), "RGD", getSoFeatureType(gType), map.getStartPos(),map.getStopPos(), ".", map.getStrand(), ".");
 
-                    attributesHashMap.put("ID", getUniqueId("ftRGD"+geneRgdId));
+                    attributesHashMap.put("ID", getUniqueId("ftRGD"+geneRgdId, idMap));
                     attributesHashMap.put("Parent", uniqueGeneId);
                     gff3Writer.writeAttributes4Gff3(attributesHashMap);
                 }
@@ -419,13 +417,13 @@ public class CreateGff4Gene {
      */
     private String getHgncMgiIds(List<XdbId> xdbList) throws Exception{
 
-        String xdbIds = "";
+        StringBuilder xdbIds = new StringBuilder();
         for(XdbId externalId : xdbList ){
             if(externalId.getXdbKey()==XdbId.XDB_KEY_MGD || externalId.getXdbKey()==XdbId.XDB_KEY_HGNC) {
-                xdbIds += "," + externalId.getAccId();
+                xdbIds.append(",").append(externalId.getAccId());
             }
         }
-        return xdbIds;
+        return xdbIds.toString();
     }
 
     /**
@@ -479,7 +477,7 @@ public class CreateGff4Gene {
         return nameOfgene;
     }
 
-    String getUniqueId(String idBase) {
+    String getUniqueId(String idBase, Map<String, AtomicInteger> idMap) {
 
         AtomicInteger i = idMap.putIfAbsent(idBase, new AtomicInteger(0));
         if( i==null ) {
