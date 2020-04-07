@@ -1,5 +1,6 @@
 Apr 6, 2020
   genes: tuned up logging: debug messages no longer go to main summary; they go to detail log instead
+  genes: fixed generation of unique ids
 
 Mar 30, 2020
   agr genes: added handling of gene type 'biological-region'
