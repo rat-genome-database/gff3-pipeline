@@ -73,18 +73,23 @@ public class CreateGff4Eva {
                 String soTerm;
                 String evaSoTerm = data.get(i).getSoTerm();
                 switch(evaSoTerm){
+                    case "SO:0002007":
                     case "0002007":
                     soTerm = "MNP";
                     break;
+                    case "SO:0000159":
                     case "0000159":
                     soTerm = "DELETION";
                     break;
+                    case "SO:0000667":
                     case "0000667":
                     soTerm = "INSERTION";
                     break;
+                    case "SO:1000032":
                     case "1000032":
                     soTerm = "DELIN";
                     break;
+                    case "SO:0000705":
                     case "0000705":
                     soTerm = "TANDEM_REPEAT";
                     break;
