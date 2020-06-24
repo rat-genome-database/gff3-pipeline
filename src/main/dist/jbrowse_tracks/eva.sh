@@ -94,13 +94,13 @@ if [ -f $TMP_INPUT_FILE ]; then
 
     ./remove-track.pl --dir /jbrowse/data_dog3_1 --trackLabel EVA --delete
 
-    ./flatfile-to-json.pl \
+    ./flatfile-to-json.pl | tee EvaOutput.log \
       --gff /tmp/dog31_EVA.gff3 \
       --trackLabel EVA \
       --key "EVA" \
       --out /jbrowse/data_dog3_1 \
       --trackType JBrowse/View/Track/CanvasFeatures \
-      --config "{ \"category\" : \"Variants/DbSNPs\" }" | tee EvaOutput.log
+      --config "{ \"category\" : \"Variants/DbSNPs\" }"
 else
     echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
@@ -136,13 +136,13 @@ if [ -f $TMP_INPUT_FILE ]; then
 
     ./remove-track.pl --dir /jbrowse/data_pig10_2 --trackLabel EVA --delete
 
-    ./flatfile-to-json.pl \
+    ./flatfile-to-json.pl | tee EvaOutput.log \
       --gff /tmp/pig10_EVA.gff3 \
       --trackLabel EVA \
       --key "EVA" \
       --out /jbrowse/data_pig10_2 \
       --trackType JBrowse/View/Track/CanvasFeatures \
-      --config "{ \"category\" : \"Variants/DbSNPs\" }" | tee -a EvaOutput.log
+      --config "{ \"category\" : \"Variants/DbSNPs\" }"
 else
     echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
