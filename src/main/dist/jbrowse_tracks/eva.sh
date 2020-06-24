@@ -94,7 +94,7 @@ if [ -f $TMP_INPUT_FILE ]; then
 
     ./remove-track.pl --dir /jbrowse/data_dog3_1 --trackLabel EVA --delete
 
-    ./flatfile-to-json.pl | tee -a EvaOutput.log \
+    ./flatfile-to-json.pl \
       --gff /tmp/dog31_EVA.gff3 \
       --trackLabel EVA \
       --key "EVA" \
@@ -136,7 +136,7 @@ if [ -f $TMP_INPUT_FILE ]; then
 
     ./remove-track.pl --dir /jbrowse/data_pig10_2 --trackLabel EVA --delete
 
-    ./flatfile-to-json.pl | tee -a EvaOutput.log \
+    ./flatfile-to-json.pl \
       --gff /tmp/pig10_EVA.gff3 \
       --trackLabel EVA \
       --key "EVA" \
