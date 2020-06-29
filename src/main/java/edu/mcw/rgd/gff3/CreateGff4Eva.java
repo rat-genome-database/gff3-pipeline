@@ -5,9 +5,8 @@ import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.Map;
 
 
 /**
@@ -60,6 +59,9 @@ public class CreateGff4Eva {
 
         int dataLinesWritten = 0;
         for(String chr : chromosomes) {
+
+            Map<String, LinkedList> rsSoCheck = new HashMap<>();
+
             List<Eva> data = dao.getEvaObjectsbyKeyandChrom(mapKey,chr);
             log.debug(" "+assemblyName+": data lines for Eva in chrom "+chr+": "+data.size());
 
@@ -70,39 +72,118 @@ public class CreateGff4Eva {
 
             for(int i = 0; i < data.size(); i++)
             {
+                String rsId = data.get(i).getRsId();
                 String soTerm;
                 String evaSoTerm = data.get(i).getSoTerm();
                 switch(evaSoTerm){
                     case "SO:0002007":
                     case "0002007":
                     soTerm = "MNP";
+                    if(rsSoCheck.get(rsId)==null)
+                    {
+                        LinkedList<String> temp = new LinkedList<>();
+                        temp.add(soTerm);
+                        rsSoCheck.put(rsId,temp);
+                    }
+                    else //
+                    {
+                        LinkedList<String> temp = rsSoCheck.get(rsId);
+                        temp.add(soTerm);
+                        rsSoCheck.put(rsId,temp);
+                    }
                     break;
                     case "SO:0000159":
                     case "0000159":
-                    soTerm = "DELETION";
+                        soTerm = "DELETION";
+                        if(rsSoCheck.get(rsId)==null)
+                        {
+                            LinkedList<String> temp = new LinkedList<>();
+                            temp.add(soTerm);
+                            rsSoCheck.put(rsId,temp);
+                        }
+                        else //
+                        {
+                            LinkedList<String> temp = rsSoCheck.get(rsId);
+                            temp.add(soTerm);
+                            rsSoCheck.put(rsId,temp);
+                        }
                     break;
                     case "SO:0000667":
                     case "0000667":
-                    soTerm = "INSERTION";
+                        soTerm = "INSERTION";
+                        if(rsSoCheck.get(rsId)==null)
+                        {
+                            LinkedList<String> temp = new LinkedList<>();
+                            temp.add(soTerm);
+                            rsSoCheck.put(rsId,temp);
+                        }
+                        else //
+                        {
+                            LinkedList<String> temp = rsSoCheck.get(rsId);
+                            temp.add(soTerm);
+                            rsSoCheck.put(rsId,temp);
+                        }
                     break;
                     case "SO:1000032":
                     case "1000032":
-                    soTerm = "DELIN";
+                        soTerm = "DELIN";
+                        if(rsSoCheck.get(rsId)==null)
+                        {
+                            LinkedList<String> temp = new LinkedList<>();
+                            temp.add(soTerm);
+                            rsSoCheck.put(rsId,temp);
+                        }
+                        else //
+                        {
+                            LinkedList<String> temp = rsSoCheck.get(rsId);
+                            temp.add(soTerm);
+                            rsSoCheck.put(rsId,temp);
+                        }
                     break;
                     case "SO:0000705":
                     case "0000705":
-                    soTerm = "TANDEM_REPEAT";
+                        soTerm = "TANDEM_REPEAT";
+                        if(rsSoCheck.get(rsId)==null)
+                        {
+                            LinkedList<String> temp = new LinkedList<>();
+                            temp.add(soTerm);
+                            rsSoCheck.put(rsId,temp);
+                        }
+                        else //
+                        {
+                            LinkedList<String> temp = rsSoCheck.get(rsId);
+                            temp.add(soTerm);
+                            rsSoCheck.put(rsId,temp);
+                        }
                     break;
                     default:
-                    soTerm = "SNP";
+                        soTerm = "SNP";
+                        if(rsSoCheck.get(rsId)==null)
+                        {
+                            LinkedList<String> temp = new LinkedList<>();
+                            temp.add(soTerm);
+                            rsSoCheck.put(rsId,temp);
+                        }
+                        else //
+                        {
+                            LinkedList<String> temp = rsSoCheck.get(rsId);
+                            temp.add(soTerm);
+                            rsSoCheck.put(rsId,temp);
+                        }
                     break;
                 }
                 if(i+1==data.size()) {
                     gff3Writer.writeFirst8Columns(data.get(i).getChromosome(), "EVA", soTerm, data.get(i).getPos(), data.get(i).getPos(), ".", ".", ".");
                     HashMap<String, String> attributes = new HashMap<>();
-                    attributes.put("ID", data.get(i).getRsId());
 
-                    attributes.put("Alias", data.get(i).getRsId());
+                    if(rsSoCheck.get( rsId ).size()==1 ) // terms are the same
+                        attributes.put("ID", data.get(i).getRsId());
+                    else {// size has more than 1
+                        int idNum = rsSoCheck.get(rsId).size() - 1;
+                        attributes.put("ID", rsId+"_"+idNum);
+                    }
+
+                    attributes.put("Alias", rsId);
                     prevVarNuc = "/"+data.get(i).getVarNuc();
                     attributes.put("allele", data.get(i).getRefNuc() + prevVarNuc);
                     gff3Writer.writeAttributes4Gff3(attributes);
@@ -117,7 +198,14 @@ public class CreateGff4Eva {
 
                         gff3Writer.writeFirst8Columns(data.get(i).getChromosome(), "EVA", soTerm, data.get(i).getPos(), data.get(i).getPos(), ".", ".", ".");
                         HashMap<String, String> attributes = new HashMap<>();
-                        attributes.put("ID", data.get(i).getRsId());
+
+                        if(rsSoCheck.get( rsId ).size()==1 ) // terms are the same
+                            attributes.put("ID", data.get(i).getRsId());
+                        else {// size has more than 1
+                            int idNum = rsSoCheck.get(rsId).size() - 1;
+                            attributes.put("ID", rsId+"_"+idNum);
+                        }
+
                         attributes.put("Alias", data.get(i).getRsId());
                         String notHere = "-";
                         if(data.get(i).getRefNuc()==null) {
