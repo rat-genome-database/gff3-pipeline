@@ -23,66 +23,66 @@ fi
 cd $JBROWSE_HOME/bin
 
 echo
-#echo "RAT 6.0"
-#
-#TMP_INPUT_FILE=$GFF3_LOC/EVA_Rnor_6.0.gff3.gz
-#if [ -f $TMP_INPUT_FILE ]; then
-#    gunzip -c $TMP_INPUT_FILE > /tmp/rat60_EVA.gff3
-#
-#    ./remove-track.pl --dir /jbrowse/data_rgd6 --trackLabel EVA --delete
-#
-#    ./flatfile-to-json.pl \
-#      --gff /tmp/rat60_EVA.gff3 \
-#      --trackLabel EVA \
-#      --key "EVA" \
-#      --out /jbrowse/data_rgd6 \
-#      --trackType JBrowse/View/Track/CanvasFeatures \
-#      --config "{ \"category\" : \"Variants/DbSNPs\" }"
-#else
-#    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
-#fi
-#
-#
-#echo
-#echo "RAT 5.0"
-#
-#TMP_INPUT_FILE=$GFF3_LOC/EVA_Rnor_5.0.gff3.gz
-#if [ -f $TMP_INPUT_FILE ]; then
-#    gunzip -c $TMP_INPUT_FILE > /tmp/rat50_EVA.gff3
-#
-#    ./remove-track.pl --dir /jbrowse/data_rgd5 --trackLabel EVA --delete
-#
-#    ./flatfile-to-json.pl \
-#      --gff /tmp/rat50_EVA.gff3 \
-#      --trackLabel EVA \
-#      --key "EVA" \
-#      --out /jbrowse/data_rgd5 \
-#      --trackType JBrowse/View/Track/CanvasFeatures \
-#      --config "{ \"category\" : \"Variants/DbSNPs\" }"
-#else
-#    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
-#fi
-#
-#
-#echo
-#echo "MOUSE 38"
-#
-#TMP_INPUT_FILE=$GFF3_LOC/EVA_GRCm38.gff3.gz
-#if [ -f $TMP_INPUT_FILE ]; then
-#    gunzip -c $TMP_INPUT_FILE > /tmp/mouse38_EVA.gff3
-#
-#    ./remove-track.pl --dir /jbrowse/data_mm38 --trackLabel EVA --delete
-#
-#    ./flatfile-to-json.pl \
-#      --gff /tmp/mouse38_EVA.gff3 \
-#      --trackLabel EVA \
-#      --key "EVA" \
-#      --out /jbrowse/data_mm38 \
-#      --trackType JBrowse/View/Track/CanvasFeatures \
-#      --config "{ \"category\" : \"Variants/DbSNPs\" }"
-#else
-#    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
-#fi
+echo "RAT 6.0"
+
+TMP_INPUT_FILE=$GFF3_LOC/EVA_Rnor_6.0.gff3.gz
+if [ -f $TMP_INPUT_FILE ]; then
+    gunzip -c $TMP_INPUT_FILE > /tmp/rat60_EVA.gff3
+
+    ./remove-track.pl --dir /jbrowse/data_rgd6 --trackLabel EVA --delete
+
+    ./flatfile-to-json.pl \
+      --gff /tmp/rat60_EVA.gff3 \
+      --trackLabel EVA \
+      --key "EVA" \
+      --out /jbrowse/data_rgd6 \
+      --trackType JBrowse/View/Track/CanvasFeatures \
+      --config "{ \"category\" : \"Variants/DbSNPs\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
+fi
+
+
+echo
+echo "RAT 5.0"
+
+TMP_INPUT_FILE=$GFF3_LOC/EVA_Rnor_5.0.gff3.gz
+if [ -f $TMP_INPUT_FILE ]; then
+    gunzip -c $TMP_INPUT_FILE > /tmp/rat50_EVA.gff3
+
+    ./remove-track.pl --dir /jbrowse/data_rgd5 --trackLabel EVA --delete
+
+    ./flatfile-to-json.pl \
+      --gff /tmp/rat50_EVA.gff3 \
+      --trackLabel EVA \
+      --key "EVA" \
+      --out /jbrowse/data_rgd5 \
+      --trackType JBrowse/View/Track/CanvasFeatures \
+      --config "{ \"category\" : \"Variants/DbSNPs\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
+fi
+
+
+echo
+echo "MOUSE 38"
+
+TMP_INPUT_FILE=$GFF3_LOC/EVA_GRCm38.gff3.gz
+if [ -f $TMP_INPUT_FILE ]; then
+    gunzip -c $TMP_INPUT_FILE > /tmp/mouse38_EVA.gff3
+
+    ./remove-track.pl --dir /jbrowse/data_mm38 --trackLabel EVA --delete
+
+    ./flatfile-to-json.pl \
+      --gff /tmp/mouse38_EVA.gff3 \
+      --trackLabel EVA \
+      --key "EVA" \
+      --out /jbrowse/data_mm38 \
+      --trackType JBrowse/View/Track/CanvasFeatures \
+      --config "{ \"category\" : \"Variants/DbSNPs\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
+fi
 
 
 echo
@@ -104,27 +104,27 @@ if [ -f $TMP_INPUT_FILE ]; then
 else
     echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
-#
-#
-#echo
-#echo "PIG 11.1"
-#
-#TMP_INPUT_FILE=$GFF3_LOC/EVA_Sscrofa11.1.gff3.gz
-#if [ -f $TMP_INPUT_FILE ]; then
-#    gunzip -c $TMP_INPUT_FILE > /tmp/pig11_EVA.gff3
-#
-#    ./remove-track.pl --dir /jbrowse/data_pig11_1 --trackLabel EVA --delete
-#
-#    ./flatfile-to-json.pl \
-#      --gff /tmp/pig11_EVA.gff3 \
-#      --trackLabel EVA \
-#      --key "EVA" \
-#      --out /jbrowse/data_pig11_1 \
-#      --trackType JBrowse/View/Track/CanvasFeatures \
-#      --config "{ \"category\" : \"Variants/DbSNPs\" }"
-#else
-#    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
-#fi
+
+
+echo
+echo "PIG 11.1"
+
+TMP_INPUT_FILE=$GFF3_LOC/EVA_Sscrofa11.1.gff3.gz
+if [ -f $TMP_INPUT_FILE ]; then
+    gunzip -c $TMP_INPUT_FILE > /tmp/pig11_EVA.gff3
+
+    ./remove-track.pl --dir /jbrowse/data_pig11_1 --trackLabel EVA --delete
+
+    ./flatfile-to-json.pl \
+      --gff /tmp/pig11_EVA.gff3 \
+      --trackLabel EVA \
+      --key "EVA" \
+      --out /jbrowse/data_pig11_1 \
+      --trackType JBrowse/View/Track/CanvasFeatures \
+      --config "{ \"category\" : \"Variants/DbSNPs\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
+fi
 
 
 echo
