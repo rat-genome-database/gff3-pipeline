@@ -93,7 +93,7 @@ public class CreateGff4GeneAgr {
 
                 Map<String, String> attributes = new HashMap<>();
 
-                String uniqueGeneId = getUniqueId("RGD:" + geneRgdId);
+                String uniqueGeneId = getUniqueId2("RGD:" + geneRgdId);
                 attributes.put("ID", uniqueGeneId);
                 attributes.put("Name", gene.getSymbol());
                 attributes.put("Note", nameOfgene);
@@ -463,8 +463,23 @@ public class CreateGff4GeneAgr {
         }
         idMap.put(idBase, cnt);
 
-        if( cnt==1 )
+        return idBase+cnt;
+    }
+
+    String getUniqueId2(String idBase) {
+
+        Integer cnt = idMap.get(idBase);
+        if( cnt==null ) {
+            cnt = 1;
+        }
+        else {
+            cnt++;
+        }
+        idMap.put(idBase, cnt);
+
+        if( cnt==1 ) {
             return idBase;
+        }
         return idBase+"_"+cnt;
     }
 
