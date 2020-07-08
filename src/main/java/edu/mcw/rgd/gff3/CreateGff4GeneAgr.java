@@ -463,7 +463,9 @@ public class CreateGff4GeneAgr {
         }
         idMap.put(idBase, cnt);
 
-        return idBase+cnt;
+        if( cnt==1 )
+            return idBase;
+        return idBase+"_"+cnt;
     }
 
     // currently we have only UniProtKB accessions as DbXrefs
