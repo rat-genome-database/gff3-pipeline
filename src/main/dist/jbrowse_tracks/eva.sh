@@ -3,7 +3,7 @@
 
 SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
 EMAILLIST=mtutaj@mcw.edu,llamers@mcw.edu
-JBROWSE_HOME="/rgd/JBrowse-1.12.3/"
+JBROWSE_HOME="/rgd/JBrowse-1.16.3/"
 
 SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
 if [ "$SERVER" == "HANSEN" ]; then
