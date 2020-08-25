@@ -228,7 +228,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/Sscrofa11.1_Ensembl-model.gff3 \
       --trackLabel Ensembl_genes \
-      --key "Ensembl (pig11.1) Genes and Transcripts" \
+      --key "Ensembl (Sscrofa11.1) Genes and Transcripts" \
       --out /jbrowse/data_pig11_1 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
@@ -256,7 +256,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/Sscrofa11.1_Ensembl-feature.gff3 \
       --trackLabel Ensembl_features \
-      --key "Ensembl (pig11.1) Features" \
+      --key "Ensembl (Sscrofa11.1) Features" \
       --out /jbrowse/data_pig11_1 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
@@ -288,7 +288,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/PanPan1.1_Ensembl-model.gff3 \
       --trackLabel Ensembl_genes \
-      --key "Ensembl (bonobo1.1) Genes and Transcripts" \
+      --key "Ensembl (panpan1.1) Genes and Transcripts" \
       --out /jbrowse/data_bonobo1_1 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
@@ -316,7 +316,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/PanPan1.1_Ensembl-feature.gff3 \
       --trackLabel Ensembl_features \
-      --key "Ensembl (bonobo1.1) Features" \
+      --key "Ensembl (panpan1.1) Features" \
       --out /jbrowse/data_bonobo1_1 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
