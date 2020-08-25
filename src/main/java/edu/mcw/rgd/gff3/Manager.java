@@ -123,7 +123,8 @@ public class Manager {
 
         }
         else if( flavor.equals("ensembl_prep") ) {
-            EnsemblPrep.run(fromFile);
+            EnsemblPrep ep = (EnsemblPrep) bf.getBean("ensemblPrep");
+            ep.run();
 
         } else {
             throw new ArgumentsException("This script requires '-object:' or '-sampleID' or '-ontAspect' as a parameter:\n" +
