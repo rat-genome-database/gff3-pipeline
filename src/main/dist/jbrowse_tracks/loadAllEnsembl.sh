@@ -9,7 +9,18 @@ if [ "$SERVER" == "HANSEN" ]; then
     JBROWSE_HOME="/rgd/JBrowse-1.12.3/"
     GFF3_LOC="/rgd/data/gff3/Ensembl"
     cd /rgd/data/gff3/Ensembl
-    scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Ensembl/ .
+    scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Ensembl/Rnor_6.0_Ensembl-model.gff3.gz .
+    scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Ensembl/Rnor_6.0_Ensembl-feature.gff3.gz .
+    scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Ensembl/GRCh38.p13_Ensembl-model.gff3.gz .
+    scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Ensembl/GRCh38.p13_Ensembl-feature.gff3.gz .
+    scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Ensembl/GRCm38.p6_Ensembl-model.gff3.gz .
+    scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Ensembl/GRCm38.p6_Ensembl-feature.gff3.gz .
+    scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Ensembl/Sscrofa11.1_Ensembl-model.gff3.gz .
+    scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Ensembl/Sscrofa11.1_Ensembl-feature.gff3.gz .
+    scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Ensembl/PanPan1.1_Ensembl-model.gff3.gz .
+    scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Ensembl/PanPan1.1_Ensembl-feature.gff3.gz .
+    scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Ensembl/CanFam3.1_Ensembl-model.gff3.gz .
+    scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Ensembl/CanFam3.1_Ensembl-feature.gff3.gz .
     cd ../../../../..
 else
     JBROWSE_HOME="/rgd/JBrowse-1.16.3/"
@@ -46,7 +57,7 @@ if [ -f $TMP_INPUT_FILE ]; then
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
 else
-    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
+    echo "ERROR: File not found: $TMP_INPUT_FILE" #|  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 TMP_INPUT_FILE=$GFF3_LOC/Rnor_6.0_Ensembl-feature.gff3.gz
@@ -75,7 +86,7 @@ if [ -f $TMP_INPUT_FILE ]; then
 
     echo "STEP 5: === DONE ! ==="
 else
-    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
+    echo "ERROR: File not found: $TMP_INPUT_FILE" #|  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 echo "Human"
@@ -104,7 +115,7 @@ if [ -f $TMP_INPUT_FILE ]; then
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
 else
-    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
+    echo "ERROR: File not found: $TMP_INPUT_FILE" #|  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 TMP_INPUT_FILE=$GFF3_LOC/GRCh38.p13_Ensembl-feature.gff3.gz
@@ -164,7 +175,7 @@ if [ -f $TMP_INPUT_FILE ]; then
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
 
 else
-    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
+    echo "ERROR: File not found: $TMP_INPUT_FILE" #|  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 TMP_INPUT_FILE=$GFF3_LOC/GRCm38.p6_Ensembl-feature.gff3.gz
@@ -193,7 +204,7 @@ if [ -f $TMP_INPUT_FILE ]; then
 
     echo "STEP 5: === DONE ! ==="
 else
-    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
+    echo "ERROR: File not found: $TMP_INPUT_FILE" #|  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 echo "Pig"
@@ -223,7 +234,7 @@ if [ -f $TMP_INPUT_FILE ]; then
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
 
 else
-    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
+    echo "ERROR: File not found: $TMP_INPUT_FILE" #|  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 TMP_INPUT_FILE=$GFF3_LOC/Sscrofa11.1_Ensembl-feature.gff3.gz
@@ -253,7 +264,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     echo "STEP 5: === DONE ! ==="
 
 else
-    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
+    echo "ERROR: File not found: $TMP_INPUT_FILE" #|  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 echo "Bonobo"
@@ -283,7 +294,7 @@ if [ -f $TMP_INPUT_FILE ]; then
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
 
 else
-    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
+    echo "ERROR: File not found: $TMP_INPUT_FILE" #|  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 TMP_INPUT_FILE=$GFF3_LOC/PanPan1.1_Ensembl-feature.gff3.gz
@@ -313,7 +324,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     echo "STEP 5: === DONE ! ==="
 
 else
-    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
+    echo "ERROR: File not found: $TMP_INPUT_FILE" #|  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 echo "Dog"
@@ -343,7 +354,7 @@ if [ -f $TMP_INPUT_FILE ]; then
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
 
 else
-    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
+    echo "ERROR: File not found: $TMP_INPUT_FILE" #|  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
 TMP_INPUT_FILE=$GFF3_LOC/CanFam3.1_Ensembl-feature.gff3.gz
@@ -372,5 +383,5 @@ if [ -f $TMP_INPUT_FILE ]; then
 
     echo "STEP 5: === DONE ! ==="
 else
-    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
+    echo "ERROR: File not found: $TMP_INPUT_FILE" #|  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
