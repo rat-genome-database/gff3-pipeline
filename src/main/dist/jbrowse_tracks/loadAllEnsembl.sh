@@ -110,7 +110,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/GRCh38.p13_Ensembl-model.gff3 \
       --trackLabel Ensembl_genes \
-      --key "Ensembl (GRCh38) Genes and Transcripts" \
+      --key "Ensembl (hg38) Genes and Transcripts" \
       --out /jbrowse/data_hg38 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
@@ -137,7 +137,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/GRCh38.p13_Ensembl-feature.gff3 \
       --trackLabel Ensembl_features \
-      --key "Ensembl (GRCh38) Features" \
+      --key "Ensembl (hg38) Features" \
       --out /jbrowse/data_hg38 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
@@ -169,7 +169,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/GRCm38.p6_Ensembl-model.gff3 \
       --trackLabel Ensembl_genes \
-      --key "Ensembl (GRCm38) Genes and Transcripts" \
+      --key "Ensembl (mm38) Genes and Transcripts" \
       --out /jbrowse/data_mm38 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
@@ -197,7 +197,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/GRCm38.p6_Ensembl-feature.gff3 \
       --trackLabel Ensembl_features \
-      --key "Ensembl (GRCm38) Features" \
+      --key "Ensembl (mm38) Features" \
       --out /jbrowse/data_mm38 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
@@ -228,7 +228,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/Sscrofa11.1_Ensembl-model.gff3 \
       --trackLabel Ensembl_genes \
-      --key "Ensembl (Sscrofa11) Genes and Transcripts" \
+      --key "Ensembl (pig11.1) Genes and Transcripts" \
       --out /jbrowse/data_pig11_1 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
@@ -256,7 +256,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/Sscrofa11.1_Ensembl-feature.gff3 \
       --trackLabel Ensembl_features \
-      --key "Ensembl (rn6) Features" \
+      --key "Ensembl (pig11.1) Features" \
       --out /jbrowse/data_pig11_1 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
@@ -288,7 +288,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/PanPan1.1_Ensembl-model.gff3 \
       --trackLabel Ensembl_genes \
-      --key "Ensembl (rn6) Genes and Transcripts" \
+      --key "Ensembl (bonobo1.1) Genes and Transcripts" \
       --out /jbrowse/data_bonobo1_1 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
@@ -316,7 +316,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/PanPan1.1_Ensembl-feature.gff3 \
       --trackLabel Ensembl_features \
-      --key "Ensembl (rn6) Features" \
+      --key "Ensembl (bonobo1.1) Features" \
       --out /jbrowse/data_bonobo1_1 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
@@ -348,7 +348,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/CanFam3.1_Ensembl-model.gff3 \
       --trackLabel Ensembl_genes \
-      --key "Ensembl (rn6) Genes and Transcripts" \
+      --key "Ensembl (dog3.1) Genes and Transcripts" \
       --out /jbrowse/data_dog3_1 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
@@ -376,7 +376,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/CanFam3.1_Ensembl-feature.gff3 \
       --trackLabel Ensembl_features \
-      --key "Ensembl (rn6) Features" \
+      --key "Ensembl (dog3.1) Features" \
       --out /jbrowse/data_dog3_1 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Gene Models/Ensembl Gene Features\" }"
