@@ -17,6 +17,7 @@ public class Manager {
 
     private int speciesTypekey;
     private String mapKey;
+    private String mapKey2;
     private int objectTypeKey;
     private List<String> chromosomes;
     private String toFile;
@@ -147,6 +148,7 @@ public class Manager {
                     } else if( flavor.equals("AGR") ){
                         CreateGff4GeneAgr createGff = new CreateGff4GeneAgr();
                         createGff.setMapKey(Integer.parseInt(mapKey));
+                        createGff.setMapKeyEnsembl(Integer.parseInt(mapKey2));
                         createGff.setGff3Path(toDir);
                         createGff.setSpeciesTypeKey(speciesTypekey);
                         createGff.createGeneGff3(compress);
@@ -324,6 +326,9 @@ public class Manager {
                 }else
                 if(obj.startsWith("-mapKey:")){
                     mapKey = argArr[1];
+                }else
+                if(obj.startsWith("-mapKey2:")){
+                    mapKey2 = argArr[1];
                 }else
                 if(obj.startsWith("-toFile:")){
                     toFile = argArr[1];

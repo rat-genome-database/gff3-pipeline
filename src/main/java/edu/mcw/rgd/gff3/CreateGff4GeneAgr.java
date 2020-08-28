@@ -6,7 +6,6 @@ import edu.mcw.rgd.process.mapping.MapManager;
 
 import java.util.*;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author mtutaj
@@ -19,6 +18,7 @@ public class CreateGff4GeneAgr {
 
     private int speciesTypeKey;
     private int mapKey;
+    private int mapKeyEnsembl;
 
     public void setGff3Path(String gff3Path) {
         this.gff3Path = gff3Path;
@@ -28,7 +28,8 @@ public class CreateGff4GeneAgr {
 
     public void createGeneGff3(boolean compress) throws Exception{
 
-        CdsUtils utils = new CdsUtils(dao, mapKey);
+        CdsUtils utilsNcbi = new CdsUtils(dao, mapKey);
+        CdsUtils utilsEnsembl = new CdsUtils(dao, mapKeyEnsembl);
 
         String species = SpeciesType.getCommonName(speciesTypeKey);
         idMap.clear();
@@ -45,7 +46,7 @@ public class CreateGff4GeneAgr {
         gff3Writer.print("#!date-produced "+new Date()+"\n");
         gff3Writer.print("#!species "+ species+"\n");
         gff3Writer.print("#!primary-contact mtutaj@mcw.edu\n");
-        gff3Writer.print("#!tool AGR GFF3 extractor  v 2020-07-08\n");
+        gff3Writer.print("#!tool AGR GFF3 extractor  v 2020-08-28\n");
 
         List<Gene> activeGenes = dao.getActiveGenes(speciesTypeKey);
         Collections.sort(activeGenes, new Comparator<Gene>() {
@@ -71,6 +72,7 @@ public class CreateGff4GeneAgr {
             }
 
             List<MapData> geneMap = getMapData(geneRgdId, mapKey, counters);
+            geneMap.addAll(getMapData(geneRgdId, mapKeyEnsembl, counters));
             if( geneMap.isEmpty() ) {
                 continue;
             }
@@ -96,10 +98,16 @@ public class CreateGff4GeneAgr {
                 String uniqueGeneId = getUniqueId2("RGD:" + geneRgdId);
                 attributes.put("ID", uniqueGeneId);
                 attributes.put("Name", gene.getSymbol());
-                attributes.put("Note", nameOfgene);
+                if( nameOfgene!=null ) {
+                    attributes.put("Note", nameOfgene);
+                }
                 attributes.put("curie", curie);
+                attributes.put("gene_id", curie);
 
-                String alias = gene.getSymbol() + "," + curie + "," + nameOfgene;
+                String alias = gene.getSymbol() + "," + curie;
+                if( nameOfgene!=null ) {
+                    alias += "," + nameOfgene;
+                }
                 if (gene.getSpeciesTypeKey() == SpeciesType.HUMAN) {
                     alias += ",RGD:" + gene.getRgdId();
                 }
@@ -133,6 +141,10 @@ public class CreateGff4GeneAgr {
                             counters.nonCodingTransCount++;
                         }
                         for (MapData trMd : tr.getGenomicPositions()) {
+                            boolean isEnsemblTr = trMd.getMapKey()==mapKeyEnsembl;
+                            String dbName = isEnsemblTr ? "ENSEMBL" : "NCBI";
+                            CdsUtils utils = isEnsemblTr ? utilsEnsembl : utilsNcbi;
+
                             if (!utils.transcriptPositionOverlapsGenePosition(trMd, map))
                                 continue;
 
@@ -140,33 +152,38 @@ public class CreateGff4GeneAgr {
                             counters.transcriptsMappedCount++;
 
                             attributes.put("ID", id);
-                            attributes.put("Name", tr.getAccId());
+                            String trAccVer = dao.getTranscriptVersionInfo(tr.getAccId());
+                            if( trAccVer==null ) {
+                                System.out.println("no tr acc ver for "+tr.getAccId());
+                                trAccVer = tr.getAccId();
+                            }
+                            String transcriptId = isEnsemblTr ? "ENSEMBL:" : "RefSeq:";
+                            transcriptId += trAccVer;
+                            attributes.put("transcript_id", transcriptId);
+
+                            // transcript curie: acc id prefixed with either 'RefSeq:' or 'Ensembl:'
+                            attributes.put("curie", transcriptId);
+
+                            attributes.put("Name", trAccVer);
                             attributes.put("Parent", uniqueGeneId);
                             if (tr.getRefSeqStatus() != null) {
                                 attributes.put("status", tr.getRefSeqStatus());
                             }
                             attributes.put("gene", gene.getSymbol());
                             attributes.put("biotype", getTrBiotype(gType, gene.getName(), tr));
+                            String proteinId = null;
                             if (!Utils.isStringEmpty(tr.getProteinAccId())) {
-                                attributes.put("protein_id", tr.getProteinAccId());
+                                proteinId = tr.getProteinAccId();
+                                attributes.put("protein_id", proteinId);
                             }
                             attributes.put("Ontology_term", "SO:0000673"); // transcript
-
-                            // transcript curie: acc id prefixed with either 'RefSeq:' or 'Ensembl:'
-                            String curieTr;
-                            if (tr.getAccId().startsWith("ENS")) {
-                                curieTr = "ENSEMBL:" + tr.getAccId();
-                            } else {
-                                curieTr = "RefSeq:" + tr.getAccId();
-                            }
-                            attributes.put("curie", curieTr);
 
                             String trDbXrefs = dbXrefsForTranscripts.get(tr.getRgdId());
                             if (trDbXrefs != null) {
                                 attributes.put("Dbxref", trDbXrefs);
                             }
 
-                            gff3Writer.writeFirst8Columns(trMd.getChromosome(), "RGD", "mRNA", trMd.getStartPos(), trMd.getStopPos(), ".", trMd.getStrand(), ".");
+                            gff3Writer.writeFirst8Columns(trMd.getChromosome(), dbName, "mRNA", trMd.getStartPos(), trMd.getStopPos(), ".", trMd.getStrand(), ".");
                             gff3Writer.writeAttributes4Gff3(attributes);
 
                             List<CodingFeature> cfList = utils.buildCfList(trMd);
@@ -176,6 +193,10 @@ public class CreateGff4GeneAgr {
                                 if (cf.getFeatureType() == TranscriptFeature.FeatureType.CDS) {
                                     // one CDS id per multiple fragments of CDS (as it is in NCBI RefSeq gff3 file for rat)
                                     featureId = getUniqueId("cds");
+
+                                    if( proteinId!=null ) {
+                                        attributes.put("protein_id", proteinId);
+                                    }
 
                                     counters.cdsCount++;
                                 } else {
@@ -193,7 +214,7 @@ public class CreateGff4GeneAgr {
                                     }
                                 }
 
-                                gff3Writer.writeFirst8Columns(cf.getChromosome(), "RGD", cf.getCanonicalName(), cf.getStartPos(), cf.getStopPos(), ".", cf.getStrand(), cf.getCodingPhaseStr());
+                                gff3Writer.writeFirst8Columns(cf.getChromosome(), dbName, cf.getCanonicalName(), cf.getStartPos(), cf.getStopPos(), ".", cf.getStrand(), cf.getCodingPhaseStr());
 
 
                                 attributes.put("ID", featureId);
@@ -319,6 +340,7 @@ public class CreateGff4GeneAgr {
             case "rrna":
                 return "rRNA_gene";
             case "gene":
+            case "misc_rna":
                 return "gene";
             case "snrna":
                 return "snRNA_gene";
@@ -326,8 +348,36 @@ public class CreateGff4GeneAgr {
                 return "snoRNA_gene";
             case "scrna":
                 return "scRNA_gene";
+            case "lincrna":
+                return "lincRNA_gene";
+            case "mirna":
+                return "miRNA_gene";
             case "biological-region":
                 return "biological_region";
+            case "processed_transcript":
+                return "processed_transcript";
+            case "processed_pseudogene":
+                return "processed_pseudogene";
+            case "unprocessed_pseudogene":
+                return "non_processed_pseudogene";
+            case "transcribed_unprocessed_pseudogene":
+                return "transcribed_unprocessed_pseudogene";
+            case "transcribed_processed_pseudogene":
+                return "transcribed_processed_pseudogene";
+            case "sense_intronic":
+                return "sense_intronic_ncRNA";
+            case "antisense":
+                return "antisense";
+            case "tec":
+                return "unconfirmed_transcript";
+            case "scarna":
+                return "scaRNA";
+            case "mt_rrna":
+                return "mt_rRNA";
+            case "mt_trna":
+                return "mt_tRNA";
+            case "ribozyme":
+                return "ribozyme_gene";
             default:
                 throw new Exception("unsupported gene type "+geneType);
         }
@@ -348,6 +398,7 @@ public class CreateGff4GeneAgr {
             case "rrna":
                 return "SO:0001637";
             case "gene":
+            case "misc_rna":
                 return "SO:0000704";
             case "snrna":
                 return "SO:0001268";
@@ -355,8 +406,36 @@ public class CreateGff4GeneAgr {
                 return "SO:0001267";
             case "scrna":
                 return "SO:0001266";
+            case "lincrna":
+                return "SO:0001641";
             case "biological-region":
                 return "SO:0001411";
+            case "processed_transcript":
+                return "SO:0001503";
+            case "mirna":
+                return "SO:0001265";
+            case "processed_pseudogene":
+                return "SO:0000043";
+            case "unprocessed_pseudogene":
+                return "SO:0001760";
+            case "transcribed_unprocessed_pseudogene":
+                return "SO:0002107";
+            case "transcribed_processed_pseudogene":
+                return "SO:0002109";
+            case "sense_intronic":
+                return "SO:0002131";
+            case "antisense":
+                return "SO:0000077";
+            case "tec":
+                return "SO:0002139";
+            case "scarna":
+                return "SO:0002095";
+            case "mt_rrna":
+                return "SO:0002128";
+            case "mt_trna":
+                return "SO:0002129";
+            case "ribozyme":
+                return "SO:0002181";
             default:
                 throw new Exception("unsupported gene type "+geneType);
         }
@@ -436,17 +515,14 @@ public class CreateGff4GeneAgr {
 
         String nameOfgene = gene.getName();
 
-        if(nameOfgene!=null){
+        if( nameOfgene!=null ){
             if(nameOfgene.contains(",")){
                 nameOfgene = nameOfgene.replaceAll(",", "");
             }
             if(nameOfgene.contains(";")){
                 nameOfgene = nameOfgene.replaceAll(";", "");
             }
-        }
-
-        if(nameOfgene==null){
-            nameOfgene="null";
+        } else {
             counters.genesGeneNameNull++;
         }
         return nameOfgene;
@@ -516,6 +592,14 @@ public class CreateGff4GeneAgr {
 
     public int getMapKey() {
         return mapKey;
+    }
+
+    public int getMapKeyEnsembl() {
+        return mapKeyEnsembl;
+    }
+
+    public void setMapKeyEnsembl(int mapKeyEnsembl) {
+        this.mapKeyEnsembl = mapKeyEnsembl;
     }
 
     class Counters {
