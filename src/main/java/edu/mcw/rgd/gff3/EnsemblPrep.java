@@ -1,6 +1,9 @@
 package edu.mcw.rgd.gff3;
 
+import edu.mcw.rgd.process.FileDownloader;
 import edu.mcw.rgd.process.Utils;
+import edu.mcw.rgd.process.mapping.MapManager;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.HashMap;
@@ -24,94 +27,104 @@ import java.util.zip.GZIPOutputStream;
  * </ol>
  */
 public class EnsemblPrep {
+    private Map<Integer, String> ensemblGff;
+    Logger log = Logger.getLogger("ensembl");
 
-    public static void run(String inputFile) throws Exception {
+    public void run() throws Exception {
 
         // open input and output files
-        int pos = inputFile.indexOf(".gff3");
-        String modelFileName = inputFile.substring(0, pos)+"-model"+inputFile.substring(pos);
-        String featureFileName = inputFile.substring(0, pos)+"-feature"+inputFile.substring(pos);
+        Set<Integer> mapKeys =ensemblGff.keySet();
+        for(Integer mapKey : mapKeys) {
+            String inputFiles = downloadEnsemblGffFile(ensemblGff.get(mapKey),mapKey);
+            String assemblyName = MapManager.getInstance().getMap(mapKey).getName();
+            log.info("Downloaded gff file from ensembl with assembly "+assemblyName);
+            int pos = inputFiles.indexOf(".gff3");
+            String modelFileName = inputFiles.substring(0, pos) + "-model" + inputFiles.substring(pos);
+            String featureFileName = inputFiles.substring(0, pos) + "-feature" + inputFiles.substring(pos);
 
-        BufferedReader in = Utils.openReader(inputFile);
-        BufferedWriter modelFile = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(modelFileName))));
-        BufferedWriter featureFile = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(featureFileName))));
+            BufferedReader in = Utils.openReader(inputFiles);
+            BufferedWriter modelFile = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(modelFileName))));
+            BufferedWriter featureFile = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(featureFileName))));
 
-        System.out.println("opened file "+inputFile);
-        System.out.println("writing file "+modelFileName);
-        System.out.println("writing file "+featureFileName);
+            log.info("opened file " + inputFiles);
+            log.info("writing file " + modelFileName);
+            log.info("writing file " + featureFileName);
 
-        int commentLines = 0;
-        int notesLines = 0;
-        int modelFileLines = 0;
-        int featureFileLines = 0;
+            int commentLines = 0;
+            int notesLines = 0;
+            int modelFileLines = 0;
+            int featureFileLines = 0;
 
-        Map<String,String> genbankToRefseqAccMap = parseSupercontigs(inputFile);
-        Set<String> chromosomes = new HashSet<>();
+            Map<String, String> genbankToRefseqAccMap = parseSupercontigs(inputFiles);
+            Set<String> chromosomes = new HashSet<>();
 
-        String line;
-        while( (line=in.readLine())!=null ) {
-            // copy comment lines to both output files
-            if( line.startsWith("#") ) {
-                modelFile.write(line+"\n");
-                featureFile.write(line+"\n");
-                commentLines++;
-                continue;
-            }
-            // skip chromosome lines
-            if( line.contains("ID=chromosome:") ) {
-                continue;
-            }
-            // process supercontig lines
-            if( line.contains("ID=supercontig:") ) {
-                continue;
-            }
-            // convert description attr into notes
-            pos = line.indexOf(";description=");
-            if( pos>0 ) {
-                line = line.substring(0, pos)+";notes="+line.substring(pos+13);
-                notesLines++;
-            }
-            // prepend line with 'Chr'
-            if( !line.startsWith("Chr") ) {
-                int chrLen = line.indexOf('\t');
-                if( chrLen<=2 ) {
-                    line = "Chr" + line;
+            String line;
+            while ((line = in.readLine()) != null) {
+                // copy comment lines to both output files
+                if (line.startsWith("#")) {
+                    modelFile.write(line + "\n");
+                    featureFile.write(line + "\n");
+                    commentLines++;
+                    continue;
+                }
+                // skip chromosome lines
+                if (line.contains("ID=chromosome:")) {
+                    continue;
+                }
+                // process supercontig lines
+                if (line.contains("ID=supercontig:")) {
+                    continue;
+                }
+                // convert description attr into notes
+                pos = line.indexOf(";description=");
+                if (pos > 0) {
+                    line = line.substring(0, pos) + ";notes=" + line.substring(pos + 13);
+                    notesLines++;
+                }
+                // prepend line with 'Chr'
+                if (!line.startsWith("Chr")) {
+                    int chrLen = line.indexOf('\t');
+                    if (chrLen <= 2) {
+                        line = "Chr" + line;
+                    } else {
+                        // replace genbank acc ids with refseq acc ids for supercontigs (scaffolds)
+                        String genbankAcc = line.substring(0, chrLen);
+                        String refseqAcc = genbankToRefseqAccMap.get(genbankAcc);
+                        if (refseqAcc == null) {
+                            System.out.println("*** WARN: null scaffold acc");
+                        }
+                        if (chromosomes.add(refseqAcc)) {
+                            log.info(refseqAcc);
+                        }
+                        line = refseqAcc + line.substring(chrLen);
+                    }
+                }
+
+                // write out the line to the proper file
+                if (line.contains("biological_region")) {
+                    featureFile.write(line);
+                    featureFile.write("\n");
+                    featureFileLines++;
                 } else {
-                    // replace genbank acc ids with refseq acc ids for supercontigs (scaffolds)
-                    String genbankAcc = line.substring(0, chrLen);
-                    String refseqAcc = genbankToRefseqAccMap.get(genbankAcc);
-                    if( refseqAcc==null ) {
-                        System.out.println("*** WARN: null scaffold acc");
-                    }
-                    if( chromosomes.add(refseqAcc) ) {
-                        System.out.println(refseqAcc);
-                    }
-                    line = refseqAcc + line.substring(chrLen);
+                    modelFile.write(line);
+                    modelFile.write("\n");
+                    modelFileLines++;
                 }
             }
 
-            // write out the line to the proper file
-            if( line.contains("biological_region") ) {
-                featureFile.write(line);
-                featureFile.write("\n");
-                featureFileLines++;
-            } else {
-                modelFile.write(line);
-                modelFile.write("\n");
-                modelFileLines++;
-            }
+            // close the files
+            in.close();
+            modelFile.close();
+            featureFile.close();
+
+            log.info("");
+            log.info("comment lines: " + commentLines);
+            log.info("converted notes lines: " + notesLines);
+            log.info("data lines written to model file: " + modelFileLines);
+            log.info("data lines written to feature file: " + featureFileLines);
+            log.info("***********************\n\n");
         }
 
-        // close the files
-        in.close();
-        modelFile.close();
-        featureFile.close();
-
-        System.out.println("");
-        System.out.println("comment lines: "+commentLines);
-        System.out.println("converted notes lines: "+notesLines);
-        System.out.println("data lines written to model file: "+modelFileLines);
-        System.out.println("data lines written to feature file: "+featureFileLines);
     }
 
     static Map<String,String> parseSupercontigs(String inputFile) throws IOException {
@@ -163,5 +176,23 @@ public class EnsemblPrep {
         System.out.println("skipped chromosome lines: "+skippedChrLines);
 
         return genbankToRefseqAccMap;
+    }
+    String downloadEnsemblGffFile(String file, int key) throws Exception{
+        String assemblyName = MapManager.getInstance().getMap(key).getName();
+        String[] assembly = assemblyName.split(" ");
+        FileDownloader downloader = new FileDownloader();
+        downloader.setExternalFile(file);
+        downloader.setLocalFile("data/Ensembl/"+assembly[0]+"_"+assembly[1]+".gff3");
+        downloader.setUseCompression(true);
+//        downloader.setPrependDateStamp(true);
+        return downloader.downloadNew();
+    }
+
+    public void setEnsemblGff(Map<Integer, String> ensemblGff) {
+        this.ensemblGff = ensemblGff;
+    }
+
+    public Map<Integer, String> getEnsemblGff() {
+        return ensemblGff;
     }
 }

@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Jul 08, 2020 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Aug 28, 2020 --" />
     </bean>
 
     <bean id="geneManager" class="edu.mcw.rgd.gff3.CreateGff4Gene">
@@ -78,6 +78,18 @@
                 <value>species:DOG    mapKey:631  toDir:data/Eva/ compress:yes</value>
                 <value>species:VERVET mapKey:1311 toDir:data/Eva/ compress:yes</value>
             </list>
+        </property>
+    </bean>
+    <bean id="ensemblPrep" class="edu.mcw.rgd.gff3.EnsemblPrep">
+        <property name="ensemblGff">
+            <map>
+                <entry key="40"  value="ftp://ftp.ensembl.org/pub/current_gff3/homo_sapiens/Homo_sapiens.GRCh38.101.gff3.gz"></entry>
+                <entry key="39"  value="ftp://ftp.ensembl.org/pub/current_gff3/mus_musculus/Mus_musculus.GRCm38.101.gff3.gz"></entry>
+                <entry key="912" value="ftp://ftp.ensembl.org/pub/current_gff3/sus_scrofa/Sus_scrofa.Sscrofa11.1.101.gff3.gz"></entry>
+                <entry key="361" value="ftp://ftp.ensembl.org/pub/current_gff3/rattus_norvegicus/Rattus_norvegicus.Rnor_6.0.101.gff3.gz"></entry>
+                <entry key="512" value="ftp://ftp.ensembl.org/pub/current_gff3/pan_paniscus/Pan_paniscus.panpan1.1.101.gff3.gz"></entry>
+                <entry key="632" value="ftp://ftp.ensembl.org/pub/current_gff3/canis_lupus_familiaris/Canis_lupus_familiaris.CanFam3.1.101.gff3.gz"></entry>
+            </map>
         </property>
     </bean>
 

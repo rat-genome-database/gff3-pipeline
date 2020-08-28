@@ -18,10 +18,10 @@ fi
 
 RUNLOAD="$APP_HOME/run.sh"
 
-$RUNLOAD -object:gene -species:RAT -mapKey:360 -toDir:$LOGDIR/AGR/ -chr:* -flavor:AGR -compress  &> cron_ratAGR.log
+$RUNLOAD -object:gene -species:RAT -mapKey:360 -mapKey2:361 -toDir:$LOGDIR/AGR/ -chr:* -flavor:AGR -compress  &> cron_ratAGR.log
 mailx -s "[$SERVER]Pipeline to create AGR Gff3 data for Rat Gene assembly 6.0 ran" $EMAILLIST<cron_ratAGR.log
 
-$RUNLOAD -object:gene -species:HUMAN -mapKey:38 -toDir:$LOGDIR/AGR/ -chr:* -flavor:AGR -compress  &> cron_humanAGR.log
+$RUNLOAD -object:gene -species:HUMAN -mapKey:38 -mapKey2:40 -toDir:$LOGDIR/AGR/ -chr:* -flavor:AGR -compress  &> cron_humanAGR.log
 mailx -s "[$SERVER]Pipeline to create AGR Gff3 data for Human Gene assembly 38 ran" $EMAILLIST<cron_humanAGR.log
 
 cp -p $LOGDIR/AGR/Rat_RGD_AGR.gff3.gz $DATA_RELEASE_DIR_AGR/genes_10116.gff3.gz

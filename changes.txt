@@ -1,3 +1,9 @@
+Aug 28, 2020
+  agr: added export of Ensembl data and additional attributes protein_id, transcript_id
+
+Aug 21-25
+  ensembl: added ensembl gff3 assemblies to be downloaded and then uploaded to Jbrowse
+
 Jul 08, 2020
   agr genes: added export of genes with multiple loci
 

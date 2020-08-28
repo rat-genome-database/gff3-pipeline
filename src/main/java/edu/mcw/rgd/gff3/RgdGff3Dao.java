@@ -248,4 +248,7 @@ public class RgdGff3Dao {
         return evaDAO.getEvaObjectsFromMapKeyAndChromosome(mapKey,chr);
     }
 
+    public String getTranscriptVersionInfo(String acc) throws Exception {
+        return trDao.getTranscriptVersionInfo(acc);
+    }
 }
