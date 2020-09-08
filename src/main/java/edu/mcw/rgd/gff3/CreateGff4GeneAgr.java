@@ -43,10 +43,12 @@ public class CreateGff4GeneAgr {
 
         gff3Writer.print("#!data-source RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
         gff3Writer.print("#!assembly: "+ MapManager.getInstance().getMap(mapKey).getName()+"\n");
+        gff3Writer.print("#!annotationSource RefSeq 106\n");
+        gff3Writer.print("#!annotationSource ENSEMBL 101\n");
         gff3Writer.print("#!date-produced "+new Date()+"\n");
         gff3Writer.print("#!species "+ species+"\n");
         gff3Writer.print("#!primary-contact mtutaj@mcw.edu\n");
-        gff3Writer.print("#!tool AGR GFF3 extractor  v 2020-08-28\n");
+        gff3Writer.print("#!tool AGR GFF3 extractor  v 2020-09-04\n");
 
         List<Gene> activeGenes = dao.getActiveGenes(speciesTypeKey);
         Collections.sort(activeGenes, new Comparator<Gene>() {
@@ -56,8 +58,10 @@ public class CreateGff4GeneAgr {
             }
         });
 
-
+        System.out.println("active genes: "+activeGenes.size());
+        int i = 0;
         for( Gene gene: activeGenes ){
+            i++;
             int geneRgdId = gene.getRgdId();
 
             // process only protein coding genes
@@ -170,7 +174,6 @@ public class CreateGff4GeneAgr {
                                 attributes.put("status", tr.getRefSeqStatus());
                             }
                             attributes.put("gene", gene.getSymbol());
-                            attributes.put("biotype", getTrBiotype(gType, gene.getName(), tr));
                             String proteinId = null;
                             if (!Utils.isStringEmpty(tr.getProteinAccId())) {
                                 proteinId = tr.getProteinAccId();
@@ -183,14 +186,24 @@ public class CreateGff4GeneAgr {
                                 attributes.put("Dbxref", trDbXrefs);
                             }
 
-                            gff3Writer.writeFirst8Columns(trMd.getChromosome(), dbName, "mRNA", trMd.getStartPos(), trMd.getStopPos(), ".", trMd.getStrand(), ".");
+                            String trBiotype = getTrBiotype(gType, gene.getName(), tr, i);
+                            gff3Writer.writeFirst8Columns(trMd.getChromosome(), dbName, trBiotype, trMd.getStartPos(), trMd.getStopPos(), ".", trMd.getStrand(), ".");
                             gff3Writer.writeAttributes4Gff3(attributes);
 
+                            boolean trIsCoding = trBiotype.equals("mRNA");
+
+                            boolean hasCds = false;
                             List<CodingFeature> cfList = utils.buildCfList(trMd);
                             for (CodingFeature cf : cfList) {
                                 String featureId;
 
                                 if (cf.getFeatureType() == TranscriptFeature.FeatureType.CDS) {
+
+                                    if( !trIsCoding ) {
+                                        // CdsUtils always tries to generate CDS; therefore it is important to know if the transcript is coding
+                                        continue;
+                                    }
+
                                     // one CDS id per multiple fragments of CDS (as it is in NCBI RefSeq gff3 file for rat)
                                     featureId = getUniqueId("cds");
 
@@ -199,6 +212,7 @@ public class CreateGff4GeneAgr {
                                     }
 
                                     counters.cdsCount++;
+                                    hasCds = true;
                                 } else {
                                     if (cf.getFeatureType() == TranscriptFeature.FeatureType.EXON) {
                                         counters.exonCount++;
@@ -223,6 +237,10 @@ public class CreateGff4GeneAgr {
                                     attributes.put("Note", cf.getNotes());
 
                                 gff3Writer.writeAttributes4Gff3(attributes);
+                            }
+
+                            if( !hasCds && trIsCoding ) {
+                                System.out.println("hasNoCDS && type="+trBiotype+"    gene nr="+i);
                             }
                         }
                     }
@@ -251,34 +269,109 @@ public class CreateGff4GeneAgr {
         dumpCounters(counters);
     }
 
-    String getTrBiotype(String geneType, String geneName, Transcript tr) {
-        switch(geneType) {
-            case "ncrna":
-                if( geneName.startsWith("microRNA") ) {
+    String getTrBiotype(String geneType, String geneName, Transcript tr, int i) throws Exception {
+        if( tr.getType()==null ) {
+            switch (geneType) {
+                case "protein-coding":
+                    if (tr.getAccId().startsWith("XR_") || tr.getAccId().startsWith("NR_")) {
+                        return "transcript";
+                    }
+                    return "mRNA";
+                case "pseudo":
+                case "pseudogene":
+                    return "pseudogenic_transcript";
+
+                case "lincrna":
+                    return "lincRNA";
+                case "mirna":
                     return "miRNA";
-                } else {
-                    return "misc_RNA";
-                }
-            case "protein-coding":
-                if( tr.getAccId().startsWith("XR_") || tr.getAccId().startsWith("NR_") ) {
-                    return "misc_RNA";
-                }
-                return "protein_coding";
-            case "pseudo": return "pseudogene";
-            case "rrna": return "rRNA";
-            case "snrna": return "snRNA";
-            case "gene":
-                if( tr.getAccId().startsWith("XR_") ) {
-                    return "misc_RNA";
-                }
-                if( tr.getAccId().startsWith("XM_") ) {
-                    return "protein_coding";
-                }
-                System.out.println("unknown");
-            default:
-                System.out.println("unknown");
-                return "";
+                case "misc_rna":
+                    return "transcript";
+                case "ncrna":
+                    return "ncRNA";
+                case "rrna":
+                    return "rRNA";
+                case "scrna":
+                    return "scRNA";
+                case "snorna":
+                    return "snoRNA";
+                case "snrna":
+                    return "snRNA";
+
+                case "gene":
+                    if (tr.getAccId().startsWith("XR_")) {
+                        return "transcript";
+                    }
+                    if (tr.getAccId().startsWith("XM_")) {
+                        return "mRNA";
+                    }
+            }
+        } else {
+            switch(tr.getType()) {
+                case "protein_coding":
+                case "non_stop_decay":
+                case "IG_C_gene":
+                case "IG_D_gene":
+                case "IG_J_gene":
+                case "IG_V_gene":
+                case "TR_C_gene":
+                case "TR_D_gene":
+                case "TR_J_gene":
+                case "TR_V_gene":
+                    return "mRNA";
+                case "processed_transcript":
+                    return "processed_transcript";
+                case "pseudogene":
+                case "polymorphic_pseudogene":
+                case "processed_pseudogene":
+                case "unprocessed_pseudogene":
+                case "translated_unprocessed_pseudogene":
+                case "transcribed_processed_pseudogene":
+                case "transcribed_unprocessed_pseudogene":
+                case "transcribed_unitary_pseudogene":
+                case "unitary_pseudogene":
+                case "IG_C_pseudogene":
+                case "IG_J_pseudogene":
+                case "IG_V_pseudogene":
+                case "rRNA_pseudogene":
+                case "TR_J_pseudogene":
+                case "TR_V_pseudogene":
+                    return "pseudogenic_transcript";
+                case "TEC":
+                    return "unconfirmed_transcript";
+                case "lincRNA":
+                    return "lincRNA";
+                case "sense_intronic":
+                case "lncRNA":
+                    return "lnc_RNA";
+                case "miRNA":
+                    return "miRNA";
+                case "Mt_rRNA":
+                    return "mt_rRNA";
+                case "Mt_tRNA":
+                    return "mt_tRNA";
+                case "misc_RNA":
+                case "rRNA":
+                    return "rRNA";
+                case "ribozyme":
+                    return "enzymatic_RNA";
+                case "scRNA":
+                    return "scRNA";
+                case "scaRNA":
+                    return "scaRNA";
+                case "snRNA":
+                    return "snRNA";
+                case "snoRNA":
+                    return "snoRNA";
+                case "vault_RNA":
+                    return "ncRNA";
+                case "retained_intron": // no suitable mappings
+                case "antisense":
+                case "nonsense_mediated_decay":
+                    return "transcript";
+            }
         }
+        throw new Exception("tr biotype: unsupported for gene type ["+geneType+"], tr type ["+tr.getType()+"]   gene nr "+i);
     }
 
     String getCurie(int geneRgdId, List<XdbId> xdbIds) {
