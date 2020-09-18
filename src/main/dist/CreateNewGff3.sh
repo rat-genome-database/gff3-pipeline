@@ -31,7 +31,6 @@ mailx -s "[$SERVER]Pipeline to create Gff3 data for protein domains ran" $EMAILL
 
 # assemblies, species info and output dirs are read from properties file AppConfigure.xml
 $RUNLOAD -object:genes > gene.log
-mailx -s "[$SERVER]Pipeline to create Gff3 data for Genes ran" $EMAILLIST < gene.log
 
 mailx -s "[$SERVER]Pipeline to create Gff3 data for genes ran" $EMAILLIST < logs/gene.log
 
