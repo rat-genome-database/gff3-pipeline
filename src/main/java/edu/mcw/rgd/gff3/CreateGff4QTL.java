@@ -1,6 +1,7 @@
 package edu.mcw.rgd.gff3;
 
 import edu.mcw.rgd.datamodel.*;
+import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.mapping.MapManager;
 
 import java.io.PrintWriter;
@@ -16,45 +17,6 @@ public class CreateGff4QTL {
 
     private RgdGff3Dao dao = new RgdGff3Dao();
     private List<String> processedAssemblies;
-
-    // counts
-    int activeQtlCount;
-    int qtlsWithMapPos;
-    int qtlsMoreThanOneMapPos;
-    int qtlsNoMapPos;
-    int qtlsFlanking;
-    int qtlsFlankingPeak;
-    int qtlsPeakOnly;
-    int qtlsSingleFlanking;
-    int qtlsPeakWithSizeAdjusted;
-    int qtlsImportedFromExternal;
-    int noMapsPosMethodId;
-    int qtlsWithRelStrains;
-    int qtlsWithNoRelStrains;
-    int qtlsWithRelGenes;
-    int qtlswithNoRelGenes;
-    int qtlsWithRelQtls;
-    int qtlswithNoRelQtls;
-
-    void clearCounts() {
-        activeQtlCount=0;
-        qtlsWithMapPos=0;
-        qtlsMoreThanOneMapPos=0;
-        qtlsNoMapPos=0;
-        qtlsFlanking=0;
-        qtlsFlankingPeak=0;
-        qtlsPeakOnly=0;
-        qtlsSingleFlanking=0;
-        qtlsPeakWithSizeAdjusted=0;
-        qtlsImportedFromExternal=0;
-        noMapsPosMethodId=0;
-        qtlsWithRelStrains=0;
-        qtlsWithNoRelStrains=0;
-        qtlsWithRelGenes=0;
-        qtlswithNoRelGenes=0;
-        qtlsWithRelQtls=0;
-        qtlswithNoRelQtls=0;
-    }
 
     /**
      * load the species list and assemblies from properties/AppConfigure.xml
@@ -74,7 +36,7 @@ public class CreateGff4QTL {
      */
     public void creategff4QTL(CreateInfo info) throws Exception {
 
-        clearCounts();
+        CounterPool counters = new CounterPool();
 
         String speciesName = SpeciesType.getCommonName(info.getSpeciesTypeKey());
 
@@ -94,27 +56,27 @@ public class CreateGff4QTL {
         List<RGDInfo> rgdInfoList = new ArrayList<RGDInfo>();
 
         for(QTL qtlObj: qtlList){
-            createGffFromQtlObject(qtlObj, gff3Writer, RATMINEgff3Writer, rgdInfoList, info.getMapKey(), info.getSpeciesTypeKey());
+            createGffFromQtlObject(qtlObj, gff3Writer, RATMINEgff3Writer, rgdInfoList, info.getMapKey(), info.getSpeciesTypeKey(), counters);
         }
 
-        System.out.println("Number of Active Qtls processed:"+ activeQtlCount);
-        System.out.println("Number of Qtls with Map positions:"+ qtlsWithMapPos);
-        System.out.println("Qtls with NO Map positions:"+ qtlsNoMapPos);
-        System.out.println("Qtls with more than one Map position:"+ qtlsMoreThanOneMapPos);
+        System.out.println("Number of Active Qtls processed:"+ counters.get("activeQtlCount"));
+        System.out.println("Number of Qtls with Map positions:"+ counters.get("qtlsWithMapPos"));
+        System.out.println("Qtls with NO Map positions:"+ counters.get("qtlsNoMapPos"));
+        System.out.println("Qtls with more than one Map position:"+ counters.get("qtlsMoreThanOneMapPos"));
         System.out.println("Qtl Mapping Method stats:");
-        System.out.println("-Positioned by flanking markers:"+qtlsFlanking);
-        System.out.println("-Positioned by flanking marker and peak marker:"+qtlsFlankingPeak);
-        System.out.println("-Positioned by peak marker only:"+qtlsPeakOnly);
-        System.out.println("-Positioned by single flanking marker only:"+qtlsSingleFlanking);
-        System.out.println("-Positioned by peak marker with size adjusted to avg qtl size for species:"+qtlsPeakWithSizeAdjusted);
-        System.out.println("-Position imported from external source:"+qtlsImportedFromExternal);
-        System.out.println("-NO Map Position Method ID:"+noMapsPosMethodId);
-        System.out.println("\nQtls related to Strains:" + qtlsWithRelStrains);
-        System.out.println("Qtls NOT related to Strains:" + qtlsWithNoRelStrains);
-        System.out.println("Qtls related to Genes:" + qtlsWithRelGenes);
-        System.out.println("Qtls NOT related to Genes:" + qtlswithNoRelGenes);
-        System.out.println("Qtls related to Qtls:" + qtlsWithRelQtls);
-        System.out.println("Qtls NOT related to Qtls:" + qtlswithNoRelQtls);
+        System.out.println("-Positioned by flanking markers:"+counters.get("qtlsFlanking"));
+        System.out.println("-Positioned by flanking marker and peak marker:"+counters.get("qtlsFlankingPeak"));
+        System.out.println("-Positioned by peak marker only:"+counters.get("qtlsPeakOnly"));
+        System.out.println("-Positioned by single flanking marker only:"+counters.get("qtlsSingleFlanking"));
+        System.out.println("-Positioned by peak marker with size adjusted to avg qtl size for species:"+counters.get("qtlsPeakWithSizeAdjusted"));
+        System.out.println("-Position imported from external source:"+counters.get("qtlsImportedFromExternal"));
+        System.out.println("-NO Map Position Method ID:"+counters.get("noMapsPosMethodId"));
+        System.out.println("\nQtls related to Strains:" + counters.get("qtlsWithRelStrains"));
+        System.out.println("Qtls NOT related to Strains:" + counters.get("qtlsWithNoRelStrains"));
+        System.out.println("Qtls related to Genes:" + counters.get("qtlsWithRelGenes"));
+        System.out.println("Qtls NOT related to Genes:" + counters.get("qtlswithNoRelGenes"));
+        System.out.println("Qtls related to Qtls:" + counters.get("qtlsWithRelQtls"));
+        System.out.println("Qtls NOT related to Qtls:" + counters.get("qtlswithNoRelQtls"));
         System.out.println("\nGFF3 File SUCCESSFUL!\n");
 
          //close file
@@ -130,7 +92,7 @@ public class CreateGff4QTL {
     }
 
     public void createGffFromQtlObject(QTL qtlObject, Gff3ColumnWriter gff3Writer, Gff3ColumnWriter RATMINEgff3Writer,
-                                       List<RGDInfo> rgdInfoList, int mapKey, int speciesTypeKey) throws Exception {
+                                       List<RGDInfo> rgdInfoList, int mapKey, int speciesTypeKey, CounterPool counters) throws Exception {
 
         int qtlKey = qtlObject.getKey();
         int rgdId = qtlObject.getRgdId();
@@ -147,7 +109,7 @@ public class CreateGff4QTL {
         String pValue;
         String notes;
 
-        activeQtlCount++;
+        counters.increment("activeQtlCount");
 
         List<MapData> mdList = dao.getMapData(rgdId,mapKey);
 
@@ -171,14 +133,14 @@ public class CreateGff4QTL {
 
 
         if(mdList.size()>1){
-            qtlsMoreThanOneMapPos++;
+            counters.increment("qtlsMoreThanOneMapPos");
         }else if(mdList.size()==0){
-            qtlsNoMapPos++;
+            counters.increment("qtlsNoMapPos");
         }
 
         if(mdList.size()>0){
 
-            qtlsWithMapPos++;
+            counters.increment("qtlsWithMapPos");
 
             for(MapData md: mdList){
                 start = md.getStartPos();
@@ -198,7 +160,7 @@ public class CreateGff4QTL {
                 }
 
                 if(md.getMapPositionMethod().contains("-")){
-                    String mapMethArr[] = md.getMapPositionMethod().split(" - ");
+                    String[] mapMethArr = md.getMapPositionMethod().split(" - ");
 
                     mappingMethod = mapMethArr[1];
                 }else{
@@ -208,33 +170,25 @@ public class CreateGff4QTL {
 
                 switch(md.getMapsDataPositionMethodId()){
                     case 1 :
-                        //Statements
-                        qtlsFlanking++;
-                        break; //optional
+                        counters.increment("qtlsFlanking");
+                        break;
                     case 2 :
-                        //Statements
-                        qtlsFlankingPeak++;
-                        break; //optional
+                        counters.increment("qtlsFlankingPeak");
+                        break;
                     case 3 :
-                        //Statements
-                        qtlsPeakOnly++;
-                        break; //optional
+                        counters.increment("qtlsPeakOnly");
+                        break;
                     case 4 :
-                        //Statements
-                        qtlsSingleFlanking++;
-                        break; //optional
+                        counters.increment("qtlsSingleFlanking");
+                        break;
                     case 5 :
-                        //Statements
-                        qtlsPeakWithSizeAdjusted++;
-                        break; //optional
+                        counters.increment("qtlsPeakWithSizeAdjusted");
+                        break;
                     case 6 :
-                        //Statements
-                        qtlsImportedFromExternal++;
-                        break; //optional
-                    //You can have any number of case statements.
-                    default : //Optional
-                        noMapsPosMethodId++;
-                       //Statements
+                        counters.increment("qtlsImportedFromExternal");
+                        break;
+                    default:
+                        counters.increment("noMapsPosMethodId");
                 }
 
                 //write first 8 columns
@@ -254,7 +208,7 @@ public class CreateGff4QTL {
 
                     if(relatedStrainsList.size()>0){
 
-                        qtlsWithRelStrains++;
+                        counters.increment("qtlsWithRelStrains");
 
                         for(Strain st : relatedStrainsList){
                             String smbl = st.getSymbol();
@@ -263,7 +217,7 @@ public class CreateGff4QTL {
                         }
                     }else{
 
-                        qtlsWithNoRelStrains++;
+                        counters.increment("qtlsWithNoRelStrains");
 
                         relStrain = "NA";
                     }
@@ -278,14 +232,14 @@ public class CreateGff4QTL {
                 List<Gene> relatedGenesList = dao.getGeneAssociationsForQtl(rgdId);
                 if(relatedGenesList.size()>0){
 
-                    qtlsWithRelGenes++;
+                    counters.increment("qtlsWithRelGenes");
 
                     for(Gene g: relatedGenesList){
                         relGenes += g.getSymbol()+":"+g.getRgdId()+",";
                     }
                 }else{
 
-                    qtlswithNoRelGenes++;
+                    counters.increment("qtlswithNoRelGenes");
 
                     relGenes="NA";
                 }
@@ -301,7 +255,7 @@ public class CreateGff4QTL {
                 if(relatedQtlMap!=null){
                     if(relatedQtlMap.size()>0){
                         Set<Integer> relQtlKeys = relatedQtlMap.keySet();
-                        qtlsWithRelQtls++;
+                        counters.increment("qtlsWithRelQtls");
 
                         for(int keys: relQtlKeys){
                            relQtls += keys+":"+relatedQtlMap.get(keys)+",";
@@ -309,7 +263,7 @@ public class CreateGff4QTL {
                     }else
                     if(relatedQtlMap.size()==0){
 
-                        qtlswithNoRelQtls++;
+                        counters.increment("qtlswithNoRelQtls");
 
                         relQtls = "NA";
                     }
@@ -320,7 +274,7 @@ public class CreateGff4QTL {
                     relQtls = "NA";
                 }
 
-                attributesHashMap.put("ID",String.valueOf(rgdId)+"_"+start+"_"+stop);
+                attributesHashMap.put("ID", rgdId +"_"+start+"_"+stop);
                 attributesHashMap.put("Name", "QTL:"+symbol);
                 attributesHashMap.put("fullName", full_name);
                 attributesHashMap.put("Alias", "RGD:"+rgdId+", QTL:"+full_name+","+symbol);

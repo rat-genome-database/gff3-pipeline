@@ -1,3 +1,6 @@
+Sep 18, 2020
+  qtls: code refactor (1st step for parallelization)
+
 Sep 16, 2020
   bonobo genes: added export for new reference assembly 'Mhudiblu_PPA_v0'
 
