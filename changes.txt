@@ -1,3 +1,6 @@
+Sep 16, 2020
+  bonobo genes: added export for new reference assembly 'Mhudiblu_PPA_v0'
+
 Sep 04, 2020
   agr: fixed export of CDS
 

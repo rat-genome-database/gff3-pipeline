@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Sep 04, 2020 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Sep 16, 2020 --" />
     </bean>
 
     <bean id="geneManager" class="edu.mcw.rgd.gff3.CreateGff4Gene">
@@ -18,6 +18,7 @@
                 <value>species:MOUSE  mapKey:35  toDir:data/Gene/Mouse/ compress:yes</value>
 
                 <value>species:BONOBO     mapKey:511  toDir:data/Gene/Bonobo/     compress:yes</value>
+                <value>species:BONOBO     mapKey:513  toDir:data/Gene/Bonobo/     compress:yes</value>
                 <value>species:CHINCHILLA mapKey:44   toDir:data/Gene/Chinchilla/ compress:yes</value>
                 <value>species:DOG        mapKey:631  toDir:data/Gene/Dog/        compress:yes</value>
                 <value>species:MOLERAT    mapKey:1410 toDir:data/Gene/Molerat/    compress:yes</value>
