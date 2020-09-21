@@ -109,22 +109,25 @@ mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for mouse Disease assem
 
 
 $RUNLOAD -ontAspect:D -species:CHINCHILLA -mapKey:44 -toFile:$LOGDIR/Ont/Chinchilla/chinchilla10/ -chr:* -compress &> cron_chinchillaDisease10.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for chinchilla Disease assembly 1.0 related elements ran" $EMAILLIST<cron_chinchillaDisease10.log
+mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for chinchilla Disease assembly 1.0 ran" $EMAILLIST<cron_chinchillaDisease10.log
 
 $RUNLOAD -ontAspect:D -species:BONOBO -mapKey:511 -toFile:$LOGDIR/Ont/Bonobo/bonobo11/ -chr:* -compress &> cron_bonoboDisease11.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for bonobo Disease assembly 1.1 related elements ran" $EMAILLIST<cron_bonoboDisease11.log
+mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for bonobo Disease assembly 1.1 ran" $EMAILLIST<cron_bonoboDisease11.log
+
+$RUNLOAD -ontAspect:D -species:BONOBO -mapKey:513 -toFile:$LOGDIR/Ont/Bonobo/bonobo2/ -chr:* -compress &> cron_bonoboDisease2.log
+mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for bonobo Disease assembly Mhudiblu_PPA_v0 ran" $EMAILLIST<cron_bonoboDisease2.log
 
 $RUNLOAD -ontAspect:D -species:SQUIRREL -mapKey:720 -toFile:$LOGDIR/Ont/Squirrel/squirrel20/ -chr:* -compress &> cron_squirrelDisease20.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for squirrel Disease assembly 2.0 related elements ran" $EMAILLIST<cron_squirrelDisease20.log
+mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for squirrel Disease assembly 2.0 ran" $EMAILLIST<cron_squirrelDisease20.log
 
 $RUNLOAD -ontAspect:D -species:DOG -mapKey:631 -toFile:$LOGDIR/Ont/Dog/dog31/ -chr:* -compress &> cron_dogDisease31.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for dog Disease assembly 3.1 related elements ran" $EMAILLIST<cron_dogDisease31.log
+mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for dog Disease assembly 3.1 ran" $EMAILLIST<cron_dogDisease31.log
 
 $RUNLOAD -ontAspect:D -species:PIG -mapKey:910 -toFile:$LOGDIR/Ont/Pig/pig10/ -chr:* -compress &> cron_pigDisease10.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for pig Disease assembly 10 related elements ran" $EMAILLIST<cron_pigDisease10.log
+mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for pig Disease assembly 10 ran" $EMAILLIST<cron_pigDisease10.log
 
 $RUNLOAD -ontAspect:D -species:PIG -mapKey:911 -toFile:$LOGDIR/Ont/Pig/pig11/ -chr:* -compress &> cron_pigDisease11.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for pig Disease assembly 11 related elements ran" $EMAILLIST<cron_pigDisease11.log
+mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for pig Disease assembly 11 ran" $EMAILLIST<cron_pigDisease11.log
 
 
 ##### CHEBI ONTOLOGY
@@ -157,10 +160,13 @@ mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for mouse DrugGene asse
 
 
 $RUNLOAD -ontAspect:E -species:CHINCHILLA -mapKey:44 -toFile:$LOGDIR/Ont/Chinchilla/chinchilla10/ -chr:* -compress &> cron_chinchillaDrugGene10.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for chinchilla DrugGene assembly 1.0 related elements ran" $EMAILLIST<cron_chinchillaDrugGene10.log
+mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for chinchilla DrugGene assembly 1.0 ran" $EMAILLIST<cron_chinchillaDrugGene10.log
 
 $RUNLOAD -ontAspect:E -species:BONOBO -mapKey:511 -toFile:$LOGDIR/Ont/Bonobo/bonobo11/ -chr:* -compress &> cron_bonoboDrugGene11.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for bonobo DrugGene assembly 1.1 related elements ran" $EMAILLIST<cron_bonoboDrugGene11.log
+mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for bonobo DrugGene assembly 1.1 ran" $EMAILLIST<cron_bonoboDrugGene11.log
+
+$RUNLOAD -ontAspect:E -species:BONOBO -mapKey:513 -toFile:$LOGDIR/Ont/Bonobo/bonobo2/ -chr:* -compress &> cron_bonoboDrugGene2.log
+mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for bonobo DrugGene assembly Mhudiblu_PPA_v0 ran" $EMAILLIST<cron_bonoboDrugGene2.log
 
 $RUNLOAD -ontAspect:E -species:SQUIRREL -mapKey:720 -toFile:$LOGDIR/Ont/Squirrel/squirrel20/ -chr:* -compress &> cron_squirrelDrugGene20.log
 mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for squirrel DrugGene assembly 2.0 related elements ran" $EMAILLIST<cron_squirrelDrugGene20.log
