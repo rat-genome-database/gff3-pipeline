@@ -1,3 +1,6 @@
+Nov 06, 2020
+  genes: added export of GRCm39 assembly
+
 Sep 18, 2020
   qtls: code refactor (1st step for parallelization)
 
