@@ -1,3 +1,6 @@
+Dec 4, 2020
+  JBrowse tracks: added gene tracks for GRCm39 assembly
+
 Nov 06, 2020
   genes: added export of GRCm39 assembly
 
