@@ -1,3 +1,6 @@
+Jan 19, 2021
+  genes: removed code referencing UniGene IDs (UniGene IDs removed from RGD database)
+
 Dec 4, 2020
   JBrowse tracks: added gene tracks for GRCm39 assembly
 

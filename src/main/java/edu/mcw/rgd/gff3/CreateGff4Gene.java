@@ -443,7 +443,6 @@ public class CreateGff4Gene {
             XdbId externalId = it.next();
 
             if( externalId.getXdbKey()!=XdbId.XDB_KEY_NCBI_GENE &&
-                    externalId.getXdbKey()!=XdbId.XDB_KEY_UNIGENE &&
                     externalId.getXdbKey()!=XdbId.XDB_KEY_MGD &&
                     externalId.getXdbKey()!=XdbId.XDB_KEY_OMIM &&
                     externalId.getXdbKey()!=XdbId.XDB_KEY_UNIPROT &&
