@@ -1,6 +1,7 @@
 Jan 28, 2021
   added NcbiPrep tool: to prepare NCBI fasta files for loading into JBrowse
-
+  rat genes: added export for assembly mRatBN7.2
+  
 Jan 19, 2021
   genes: removed code referencing UniGene IDs (UniGene IDs removed from RGD database)
 
