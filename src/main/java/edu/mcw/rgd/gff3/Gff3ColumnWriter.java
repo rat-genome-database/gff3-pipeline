@@ -93,6 +93,11 @@ public class Gff3ColumnWriter {
      */
     public String writeFirst8Columns(String chrNum, String source, String type, Integer start, Integer stop, String score,
                                    String strand, String phase) throws Exception{
+
+        if( start>stop ) {
+            System.out.println("WARNING: reverse start pos > stop pos");
+        }
+
         String chr = chrNum;
         if( isRatmineCompatibleFormat() ) {
             switch(type) {

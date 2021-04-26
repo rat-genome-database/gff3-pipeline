@@ -1,3 +1,6 @@
+Apr 26, 2021
+  rat markers: added export for assembly mRatBN7.2
+
 Jan 28, 2021
   added NcbiPrep tool: to prepare NCBI fasta files for loading into JBrowse
   rat genes: added export for assembly mRatBN7.2

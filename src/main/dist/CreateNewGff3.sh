@@ -65,6 +65,10 @@ $RUNLOAD -object:sslp -species:RAT -mapKey:360 -toFile:$LOGDIR/Sslp/Rat/rat60/ -
 mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Sslp assembly 6.0 ran" $EMAILLIST < ratSslp60.log
 
 
+$RUNLOAD -object:sslp -species:RAT -mapKey:372 -toFile:$LOGDIR/Sslp/Rat/rat72/ -compress > ratSslp72.log
+mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Sslp assembly 7.2 ran" $EMAILLIST < ratSslp72.log
+
+
 $RUNLOAD -object:sslp -species:HUMAN -mapKey:13 -toFile:$LOGDIR/Sslp/Human/human36/ -compress > humanSslp36.log
 mailx -s "[$SERVER]Pipeline to create Gff3 data for Human Sslp assembly 36 ran" $EMAILLIST < humanSslp36.log
 
