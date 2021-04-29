@@ -1,27 +1,18 @@
 package edu.mcw.rgd.gff3;
 
-import java.io.PrintWriter;
+import java.io.Writer;
 
 /**
- * Created by IntelliJ IDEA.
  * User: pjayaraman
  * Date: 9/9/11
  * Time: 8:50 AM
  */
 public class FastaWriter {
 
-    PrintWriter fastaSeqWriter;
+    Writer fastaSeqWriter;
 
-    public FastaWriter(PrintWriter fastaSeqWriter) {
+    public FastaWriter(Writer fastaSeqWriter) {
           this.fastaSeqWriter = fastaSeqWriter;
-    }
-
-    public PrintWriter getFastaSeqWriter() {
-        return fastaSeqWriter;
-    }
-
-    public void setFastaSeqWriter(PrintWriter fastaSeqWriter) {
-        this.fastaSeqWriter = fastaSeqWriter;
     }
 
     //write both forward and reverse sequences with header.
@@ -33,16 +24,12 @@ public class FastaWriter {
 
     public void writeFastaSeq(String seqheader, String seq) throws Exception{
         if(seq!=null && seq.length()>0){
-            fastaSeqWriter.println(">"+seqheader);
-            fastaSeqWriter.println(seq);
+            fastaSeqWriter.write(">");
+            fastaSeqWriter.write(seqheader);
+            fastaSeqWriter.write("\n");
+
+            fastaSeqWriter.write(seq);
+            fastaSeqWriter.write("\n");
         }
     }
-
-    //add new line.
-    public void addnewLineInFasta(){
-        fastaSeqWriter.print("\n");
-    }
-
-
-
 }

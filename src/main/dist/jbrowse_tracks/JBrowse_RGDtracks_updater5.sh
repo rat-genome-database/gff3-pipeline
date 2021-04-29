@@ -86,7 +86,7 @@ do
 		printf "  QTLS OK"
 	fi
 	if [[ "${pipelineSSLP}" != "null" ]]; then
-		${reedPulldown}${mainPipelineOutput}/${pipelineSSLP} ${currentOrgPath}/SSLP.gff3.gz
+		${reedPulldown}${mainPipelineOutput}/${pipelineSSLP} ${currentOrgPath}/markers.gff3.gz
 		printf "  SSLPS OK"
 	fi
 	if [[ "${pipelineStrains}" != "null" ]]; then
@@ -246,7 +246,7 @@ do
 	
 	# SSLP insertion
 	if [[ "${pipelineSSLP}" != "null" ]]; then
-	./bin/flatfile-to-json.pl --gff "${currentOrgPath}/SSLP.gff3" --trackLabel "SSLP" --key "RGD ${organism} (${assembly}) Micro Satellite Markers" --out "${datasetDir}" --trackType JBrowse/View/Track/CanvasFeatures --clientConfig "{ \"color\" : \"#378D15\", \"featureScale\" : 0.0001, \"label\" : \"symbol,name\", \"description\" : \"\" }" --config "{ \"category\" : \"Variants/Micro Satellite Markers\", \"histograms\" : { \"color\" : \"#378D15\", \"binsPerBlock\" : 25 }, \"onClick\" : { \"iconClass\" : \"dijitIconDatabase\", \"action\" : \"contentDialog\", \"content\" : \"<iframe src=\\\"${contentBlock}\\\" frameborder='0' marginheight='0' width='425' height='240' id='id_IFrame'></iframe>\", \"title\" : \"<center>RGD Feature Data for {name}</center>\" }, \"menuTemplate\" : [ { \"label\" : \"View RGD details\", \"iconClass\" : \"dijitIconDatabase\", \"action\" : \"contentDialog\", \"content\" : \"<iframe src=\\\"${contentBlock}\\\" frameborder='0' marginheight='0' width='425' height='240' id='id_IFrame'></iframe>\", \"title\" : \"<center>RGD Feature Data for {name}</center>\" }, { \"label\" : \"Highlight this feature\" } ] }"
+	./bin/flatfile-to-json.pl --gff "${currentOrgPath}/markers.gff3" --trackLabel "SSLP" --key "RGD ${organism} (${assembly}) Micro Satellite Markers" --out "${datasetDir}" --trackType JBrowse/View/Track/CanvasFeatures --clientConfig "{ \"color\" : \"#378D15\", \"featureScale\" : 0.0001, \"label\" : \"symbol,name\", \"description\" : \"\" }" --config "{ \"category\" : \"Variants/Micro Satellite Markers\", \"histograms\" : { \"color\" : \"#378D15\", \"binsPerBlock\" : 25 }, \"onClick\" : { \"iconClass\" : \"dijitIconDatabase\", \"action\" : \"contentDialog\", \"content\" : \"<iframe src=\\\"${contentBlock}\\\" frameborder='0' marginheight='0' width='425' height='240' id='id_IFrame'></iframe>\", \"title\" : \"<center>RGD Feature Data for {name}</center>\" }, \"menuTemplate\" : [ { \"label\" : \"View RGD details\", \"iconClass\" : \"dijitIconDatabase\", \"action\" : \"contentDialog\", \"content\" : \"<iframe src=\\\"${contentBlock}\\\" frameborder='0' marginheight='0' width='425' height='240' id='id_IFrame'></iframe>\", \"title\" : \"<center>RGD Feature Data for {name}</center>\" }, { \"label\" : \"Highlight this feature\" } ] }"
 		echo "+++ inserted track SSLP"
 	fi
 

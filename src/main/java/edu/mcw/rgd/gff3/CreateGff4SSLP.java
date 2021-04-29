@@ -1,10 +1,16 @@
 package edu.mcw.rgd.gff3;
 
 import edu.mcw.rgd.datamodel.*;
+import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
+import edu.mcw.rgd.process.mapping.MapManager;
 
+import java.io.BufferedWriter;
 import java.io.PrintWriter;
 import java.util.*;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author pjayaraman
@@ -12,38 +18,66 @@ import java.util.*;
  */
 public class CreateGff4SSLP {
 
-    String toFile;
-    int mapKey;
-    int speciesTypeKey;
-
     RgdGff3Dao dao = new RgdGff3Dao();
 
-    int countSslps=0;
-    int mapSslpCount=0;
-    int noMapSslpPos=0;
-    int moreThanOneMapSslpPos=0;
-    int sslpsAssocGeneRgd=0;
-    int sslpsAliasCount=0;
+    private List<String> processedAssemblies;
 
-    public void creategff4sslps(boolean compress) throws Exception{
+    /**
+     * load the species list and assemblies from properties/AppConfigure.xml
+     */
+    public void run() throws Exception {
+        for( String assemblyInfo: processedAssemblies ) {
+            CreateInfo info = new CreateInfo();
+            info.parseFromString(assemblyInfo);
 
-        int mapKey = getMapKey();
-        String species = SpeciesType.getCommonName(speciesTypeKey);
+            createGff4Markers(info);
+        }
+    }
 
-        String gffFile = getToFile()+species+"_RGDSSLPS.gff3";
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, compress);
+    public void createGff4Markers(CreateInfo info) throws Exception {
+
+        CounterPool counters = new CounterPool();
+
+        String speciesName = SpeciesType.getCommonName(info.getSpeciesTypeKey());
+        String assemblySymbol = info.getAssemblySymbol()!=null ? info.getAssemblySymbol() : Gff3Utils.getAssemblySymbol(info.getMapKey());
+
+        System.out.println("START MARKER GFF3 Generator for  " + speciesName + "  MAP_KEY=" + info.getMapKey() + "  ASSEMBLY " + MapManager.getInstance().getMap(info.getMapKey()).getName());
+        System.out.println("========================");
+
+
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(info.getToDir()+"/"+assemblySymbol+"_markers.gff3", false, info.isCompress());
+        gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
+        gff3Writer.print("# Species: "+ speciesName+"\n");
+        gff3Writer.print("# Assembly: "+ MapManager.getInstance().getMap(info.getMapKey()).getName()+"\n");
+        gff3Writer.print("# Primary Contact: mtutaj@mcw.edu\n");
+        gff3Writer.print("# Generated: "+new Date()+"\n");
+
+        Gff3ColumnWriter RATMINEgff3Writer = new Gff3ColumnWriter(info.getToDir()+"/RATMINE_"+assemblySymbol+"_markers.gff3", false, info.isCompress());
+        RATMINEgff3Writer.setRatmineCompatibleFormat(true);
 
         // set up writer to create fasta sequences of primer pairs..
-        PrintWriter seqPrimerPairsFile = new PrintWriter(getToFile()+species+"_RGDSSLPS.fa");
-        FastaWriter fastaWriter = new FastaWriter(seqPrimerPairsFile);
-        fastaWriter.setFastaSeqWriter(seqPrimerPairsFile);
+        String fastaFileName = info.getToDir()+"/"+assemblySymbol+"_markers.fa";
+        if( info.isCompress() ) {
+            fastaFileName += ".gz";
+        }
+        BufferedWriter fastaWriterFile = Utils.openWriter(fastaFileName);
+        FastaWriter fastaWriter = new FastaWriter(fastaWriterFile);
 
-        // set up gff file for liftOver
-        Gff3ColumnWriter gff4LiftOverCWriter = new Gff3ColumnWriter(getToFile()+species+"_RGD_liftOver.txt", true, compress);
+        createGff4Markers(info.getMapKey(), info.getSpeciesTypeKey(), gff3Writer, RATMINEgff3Writer, fastaWriter, counters);
 
-        //initialize RATMINE GFF3Writer
-        Gff3ColumnWriter RATMINEgff3Writer = new Gff3ColumnWriter(getToFile()+species+"_RATMINE_RGDSSLPS.gff3", false, compress);
-        RATMINEgff3Writer.setRatmineCompatibleFormat(true);
+        gff3Writer.close();
+        RATMINEgff3Writer.close();
+        fastaWriterFile.close();
+    }
+
+    public void createGff4Markers(int mapKey, int speciesTypeKey, Gff3ColumnWriter gff3Writer, Gff3ColumnWriter RATMINEgff3Writer, FastaWriter fastaWriter, CounterPool counters) throws Exception{
+
+        int countSslps=0;
+        int mapSslpCount=0;
+        int noMapSslpPos=0;
+        int moreThanOneMapSslpPos=0;
+        int sslpsAssocGeneRgd=0;
+        int sslpsAliasCount=0;
 
         for( SSLP sslp: dao.getActiveSslps(speciesTypeKey) ) {
 
@@ -65,6 +99,9 @@ public class CreateGff4SSLP {
 
 
             String aliases = getAliases(sslpRgdId);
+            if( aliases!=null ) {
+                sslpsAliasCount++;
+            }
 
             //get maps data position..
             List<MapData> sslpsMapdataList = dao.getMapData(sslpRgdId, mapKey);
@@ -92,7 +129,6 @@ public class CreateGff4SSLP {
 
                 gff3Writer.writeFirst8Columns(chrom,"RGD","SSLPS",start,stop,".",strand,".");
                 RATMINEgff3Writer.writeFirst8Columns(chrom,"RGD","SimpleSequenceLengthVariation",start,stop,".",strand,".");
-                gff4LiftOverCWriter.print("Chr"+chrom+"\t"+start+"\t"+stop+"\t"+sslpRgdId+"_"+start+"_"+stop+"\n");
 
                 //initialize hashmap for attributes
                 HashMap<String, String> attributesHashMap = new HashMap<>();
@@ -122,27 +158,17 @@ public class CreateGff4SSLP {
                 RATMINEattributesHashMap.put("associatedGene", assocGeneRgdID);
 
                 RATMINEgff3Writer.writeAttributes4Gff3(RATMINEattributesHashMap);
-
-                gff4LiftOverCWriter.addnewLineInGff3();
             }//end for each map data list loop
             }
         }
 
-        gff3Writer.close();
-        RATMINEgff3Writer.close();
-        seqPrimerPairsFile.close();
-        gff4LiftOverCWriter.close();
-
-
-        System.out.println("SSLPS processed:" + countSslps);
-        System.out.println("Sslps with Map position:" + mapSslpCount);
-        System.out.println("Sslps with NO map position:" + noMapSslpPos);
-        System.out.println("Sslps with more than one map position:" + moreThanOneMapSslpPos);
-        System.out.println("Sslps having aliases:" + sslpsAliasCount);
-        System.out.println("Sslps having an associated gene RGDID:" + sslpsAssocGeneRgd);
-
-        System.out.print("\nGFF3 File SUCCESSFUL!");
-
+        System.out.println("Markers processed: " + countSslps);
+        System.out.println("Markers with Map position: " + mapSslpCount);
+        System.out.println("Markers with NO map position: " + noMapSslpPos);
+        System.out.println("Markers with more than one map position: " + moreThanOneMapSslpPos);
+        System.out.println("Markers having aliases: " + sslpsAliasCount);
+        System.out.println("Markers having an associated gene RGDID: " + sslpsAssocGeneRgd);
+        System.out.println("");
     }
 
     String getAliases(int sslpRgdId) throws Exception {
@@ -155,31 +181,14 @@ public class CreateGff4SSLP {
             return null;
         }
 
-        sslpsAliasCount++;
         return Utils.concatenate(aliases, ",");
     }
 
-    public String getToFile() {
-        return toFile;
+    public void setProcessedAssemblies(List processedAssemblies) {
+        this.processedAssemblies = processedAssemblies;
     }
 
-    public void setToFile(String toFile) {
-        this.toFile = toFile;
-    }
-
-    public int getMapKey() {
-        return mapKey;
-    }
-
-    public void setMapKey(int mapKey) {
-        this.mapKey = mapKey;
-    }
-
-    public int getSpeciesTypeKey() {
-        return speciesTypeKey;
-    }
-
-    public void setSpeciesTypeKey(int speciesTypeKey) {
-        this.speciesTypeKey = speciesTypeKey;
+    public List getProcessedAssemblies() {
+        return processedAssemblies;
     }
 }

@@ -184,10 +184,12 @@ public class Manager {
             case RgdId.OBJECT_KEY_SSLPS:
                 CreateGff4SSLP create4Sslp = new CreateGff4SSLP();
                 if( mapKey!=null && toFile!=null ){
-                    create4Sslp.setToFile(toFile);
-                    create4Sslp.setMapKey(Integer.parseInt(mapKey));
-                    create4Sslp.setSpeciesTypeKey(speciesTypekey);
-                    create4Sslp.creategff4sslps(compress);
+                    CreateInfo info = new CreateInfo();
+                    info.setMapKey(Integer.parseInt(mapKey));
+                    info.setToDir(toDir);
+                    info.setSpeciesTypeKey(speciesTypekey);
+                    info.setCompress(compress);
+                    create4Sslp.createGff4Markers(info);
 
                 }else{
                     throw new ArgumentsException("This Script requires '-mapKey: -fromFile: -toFile:' " +
@@ -283,6 +285,10 @@ public class Manager {
                         case "qtls":
                             CreateGff4QTL qm = (CreateGff4QTL) (bf.getBean("qtlManager"));
                             qm.run();
+                            return true;
+                        case "markers":
+                            CreateGff4SSLP qs = (CreateGff4SSLP) (bf.getBean("markerManager"));
+                            qs.run();
                             return true;
                         case "proteinDomains":
                             CreateGff4ProteinDomains pdm = (CreateGff4ProteinDomains) (bf.getBean("proteinDomainManager"));

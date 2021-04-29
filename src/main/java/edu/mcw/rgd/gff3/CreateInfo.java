@@ -10,6 +10,7 @@ public class CreateInfo {
     private int mapKey;
     private int speciesTypeKey;
     private boolean compress;
+    private String assemblySymbol;
 
     public void parseFromString(String s) throws Exception {
         // sample string:
@@ -26,6 +27,7 @@ public class CreateInfo {
                     case "mapKey": mapKey = Integer.parseInt(value); break;
                     case "toDir": toDir = value; break;
                     case "compress": compress = (value.equals("yes") ? true : false); break;
+                    case "assemblySymbol": assemblySymbol = value; break;
                     default: throw new Exception("unknown field: "+name);
                 }
             }
@@ -64,10 +66,21 @@ public class CreateInfo {
         this.compress = compress;
     }
 
+    public String getAssemblySymbol() {
+        return assemblySymbol;
+    }
+
+    public void setAssemblySymbol(String assemblySymbol) {
+        this.assemblySymbol = assemblySymbol;
+    }
+
     public void dump() {
         System.out.println("toDir = "+toDir);
         System.out.println("mapKey = "+mapKey);
         System.out.println("speciesTypeKey = "+speciesTypeKey);
         System.out.println("compress = "+compress);
+        if( assemblySymbol!=null ) {
+            System.out.println("assemblySymbol = " + assemblySymbol);
+        }
     }
 }
