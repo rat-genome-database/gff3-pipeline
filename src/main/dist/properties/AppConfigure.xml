@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Apr 27 2021 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Apr 29 2021 --" />
     </bean>
 
     <bean id="geneManager" class="edu.mcw.rgd.gff3.CreateGff4Gene">
@@ -38,6 +38,7 @@
                 <value>species:RAT    mapKey:60  toDir:data/Qtl/Rat/rat34/ compress:yes</value>
                 <value>species:RAT    mapKey:70  toDir:data/Qtl/Rat/rat50/ compress:yes</value>
                 <value>species:RAT    mapKey:360 toDir:data/Qtl/Rat/rat60/ compress:yes</value>
+                <value>species:RAT    mapKey:372 toDir:data/Qtl/Rat/rat72/ compress:yes</value>
                 <value>species:HUMAN  mapKey:13  toDir:data/Qtl/Human/human36/ compress:yes</value>
                 <value>species:HUMAN  mapKey:17  toDir:data/Qtl/Human/human37/ compress:yes</value>
                 <value>species:HUMAN  mapKey:38  toDir:data/Qtl/Human/human38/ compress:yes</value>

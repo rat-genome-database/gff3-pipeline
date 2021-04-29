@@ -1,3 +1,7 @@
+Apr 29, 2021
+  rat strains: added code to generate gff3 files and tracks for mutant and congenic strains on assembly 7.2
+  rat qtls: added code to generate gff3 files and tracks for qtls on assembly 7.2
+
 Apr 26, 2021
   rat markers: added export for assembly mRatBN7.2
 

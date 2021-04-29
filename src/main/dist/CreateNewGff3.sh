@@ -61,6 +61,9 @@ mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Strain assembly 5.0 ran"
 $RUNLOAD -object:strain -species:RAT -mapKey:360 -toFile:$LOGDIR/Strain/Rat/rat60/ -compress > ratStrain60.log
 mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Strain assembly 6.0 ran" $EMAILLIST < ratStrain60.log
 
+$RUNLOAD -object:strain -species:RAT -mapKey:372 -toFile:$LOGDIR/Strain/Rat/rat72/ -compress > ratStrain72.log
+mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Strain assembly 7.2 ran" $EMAILLIST < ratStrain72.log
+
 
 ##### DISEASE ONTOLOGY
 
