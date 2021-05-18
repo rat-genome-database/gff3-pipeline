@@ -4,6 +4,7 @@ import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map;
 
@@ -41,14 +42,17 @@ public class CreateGff4GeneAgr {
         Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gff3Path+species+"_RGD_AGR.gff3", false, compress);
         gff3Writer.setAgrCompatibleFormat(true);
 
+        // date format as agreed on DQM meeting on May 18, 2021
+        SimpleDateFormat sdt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'+00:00'");
+
         gff3Writer.print("#!data-source RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
         gff3Writer.print("#!assembly: "+ MapManager.getInstance().getMap(mapKey).getName()+"\n");
         gff3Writer.print("#!annotationSource RefSeq 106\n");
         gff3Writer.print("#!annotationSource ENSEMBL 101\n");
-        gff3Writer.print("#!date-produced "+new Date()+"\n");
+        gff3Writer.print("#!date-produced "+sdt.format(new Date())+"\n");
         gff3Writer.print("#!species "+ species+"\n");
         gff3Writer.print("#!primary-contact mtutaj@mcw.edu\n");
-        gff3Writer.print("#!tool AGR GFF3 extractor  v 2020-09-04\n");
+        gff3Writer.print("#!tool AGR GFF3 extractor  v 2021-05-18\n");
 
         List<Gene> activeGenes = dao.getActiveGenes(speciesTypeKey);
         Collections.sort(activeGenes, new Comparator<Gene>() {
