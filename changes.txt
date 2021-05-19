@@ -1,5 +1,6 @@
 May 18, 2021
   agr extractor: date_produced field aligned with DQM requirements
+  damaging variants: fixed sql and code to work with new variant table structure
 
 Apr 29, 2021
   rat strains: added code to generate gff3 files and tracks for mutant and congenic strains on assembly 7.2

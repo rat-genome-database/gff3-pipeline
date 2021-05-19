@@ -5,7 +5,7 @@ package edu.mcw.rgd.gff3.dataModel;
  */
 public class Variant {
 
-    private long variantID=0;
+    private int variantRgdId=0;
     private String chr;
     private int start=0;
     private int stop=0;
@@ -15,6 +15,14 @@ public class Variant {
     private int freq=0;
     private String genicStat;
     private String zygosity;
+
+    public int getVariantRgdId() {
+        return variantRgdId;
+    }
+
+    public void setVariantRgdId(int variantRgdId) {
+        this.variantRgdId = variantRgdId;
+    }
 
     public String getGenicStat() {
         return genicStat;
@@ -30,14 +38,6 @@ public class Variant {
 
     public void setZygosity(String zygosity) {
         this.zygosity = zygosity;
-    }
-
-    public long getVariantID() {
-        return variantID;
-    }
-
-    public void setVariantID(long variantID) {
-        this.variantID = variantID;
     }
 
     public String getChr() {
