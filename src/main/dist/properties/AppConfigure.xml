@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build May 18 2021 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Jun 11 2021 --" />
     </bean>
 
     <bean id="geneManager" class="edu.mcw.rgd.gff3.CreateGff4Gene">
@@ -44,6 +44,7 @@
                 <value>species:HUMAN  mapKey:38  toDir:data/Qtl/Human/human38/ compress:yes</value>
                 <value>species:MOUSE  mapKey:18  toDir:data/Qtl/Mouse/mouse37/ compress:yes</value>
                 <value>species:MOUSE  mapKey:35  toDir:data/Qtl/Mouse/mouse38/ compress:yes</value>
+                <value>species:MOUSE  mapKey:239 toDir:data/Qtl/Mouse/mouse39/ compress:yes</value>
             </list>
         </property>
     </bean>

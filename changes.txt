@@ -1,3 +1,6 @@
+Jun 11, 2021
+  added gff3 qtl extractor and JBrowse track loader for mouse assembly GRCm39
+
 May 18, 2021
   agr extractor: date_produced field aligned with DQM requirements
   damaging variants: fixed sql and code to work with new variant table structure
