@@ -44,6 +44,7 @@ public class Manager {
 
     private String usage;
 
+    private static java.util.Map<String, Integer> speciesMappings;
 
     static public void main(String[] args) throws Exception {
         DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
@@ -425,6 +426,14 @@ public class Manager {
 
     public void setCompress(boolean compress) {
         this.compress = compress;
+    }
+
+    public static java.util.Map<String, Integer> getSpeciesMappings() {
+        return speciesMappings;
+    }
+
+    public static void setSpeciesMappings(java.util.Map<String, Integer> speciesMappings) {
+        Manager.speciesMappings = speciesMappings;
     }
 }
 

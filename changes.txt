@@ -1,3 +1,6 @@
+Jun 15, 2021
+  improved species handling
+
 Jun 11, 2021
   added gff3 qtl extractor and JBrowse track loader for mouse assembly GRCm39
 
