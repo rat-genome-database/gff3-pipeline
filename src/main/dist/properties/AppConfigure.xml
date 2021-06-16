@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Jun 15 2021 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Jun 16 2021 --" />
 
         <property name="speciesMappings">
             <map>
@@ -43,6 +43,7 @@
                 <value>species:PIG        mapKey:911  toDir:data/Gene/Pig/        compress:yes</value>
                 <value>species:SQUIRREL   mapKey:720  toDir:data/Gene/Squirrel/   compress:yes</value>
                 <value>species:VERVET     mapKey:1311 toDir:data/Gene/Vervet/     compress:yes</value>
+                <value>species:VERVET     mapKey:1313 toDir:data/Gene/Vervet/     compress:yes</value>
             </list>
         </property>
     </bean>

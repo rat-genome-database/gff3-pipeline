@@ -1,3 +1,8 @@
+Jun 16, 2021
+  rn7.2: added generation and loading of disease/gene-drug tracks
+  vervet: chlSab2 assembly: added generation and loading of gene/disease/gene-drug tracks
+  molerat: hetGla2 assembly: added generation and loading of gene/disease/gene-drug tracks
+
 Jun 15, 2021
   improved species handling
 
