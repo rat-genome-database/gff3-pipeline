@@ -1,6 +1,7 @@
 package edu.mcw.rgd.gff3;
 
 import edu.mcw.rgd.datamodel.*;
+import edu.mcw.rgd.process.mapping.MapManager;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
@@ -16,8 +17,8 @@ import java.util.List;
 public class Manager {
 
     private int speciesTypekey;
-    private String mapKey;
-    private String mapKey2;
+    private int mapKey;
+    private int mapKey2;
     private int objectTypeKey;
     private List<String> chromosomes;
     private String toFile;
@@ -110,11 +111,11 @@ public class Manager {
 
         }
         else if( ont_aspect!=null ){
-            if( speciesTypekey!=0 && mapKey!=null && toFile!=null && getChromosomes()!=null ){
+            if( speciesTypekey!=0 && mapKey>0 && toFile!=null && getChromosomes()!=null ){
                 CreateGff4Ontology createGff4Ont = new CreateGff4Ontology();
                 createGff4Ont.setSpeciesTypeKey(speciesTypekey);
                 createGff4Ont.setToFile(toFile);
-                createGff4Ont.setMapKey(Integer.parseInt(mapKey));
+                createGff4Ont.setMapKey(mapKey);
                 createGff4Ont.setOntAspect(ont_aspect);
                 createGff4Ont.setChromosomes(getChromosomes());
                 createGff4Ont.run(compress);
@@ -137,19 +138,19 @@ public class Manager {
     void handleObjects() throws Exception {
         switch(objectTypeKey) {
             case RgdId.OBJECT_KEY_GENES:
-                if((mapKey!=null)&&(toDir!=null)&&(speciesTypekey!=0)){
+                if( mapKey>0 && toDir!=null && speciesTypekey!=0 ){
                     if( flavor==null ) {
                         CreateGff4Gene createGff = new CreateGff4Gene();
                         CreateInfo info = new CreateInfo();
-                        info.setMapKey(Integer.parseInt(mapKey));
+                        info.setMapKey(mapKey);
                         info.setToDir(toDir);
                         info.setSpeciesTypeKey(speciesTypekey);
                         info.setCompress(compress);
                         createGff.createGeneGff3(info);
                     } else if( flavor.equals("AGR") ){
                         CreateGff4GeneAgr createGff = new CreateGff4GeneAgr();
-                        createGff.setMapKey(Integer.parseInt(mapKey));
-                        createGff.setMapKeyEnsembl(Integer.parseInt(mapKey2));
+                        createGff.setMapKey(mapKey);
+                        createGff.setMapKeyEnsembl(mapKey2);
                         createGff.setGff3Path(toDir);
                         createGff.setSpeciesTypeKey(speciesTypekey);
                         createGff.createGeneGff3(compress);
@@ -164,9 +165,9 @@ public class Manager {
             case RgdId.OBJECT_KEY_QTLS:
                 if(speciesTypekey!=0){
                     CreateGff4QTL createGff = new CreateGff4QTL();
-                    if((mapKey!=null)&&(toDir!=null)){
+                    if( mapKey>0 && toDir!=null ){
                         CreateInfo info = new CreateInfo();
-                        info.setMapKey(Integer.parseInt(mapKey));
+                        info.setMapKey(mapKey);
                         info.setToDir(toDir);
                         info.setSpeciesTypeKey(speciesTypekey);
                         info.setCompress(compress);
@@ -184,9 +185,9 @@ public class Manager {
 
             case RgdId.OBJECT_KEY_SSLPS:
                 CreateGff4SSLP create4Sslp = new CreateGff4SSLP();
-                if( mapKey!=null && toFile!=null ){
+                if( mapKey>0 && toFile!=null ){
                     CreateInfo info = new CreateInfo();
-                    info.setMapKey(Integer.parseInt(mapKey));
+                    info.setMapKey(mapKey);
                     info.setToDir(toDir);
                     info.setSpeciesTypeKey(speciesTypekey);
                     info.setCompress(compress);
@@ -201,8 +202,8 @@ public class Manager {
             case RgdId.OBJECT_KEY_STRAINS:
                 CreateGff4CongenicStrains create4Strains = new CreateGff4CongenicStrains();
 
-                if( mapKey!=null && toFile!=null ){
-                    create4Strains.setMap_key(Integer.parseInt(mapKey));
+                if( mapKey>0 && toFile!=null ){
+                    create4Strains.setMap_key(mapKey);
                     create4Strains.setToFile(toFile);
                     create4Strains.creategff4CongenicStrains(compress);
 
@@ -226,8 +227,8 @@ public class Manager {
 
             case RgdId.OBJECT_KEY_VARIANTS:
                 CreateGff4ClinVar creator = new CreateGff4ClinVar();
-                if( mapKey!=null && toFile!=null && speciesTypekey!=0 ){
-                    creator.setMapKey(Integer.parseInt(mapKey));
+                if( mapKey>0 && toFile!=null && speciesTypekey!=0 ){
+                    creator.setMapKey(mapKey);
                     creator.setToFile(toFile);
                     creator.setSpeciesTypeKey(speciesTypekey);
                     creator.run(compress);
@@ -239,9 +240,9 @@ public class Manager {
 
             case RgdId.OBJECT_KEY_PROTEIN_DOMAINS:
                 CreateGff4ProteinDomains pdcreator = new CreateGff4ProteinDomains();
-                if( mapKey!=null && toDir!=null && speciesTypekey!=0 ){
+                if( mapKey>0 && toDir!=null && speciesTypekey!=0 ){
                     CreateInfo info = new CreateInfo();
-                    info.setMapKey(Integer.parseInt(mapKey));
+                    info.setMapKey(mapKey);
                     info.setToDir(toDir);
                     info.setSpeciesTypeKey(speciesTypekey);
                     info.setCompress(compress);
@@ -253,8 +254,8 @@ public class Manager {
 
             case OBJECT_KEY_DB_SNP:
                 CreateGff4DbSnp createGff4DbSnp = new CreateGff4DbSnp();
-                if( mapKey!=null && toFile!=null && speciesTypekey!=0 ){
-                    createGff4DbSnp.setMapKey(Integer.parseInt(mapKey));
+                if( mapKey>0 && toFile!=null && speciesTypekey!=0 ){
+                    createGff4DbSnp.setMapKey(mapKey);
                     createGff4DbSnp.setToFile(toFile);
                     createGff4DbSnp.setSpeciesTypeKey(speciesTypekey);
                     createGff4DbSnp.setBuild(build);
@@ -332,10 +333,10 @@ public class Manager {
                     speciesTypekey = SpeciesType.parse(argArr[1]);
                 }else
                 if(obj.startsWith("-mapKey:")){
-                    mapKey = argArr[1];
+                    mapKey = Integer.parseInt(argArr[1]);
                 }else
                 if(obj.startsWith("-mapKey2:")){
-                    mapKey2 = argArr[1];
+                    mapKey2 = Integer.parseInt(argArr[1]);
                 }else
                 if(obj.startsWith("-toFile:")){
                     toFile = argArr[1];
@@ -373,6 +374,27 @@ public class Manager {
             }
         }else{
             throw new ArgumentsException("Arguments not found..this script needs parameters.\n" + getUsage());
+        }
+
+        // species post-processing: in case the species type is not parsable
+        if( speciesTypekey<=0 && (mapKey>0 || mapKey2>0) ) {
+            if( mapKey>0 ) {
+                Map map = MapManager.getInstance().getMap(mapKey);
+                speciesTypekey = map.getSpeciesTypeKey();
+            }
+
+            if( mapKey2>0 ) {
+
+                Map map = MapManager.getInstance().getMap(mapKey2);
+                int speciesTypeKey2 = map.getSpeciesTypeKey();
+                if( speciesTypekey<=0 ) {
+                    speciesTypekey = speciesTypeKey2;
+                } else {
+                    if( speciesTypekey!=speciesTypeKey2 ) {
+                        throw new Exception("ERROR: 2 map keys specified, mapped to different species");
+                    }
+                }
+            }
         }
         return false;
     }
