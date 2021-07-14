@@ -228,7 +228,7 @@ public class CdsUtils {
         return tfs;
     }
 
-    public boolean transcriptPositionOverlapsGenePosition(MapData md1, MapData md2) {
+    static public boolean transcriptPositionOverlapsGenePosition(MapData md1, MapData md2) {
         // map keys must match
         if( !md1.getMapKey().equals(md2.getMapKey()) )
             return false;

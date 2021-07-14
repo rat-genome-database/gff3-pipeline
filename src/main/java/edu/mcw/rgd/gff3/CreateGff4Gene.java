@@ -180,7 +180,7 @@ public class CreateGff4Gene {
                             counters.increment(" NonCoding transcripts");
                         }
                         for( MapData trMd: tr.getGenomicPositions() ) {
-                            if( !utils.transcriptPositionOverlapsGenePosition(trMd, map) )
+                            if( !CdsUtils.transcriptPositionOverlapsGenePosition(trMd, map) )
                                 continue;
 
                             String id = getUniqueId("mRNARGD"+tr.getRgdId(), idMap);
@@ -293,7 +293,7 @@ public class CreateGff4Gene {
         for( Transcript tr: geneTrs ) {
             for( MapData trMd: tr.getGenomicPositions() ) {
                 // transcript pos must overlap gene locus
-                if( utils.transcriptPositionOverlapsGenePosition(trMd, md) ) {
+                if( CdsUtils.transcriptPositionOverlapsGenePosition(trMd, md) ) {
                     // yes, this transcript is overlapping gene locus
                     trsOnMap.add(tr);
                 }

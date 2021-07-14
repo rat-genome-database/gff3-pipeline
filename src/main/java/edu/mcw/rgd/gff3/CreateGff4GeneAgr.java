@@ -52,7 +52,7 @@ public class CreateGff4GeneAgr {
         gff3Writer.print("#!date-produced "+sdt.format(new Date())+"\n");
         gff3Writer.print("#!species "+ species+"\n");
         gff3Writer.print("#!primary-contact mtutaj@mcw.edu\n");
-        gff3Writer.print("#!tool AGR GFF3 extractor  v 2021-05-18\n");
+        gff3Writer.print("#!tool AGR GFF3 extractor  v 2021-07-14\n");
 
         List<Gene> activeGenes = dao.getActiveGenes(speciesTypeKey);
         Collections.sort(activeGenes, new Comparator<Gene>() {
@@ -67,7 +67,6 @@ public class CreateGff4GeneAgr {
         for( Gene gene: activeGenes ){
             i++;
             int geneRgdId = gene.getRgdId();
-
             // process only protein coding genes
             String gType = Utils.NVL(gene.getType(), "gene");
 
@@ -79,20 +78,15 @@ public class CreateGff4GeneAgr {
                 continue;
             }
 
-            List<MapData> geneMap = getMapData(geneRgdId, mapKey, counters);
-            geneMap.addAll(getMapData(geneRgdId, mapKeyEnsembl, counters));
+            List<MapData> geneMap = getMergedMapData(geneRgdId, mapKey, mapKeyEnsembl, counters);
             if( geneMap.isEmpty() ) {
                 continue;
             }
+
             for( MapData map: geneMap ) {
                 counters.genesInEachChromosomeCount++;
 
                 String nameOfgene = getNameOfGene(gene, counters);
-
-                List<Transcript> geneTrs = dao.getTranscriptsForGene(geneRgdId);
-                if (geneTrs.size() > 1) {
-                    counters.genesMoreThanOneMappedTrans++;
-                }
 
                 String annotDesc = Utils.getGeneDescription(gene);
                 if (Utils.isStringEmpty(annotDesc)) {
@@ -139,6 +133,12 @@ public class CreateGff4GeneAgr {
                 gff3Writer.writeFirst8Columns(map.getChromosome(), "RGD", "gene", map.getStartPos(), map.getStopPos(), ".", map.getStrand(), ".");
                 gff3Writer.writeAttributes4Gff3(attributes);
 
+
+                List<Transcript> geneTrs = dao.getTranscriptsForGene(geneRgdId);
+                if (geneTrs.size() > 1) {
+                    counters.genesMoreThanOneMappedTrans++;
+                }
+
                 if (geneTrs.size() > 0) {
                     counters.transcriptsCount++;
                     counters.genesWithTranscriptsCount++;
@@ -149,11 +149,16 @@ public class CreateGff4GeneAgr {
                             counters.nonCodingTransCount++;
                         }
                         for (MapData trMd : tr.getGenomicPositions()) {
+                            // skip positions from other assemblies
+                            if( !(trMd.getMapKey()==mapKey || trMd.getMapKey()==mapKeyEnsembl) ) {
+                                continue;
+                            }
+
                             boolean isEnsemblTr = trMd.getMapKey()==mapKeyEnsembl;
                             String dbName = isEnsemblTr ? "ENSEMBL" : "NCBI";
                             CdsUtils utils = isEnsemblTr ? utilsEnsembl : utilsNcbi;
 
-                            if (!utils.transcriptPositionOverlapsGenePosition(trMd, map))
+                            if( !positionsOverlap(trMd, map))
                                 continue;
 
                             String id = getUniqueId("rna");
@@ -673,6 +678,52 @@ public class CreateGff4GeneAgr {
             results.put(xdbId.getRgdId(), str);
         }
         return results;
+    }
+
+    List<MapData> getMergedMapData(int geneRgdId, int mapKey1, int mapKey2, Counters counters) throws Exception {
+        List<MapData> geneMap = getMapData(geneRgdId, mapKey1, counters);
+        geneMap.addAll(getMapData(geneRgdId, mapKey2, counters));
+
+        List<MapData> results = new ArrayList<>();
+        while( !geneMap.isEmpty() ) {
+            MapData md = geneMap.remove(0);
+
+            // merge it with other overlapping gene positions
+            boolean wasMerged = false;
+            for( int i=0; i<geneMap.size(); i++ ) {
+                MapData md2 = geneMap.get(i);
+                if( positionsOverlap(md, md2) ) {
+                    // merge positions
+                    geneMap.remove(i);
+                    if( md2.getStartPos()<md.getStartPos() ) {
+                        md.setStartPos(md2.getStartPos());
+                    }
+                    if( md2.getStopPos()>md.getStopPos() ) {
+                        md.setStopPos(md2.getStopPos());
+                    }
+                    geneMap.add(md);
+                    wasMerged = true;
+                    break;
+                }
+            }
+
+            if( !wasMerged ) {
+                results.add(md);
+            }
+        }
+        return results;
+    }
+
+    boolean positionsOverlap(MapData md1, MapData md2) {
+        // chromosomes must match
+        if( !Utils.stringsAreEqualIgnoreCase(md1.getChromosome(), md2.getChromosome()) )
+            return false;
+        // positions must overlap
+        if( md1.getStopPos() < md2.getStartPos() )
+            return false;
+        if( md2.getStopPos() < md1.getStartPos() )
+            return false;
+        return true;
     }
 
     public void setSpeciesTypeKey(int speciesTypeKey) {
