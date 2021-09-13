@@ -288,6 +288,7 @@ public class CreateGff4GeneAgr {
                     return "mRNA";
                 case "pseudo":
                 case "pseudogene":
+                case "unprocessed_pseudogene":
                     return "pseudogenic_transcript";
 
                 case "lincrna":
