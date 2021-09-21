@@ -20,10 +20,15 @@ public class NcbiPrep {
 
     public static void main(String[] args) throws Exception {
 
-        String fname = "/data/ref/fasta/rn7.2/GCF_015227675.2_mRatBN7.2_genomic.fna.gz";
-        String outDir = "/data/ref/fasta/rn7.2";
+        int mapKey = 1313;
+        boolean isScaffoldAssembly = true;
 
-        int mapKey = 372;
+        // for scaffold assemblies, prefix must be an empty string; for chromsome assemblies it must be 'Chr'
+        final String chrPrefix = isScaffoldAssembly ? "" : "Chr";
+
+        String fname = "/Users/mtutaj/Downloads/GCF_015252025.1_Vero_WHO_p1.0_genomic.fna.gz";
+        String outDir = "/data/ref/fasta/vero_who_p1.0";
+
         MapDAO dao = new MapDAO();
         List<Chromosome> chromosomes = dao.getChromosomes(mapKey);
 
@@ -43,7 +48,7 @@ public class NcbiPrep {
                 // parse chr acc
                 int spacePos = line.indexOf(' ');
                 String chrAcc = line.substring(1, spacePos).trim();
-                String chr = getChrName(chrAcc, chromosomes);
+                String chr = getChrName(chrAcc, chromosomes, chrPrefix);
                 if( chr==null ) {
                     System.out.println("cannot match chromosome for line: "+line);
                 }
@@ -63,10 +68,10 @@ public class NcbiPrep {
         System.out.println("OK");
     }
 
-    static String getChrName(String acc, List<Chromosome> chromosomes) {
+    static String getChrName(String acc, List<Chromosome> chromosomes, String chrPrefix) {
         for( Chromosome ch: chromosomes ) {
             if( acc.equals(ch.getRefseqId()) ) {
-                return "Chr"+ch.getChromosome();
+                return chrPrefix+ch.getChromosome();
             }
         }
         return null;
