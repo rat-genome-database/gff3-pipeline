@@ -1,3 +1,6 @@
+Sep 21, 2021
+  NCBI prep: added code to prep fna files for scaffold assemblies for loading into RGD JBrowse
+
 Jul 14, 2021
   AGR gene extractor: fixed code to not emit duplicate gene entries
 
