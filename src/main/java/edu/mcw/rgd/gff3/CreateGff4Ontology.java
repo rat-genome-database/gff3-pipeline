@@ -94,6 +94,8 @@ public class CreateGff4Ontology {
         }
         long t0 = System.currentTimeMillis();
 
+        String shortSpeciesName = Manager.getShortSpeciesName(getSpeciesTypeKey());
+
         String fname = getToFile();
         new File(fname).mkdirs(); // make sure the directory is always created
 
@@ -121,9 +123,9 @@ public class CreateGff4Ontology {
 
                 // handle '*' for all chromosomes
                 if( chr.equals("*") ) {
-                    gffFile = fname + termAcc.replaceAll(":", "") + "_Ontology_" + SpeciesType.getCommonName(speciesTypeKey) + "_RGD.gff3";
+                    gffFile = fname + termAcc.replaceAll(":", "") + "_Ontology_" + shortSpeciesName + "_RGD.gff3";
                 } else {
-                    gffFile = fname + termAcc.replaceAll(":", "") + "_Ontology_" + SpeciesType.getCommonName(speciesTypeKey) + "_RGDChr" + chr + ".gff3";
+                    gffFile = fname + termAcc.replaceAll(":", "") + "_Ontology_" + shortSpeciesName + "_RGDChr" + chr + ".gff3";
                 }
                 gff3Writer = new Gff3ColumnWriter(gffFile, false, compress);
 

@@ -457,6 +457,17 @@ public class Manager {
     public static void setSpeciesMappings(java.util.Map<String, Integer> speciesMappings) {
         Manager.speciesMappings = speciesMappings;
     }
+
+    public static String getShortSpeciesName(int speciesTypeKey) {
+
+        for( java.util.Map.Entry<String, Integer> entry: Manager.speciesMappings.entrySet() ) {
+            if( entry.getValue()==speciesTypeKey ) {
+                return entry.getKey().substring(0, 1) + entry.getKey().substring(1).toLowerCase();
+            }
+        }
+        return null;
+    }
+
 }
 
 
