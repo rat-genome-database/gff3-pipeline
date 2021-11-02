@@ -312,7 +312,7 @@ public class CreateGff4GeneAgr {
                     if (tr.getAccId().startsWith("XR_")) {
                         return "transcript";
                     }
-                    if (tr.getAccId().startsWith("XM_")) {
+                    if (tr.getAccId().startsWith("XM_") || tr.getAccId().startsWith("NM_")) {
                         return "mRNA";
                     }
             }
@@ -381,7 +381,7 @@ public class CreateGff4GeneAgr {
                     return "transcript";
             }
         }
-        throw new Exception("tr biotype: unsupported for gene type ["+geneType+"], tr type ["+tr.getType()+"]   gene nr "+i);
+        throw new Exception("tr biotype: unsupported for gene type ["+geneType+"], tr type ["+tr.getType()+"]    "+tr.getAccId());
     }
 
     String getCurie(int geneRgdId, List<XdbId> xdbIds) {
