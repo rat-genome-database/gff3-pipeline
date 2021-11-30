@@ -14,6 +14,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author mtutaj
@@ -59,14 +61,14 @@ public class RgdGff3Dao {
                 if( !Utils.isStringEmpty(gene.getMergedDescription()) ) {
                     gene.setDescription(gene.getMergedDescription());
                 } else {
-                    gene.setDescription(Utils.getGeneDescription(gene));
+                    String desc = Utils.getGeneDescription(gene);
+                    gene.setDescription(desc);
                 }
             }
         }
         return gene;
     }
-
-    static private Map<Integer, Gene> _cacheGenes = new HashMap<>();
+    static private Map<Integer, Gene> _cacheGenes = new ConcurrentHashMap<>();
 
     public List<Gene> getActiveGenes(String chr, long startPos, long stopPos, int mapKey) throws Exception {
         return geneDAO.getActiveGenes(chr, startPos, stopPos, mapKey);
