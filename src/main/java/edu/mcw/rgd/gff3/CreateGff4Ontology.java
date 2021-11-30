@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CreateGff4Ontology {
     AssociationDAO assDao = new AssociationDAO();
@@ -134,20 +135,26 @@ public class CreateGff4Ontology {
                 gff3Writer.print("#"+SpeciesType.getCommonName(speciesTypeKey)+" assembly "+ MapManager.getInstance().getMap(getMapKey()).getName()+"\n");
                 gff3Writer.print("#disease ontology track for term '"+dao.getTerm(termAcc).getTerm()+"' ("+termAcc+")\n");
 
-                for (MapData md : dao.getMapDataByMapKeyChr(chr, mapKey, RgdId.OBJECT_KEY_GENES)) {
-                    if( md.getStartPos() != null && md.getStopPos() != null ) {
+                boolean oldCode = false;
+                if( oldCode ) {
+                    for (MapData md : dao.getMapDataByMapKeyChr(chr, mapKey, RgdId.OBJECT_KEY_GENES)) {
+                        if (md.getStartPos() != null && md.getStopPos() != null) {
 
-                        Gff3Entry entry = new Gff3Entry(RgdId.OBJECT_KEY_GENES, md);
-                        processGene(entry);
+                            Gff3Entry entry = new Gff3Entry(RgdId.OBJECT_KEY_GENES, md);
+                            processGene(entry);
 
-                        counter += processAnnotations(mapAccAnnList, entry);
+                            counter += processAnnotations(mapAccAnnList, entry);
 
-                        if (!entry.anns.equals("NA")) {
-                            createRGdInfo(entry, rgdInfoList);
-                            writeGff3Line(gff3Writer, entry, termAcc);
+                            if (!entry.anns.equals("NA")) {
+                                createRGdInfo(entry, rgdInfoList);
+                                writeGff3Line(gff3Writer, entry, termAcc);
+                            }
                         }
                     }
+                } else {
+                    counter += processGenes(chr, termAcc, gff3Writer, mapAccAnnList, rgdInfoList);
                 }
+
 
                 for (MapData md : dao.getMapDataByMapKeyChr(chr, mapKey, RgdId.OBJECT_KEY_QTLS)) {
                     if( md.getStartPos() != null && md.getStopPos() != null ) {
@@ -385,7 +392,7 @@ public class CreateGff4Ontology {
         return annotMap.size();
     }
 
-    void createRGdInfo(Gff3Entry entry, List<RGDInfo> rgdInfoList) {
+    synchronized void createRGdInfo(Gff3Entry entry, List<RGDInfo> rgdInfoList) {
         RGDInfo rgdInfo = new RGDInfo();
         rgdInfo.setChromosome(entry.chrom);
         rgdInfo.setRgdId(entry.rgdId);
@@ -394,16 +401,23 @@ public class CreateGff4Ontology {
         rgdInfoList.add(rgdInfo);
     }
 
-    void writeGff3Line(Gff3ColumnWriter gff3Writer, Gff3Entry entry, String termAcc) throws Exception {
+    void writeGff3Line(Gff3ColumnWriter gff3Writer, Gff3Entry entry, String termAcc) {
 
-        gff3Writer.writeFirst8Columns(entry.chrom,
+        gff3Writer.print( prepGff3Line(gff3Writer, entry, termAcc) );
+    }
+
+    String prepGff3Line(Gff3ColumnWriter gff3Writer, Gff3Entry entry, String termAcc) {
+
+        StringBuffer buf = new StringBuffer(
+            gff3Writer.prepFirst8Columns(entry.chrom,
                 "RGD_Ontology_" + termAcc.replaceAll(":", ""),
                 RgdId.getObjectTypeName(entry.objectKey).toLowerCase() + "_ont",
                 entry.start,
                 entry.stop,
                 ".",
                 entry.strand,
-                ".");
+                ".")
+        );
 
         Map<String, String> attributesHashMap = new HashMap<>();
         attributesHashMap.put("Dbxref", "RGD:" + entry.rgdId);
@@ -433,7 +447,40 @@ public class CreateGff4Ontology {
 
         attributesHashMap.put("Ontology_term", entry.anns);
 
-        gff3Writer.writeAttributes4Gff3(attributesHashMap);
+        buf.append(gff3Writer.prepAttributes4Gff3(attributesHashMap));
+        return buf.toString();
+    }
+
+    ///////
+    //// highly parallel code
+
+    int processGenes(String chr, String termAcc, Gff3ColumnWriter gff3Writer, Map<String, Term> mapAccAnnList, List<RGDInfo> rgdInfoList) throws Exception {
+
+        AtomicInteger annotCount = new AtomicInteger(0);
+        StringBuffer gff3Lines = new StringBuffer();
+
+        dao.getMapDataByMapKeyChr(chr, mapKey, RgdId.OBJECT_KEY_GENES).parallelStream().forEach(md -> {
+
+            if (md.getStartPos() != null && md.getStopPos() != null) {
+
+                try {
+                    Gff3Entry entry = new Gff3Entry(RgdId.OBJECT_KEY_GENES, md);
+                    processGene(entry);
+
+                    annotCount.addAndGet(processAnnotations(mapAccAnnList, entry));
+
+                    if (!entry.anns.equals("NA")) {
+                        createRGdInfo(entry, rgdInfoList);
+                        gff3Lines.append(prepGff3Line(gff3Writer, entry, termAcc));
+                    }
+                } catch(Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        gff3Writer.print(gff3Lines.toString());
+        return annotCount.get();
     }
 
     void calculateDensity(List<RGDInfo> rgdInfoList) throws Exception {

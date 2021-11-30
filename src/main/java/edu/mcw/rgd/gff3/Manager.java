@@ -23,7 +23,6 @@ public class Manager {
     private List<String> chromosomes;
     private String toFile;
     private String toDir;
-    private String fromFile;
     int sampleID;
     int patientID;
     String build;
@@ -65,7 +64,6 @@ public class Manager {
                         "in Mouse: chromosomes = 1-19,X,Y\n"+
                         "in Human: chromosomes = 1-22,X,Y\n" +
                         "-toFile:../log/RGDGFF3/Output/\n"+
-                        "-fromFile:/home/rgddata/data/RGDGFF3/Input/\n" +
                         "-compress   (compress output files with gzip) \n" +
                         "\n---------------------------------------------------\n" +
                     "USAGE for CarpeNovo Variants:\n" +
@@ -343,9 +341,6 @@ public class Manager {
                 }else
                 if(obj.startsWith("-toDir:")){
                     toDir = argArr[1];
-                }else
-                if(obj.startsWith("-fromFile:")){
-                    fromFile=argArr[1];
                 }else
                 if(obj.startsWith("-chr:")){
                     setChromosomes(expandChromosomeString(argArr[1]));
