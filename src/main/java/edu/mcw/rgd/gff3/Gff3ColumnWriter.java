@@ -80,19 +80,17 @@ public class Gff3ColumnWriter {
 
     /**
      * write the first 8 columns for each file; has to be called for each line that gets printed into the gff3 file
-     * @param chrNum
-     * @param source
-     * @param type
-     * @param start
-     * @param stop
-     * @param score
-     * @param strand
-     * @param phase
      * @return the contents written
      * @throws Exception
      */
-    public String writeFirst8Columns(String chrNum, String source, String type, Integer start, Integer stop, String score,
-                                   String strand, String phase) throws Exception{
+    public String writeFirst8Columns(String chrNum, String source, String type, Integer start, Integer stop, String score, String strand, String phase) {
+
+        String text = prepFirst8Columns(chrNum, source, type, start, stop, score, strand, phase);
+        gff3Writer.print(text);
+        return text;
+    }
+
+    public String prepFirst8Columns(String chrNum, String source, String type, Integer start, Integer stop, String score, String strand, String phase) {
 
         if( start>stop ) {
             System.out.println("WARNING: reverse start pos > stop pos");
@@ -112,7 +110,6 @@ public class Gff3ColumnWriter {
         }
 
         String text = chr + "\t" + source + "\t" + type + "\t" + start + "\t" + stop + "\t" + score + "\t" + strand + "\t" + phase + "\t";
-        gff3Writer.print(text);
         return text;
     }
 
@@ -167,6 +164,28 @@ public class Gff3ColumnWriter {
         addnewLineInGff3();
         attributesMap.clear();
         return attrCount;
+    }
+
+    /**
+     * writes the attributes, then writes the new line; in the end drops all attributes from attr map;
+     * note: this method automatically percent-encodes TAB,CR,NL,'%',';','=', per GFF3 spec
+     * @param attributesMap map of attributes to be written
+     * @return gff3 content
+     * @throws Exception
+     */
+    public String prepAttributes4Gff3(Map<String, String> attributesMap) {
+        StringBuffer buf = new StringBuffer();
+        int attrCount = 0;
+        for( Map.Entry<String, String> entry: attributesMap.entrySet() ) {
+            if( attrCount>0 )
+                buf.append(";");
+            buf.append(entry.getKey() + "=" + encodeAttrValueForGff3(entry.getValue()));
+            attrCount++;
+        }
+
+        buf.append("\n");
+        attributesMap.clear();
+        return buf.toString();
     }
 
     /** per GFF3 specification:<p>
