@@ -4,7 +4,8 @@ import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.Map;
@@ -15,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CreateGff4Gene {
 
     RgdGff3Dao dao = new RgdGff3Dao();
-    Logger log = Logger.getLogger("gene");
+    Logger log = LogManager.getLogger("gene");
 
     private List<String> processedAssemblies;
 

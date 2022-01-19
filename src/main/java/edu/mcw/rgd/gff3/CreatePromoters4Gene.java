@@ -7,7 +7,8 @@ import edu.mcw.rgd.dao.impl.MapDAO;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -18,7 +19,7 @@ import java.util.Map;
  * @since 8/26/12
  */
 public class CreatePromoters4Gene {
-    Logger log = Logger.getLogger("promoters");
+    Logger log = LogManager.getLogger("promoters");
 
     GenomicElementDAO genEleDao = new GenomicElementDAO();
     MapDAO mdao = new MapDAO();

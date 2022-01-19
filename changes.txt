@@ -1,5 +1,6 @@
 Jan 19, 2022
   agr: switched to assembly rn7 for rat
+  updated log4j to avoid zero day exploit
 
 Nov 30, 2021
   added generation of ontology/CHEBI tracks for GRCm39 assembly

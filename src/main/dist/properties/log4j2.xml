@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-hh HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+
+        <RollingFile name="detail" append="true" fileName="logs/detail.log" filePattern="logs/detail.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-hh HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/><!-- 1 month roll over -->
+            </Policies>
+        </RollingFile>
+        <RollingFile name="status" append="true" fileName="logs/status.log" filePattern="logs/status.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-hh HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <File name="summary" append="false" fileName="logs/summary.log">
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </File>
+
+        <RollingFile name="gene_detail" append="true" fileName="logs/gene_detail.log" filePattern="logs/gene_detail.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-hh HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/><!-- 1 month roll over -->
+            </Policies>
+        </RollingFile>
+        <RollingFile name="gene_summary" append="true" fileName="logs/gene_summary.log" filePattern="logs/gene_summary.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-hh HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <File name="gene" append="false" fileName="logs/gene.log">
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </File>
+
+        <RollingFile name="domains_detail" append="true" fileName="logs/domains_detail.log" filePattern="logs/domains_detail.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-hh HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/><!-- 1 month roll over -->
+            </Policies>
+        </RollingFile>
+        <RollingFile name="domains_summary" append="true" fileName="logs/domains_summary.log" filePattern="logs/domains_summary.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-hh HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <File name="domains" append="false" fileName="logs/domains.log">
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </File>
+
+        <RollingFile name="promoters_detail" append="true" fileName="logs/promoters_detail.log" filePattern="logs/promoters_detail.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-hh HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/><!-- 1 month roll over -->
+            </Policies>
+        </RollingFile>
+        <RollingFile name="promoters_summary" append="true" fileName="logs/promoters_summary.log" filePattern="logs/promoters_summary.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-hh HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <File name="promoters" append="false" fileName="logs/promoters.log">
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </File>
+
+        <RollingFile name="eva_detail" append="true" fileName="logs/eva_detail.log" filePattern="logs/eva_detail.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-hh HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/><!-- 1 month roll over -->
+            </Policies>
+        </RollingFile>
+        <RollingFile name="eva_summary" append="true" fileName="logs/eva_summary.log" filePattern="logs/eva_summary.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-hh HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <File name="evas" append="false" fileName="logs/evas.log">
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </File>
+
+        <RollingFile name="ensembl_detail" append="true" fileName="logs/ensembl_detail.log" filePattern="logs/ensembl_detail.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-hh HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/><!-- 1 month roll over -->
+            </Policies>
+        </RollingFile>
+        <RollingFile name="ensembl_summary" append="true" fileName="logs/ensembl_summary.log" filePattern="logs/ensembl_summary.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-hh HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <File name="ensembl" append="false" fileName="logs/ensembl.log">
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </File>
+    </Appenders>
+
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+        <Logger name="status" level="debug" additivity="false">
+            <AppenderRef ref="detail"/>
+            <AppenderRef ref="status" level="info"/>
+            <AppenderRef ref="summary" level="info"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+
+        <Logger name="gene" level="debug" additivity="false">
+            <AppenderRef ref="gene"/>
+            <AppenderRef ref="gene_detail" level="debug"/>
+            <AppenderRef ref="gene_summary" level="info"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+
+        <Logger name="domains" level="debug" additivity="false">
+            <AppenderRef ref="domains"/>
+            <AppenderRef ref="domains_detail" level="debug"/>
+            <AppenderRef ref="domains_summary" level="info"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+
+        <Logger name="promoters" level="debug" additivity="false">
+            <AppenderRef ref="promoters"/>
+            <AppenderRef ref="promoters_detail" level="debug"/>
+            <AppenderRef ref="promoters_summary" level="info"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+
+        <Logger name="evas" level="debug" additivity="false">
+            <AppenderRef ref="evas"/>
+            <AppenderRef ref="eva_detail" level="debug"/>
+            <AppenderRef ref="eva_summary" level="info"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+
+        <Logger name="ensembl" level="debug" additivity="false">
+            <AppenderRef ref="ensembl"/>
+            <AppenderRef ref="ensembl_detail" level="debug"/>
+            <AppenderRef ref="ensembl_summary" level="info"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+    </Loggers>
+</Configuration>

@@ -3,7 +3,8 @@ package edu.mcw.rgd.gff3;
 import edu.mcw.rgd.process.FileDownloader;
 import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.util.HashMap;
@@ -28,7 +29,7 @@ import java.util.zip.GZIPOutputStream;
  */
 public class EnsemblPrep {
     private Map<Integer, String> ensemblGff;
-    Logger log = Logger.getLogger("ensembl");
+    Logger log = LogManager.getLogger("ensembl");
 
     public void run() throws Exception {
 
