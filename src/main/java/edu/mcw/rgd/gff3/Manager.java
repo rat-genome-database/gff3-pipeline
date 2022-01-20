@@ -1,7 +1,10 @@
 package edu.mcw.rgd.gff3;
 
 import edu.mcw.rgd.datamodel.*;
+import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
@@ -31,6 +34,8 @@ public class Manager {
     boolean compress = false;
     String flavor;
     private String version;
+
+    Logger log = LogManager.getLogger("status");
 
     public static final int OBJECT_KEY_DB_SNP = -1;
 
@@ -79,8 +84,8 @@ public class Manager {
                         "\n-------------------------------------------------------\n";
             creator.setUsage(codeUsage);
             creator.doMain(args, bf);
-        }catch (Exception createNewGffException){
-            createNewGffException.printStackTrace();
+        }catch (Exception e){
+            Utils.printStackTrace(e, creator.log);
         }
     }
 

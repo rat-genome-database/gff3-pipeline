@@ -63,6 +63,7 @@ public class CreateGff4GeneAgr {
         });
 
         System.out.println("active genes: "+activeGenes.size());
+Collections.shuffle(activeGenes);
         int i = 0;
         for( Gene gene: activeGenes ){
             i++;
@@ -374,6 +375,7 @@ public class CreateGff4GeneAgr {
                 case "snoRNA":
                     return "snoRNA";
                 case "vault_RNA":
+                case "Y_RNA":
                     return "ncRNA";
                 case "retained_intron": // no suitable mappings
                 case "antisense":
@@ -432,6 +434,7 @@ public class CreateGff4GeneAgr {
 
         switch(geneType) {
             case "protein-coding":
+            case "protein_coding":
                 return "protein_coding_gene";
             case "pseudogene":
             case "pseudo":
@@ -453,6 +456,8 @@ public class CreateGff4GeneAgr {
                 return "scRNA_gene";
             case "lincrna":
                 return "lincRNA_gene";
+            case "lncrna":
+                return "lncRNA_gene";
             case "mirna":
                 return "miRNA_gene";
             case "biological-region":
@@ -481,6 +486,16 @@ public class CreateGff4GeneAgr {
                 return "mt_tRNA";
             case "ribozyme":
                 return "ribozyme_gene";
+            case "ig_v_gene":
+                return "IG_V_gene";
+            case "tr_c_gene":
+                return "TR_C_Gene";
+            case "tr_j_gene":
+                return "TR_J_Gene";
+            case "tr_v_gene":
+                return "TR_V_Gene";
+            case "y_rna":
+                return "Y_RNA_gene";
             default:
                 throw new Exception("unsupported gene type "+geneType);
         }
@@ -490,6 +505,7 @@ public class CreateGff4GeneAgr {
 
         switch(geneType) {
             case "protein-coding":
+            case "protein_coding":
                 return "SO:0001217";
             case "pseudogene":
             case "pseudo":
@@ -511,6 +527,8 @@ public class CreateGff4GeneAgr {
                 return "SO:0001266";
             case "lincrna":
                 return "SO:0001641";
+            case "lncrna":
+                return "SO:0002127";
             case "biological-region":
                 return "SO:0001411";
             case "processed_transcript":
@@ -539,6 +557,16 @@ public class CreateGff4GeneAgr {
                 return "SO:0002129";
             case "ribozyme":
                 return "SO:0002181";
+            case "ig_v_gene":
+                return "SO:0002126";
+            case "tr_c_gene":
+                return "SO:0002134";
+            case "tr_j_gene":
+                return "SO:0002136";
+            case "tr_v_gene":
+                return "SO:0002137";
+            case "y_rna":
+                return "SO:0002359";
             default:
                 throw new Exception("unsupported gene type "+geneType);
         }
