@@ -63,7 +63,7 @@ public class CreateGff4GeneAgr {
         });
 
         System.out.println("active genes: "+activeGenes.size());
-Collections.shuffle(activeGenes);
+//Collections.shuffle(activeGenes);
         int i = 0;
         for( Gene gene: activeGenes ){
             i++;
