@@ -188,7 +188,7 @@ public class Manager {
 
             case RgdId.OBJECT_KEY_SSLPS:
                 CreateGff4SSLP create4Sslp = new CreateGff4SSLP();
-                if( mapKey>0 && toFile!=null ){
+                if( mapKey>0 && toDir!=null ){
                     CreateInfo info = new CreateInfo();
                     info.setMapKey(mapKey);
                     info.setToDir(toDir);
@@ -205,11 +205,14 @@ public class Manager {
             case RgdId.OBJECT_KEY_STRAINS:
                 CreateGff4CongenicStrains create4Strains = new CreateGff4CongenicStrains();
 
-                if( mapKey>0 && toFile!=null ){
-                    create4Strains.setMap_key(mapKey);
-                    create4Strains.setToFile(toFile);
-                    create4Strains.creategff4CongenicStrains(compress);
+                if( mapKey>0 && toDir!=null ){
 
+                    CreateInfo info = new CreateInfo();
+                    info.setMapKey(mapKey);
+                    info.setToDir(toDir);
+                    info.setSpeciesTypeKey(speciesTypekey);
+                    info.setCompress(compress);
+                    create4Strains.creategff4CongenicStrains(info);
                 }else{
                     throw new ArgumentsException("This Script requires '-mapKey: -toFile:' as parameter:\n" +
                             getUsage());
@@ -298,6 +301,10 @@ public class Manager {
                         case "proteinDomains":
                             CreateGff4ProteinDomains pdm = (CreateGff4ProteinDomains) (bf.getBean("proteinDomainManager"));
                             pdm.run();
+                            return true;
+                        case "strains":
+                            CreateGff4CongenicStrains s = (CreateGff4CongenicStrains) (bf.getBean("strainManager"));
+                            s.run();
                             return true;
                         case "Eva":
                             CreateGff4Eva em = (CreateGff4Eva) (bf.getBean("evaManager"));

@@ -47,22 +47,10 @@ $RUNLOAD -object:markers > markers.log
 mailx -s "[$SERVER]Pipeline to create Gff3 data for MARKERS ran" $EMAILLIST < markers.log
 
 
-
-
-
 ##### STRAINS
 
-$RUNLOAD -object:strain -species:RAT -mapKey:60 -toFile:$LOGDIR/Strain/Rat/rat34/ -compress  > ratStrain34.log
-mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Strain assembly 3.4 ran" $EMAILLIST < ratStrain34.log
-
-$RUNLOAD -object:strain -species:RAT -mapKey:70 -toFile:$LOGDIR/Strain/Rat/rat50/ -compress > ratStrain50.log
-mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Strain assembly 5.0 ran" $EMAILLIST < ratStrain50.log
-
-$RUNLOAD -object:strain -species:RAT -mapKey:360 -toFile:$LOGDIR/Strain/Rat/rat60/ -compress > ratStrain60.log
-mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Strain assembly 6.0 ran" $EMAILLIST < ratStrain60.log
-
-$RUNLOAD -object:strain -species:RAT -mapKey:372 -toFile:$LOGDIR/Strain/Rat/rat72/ -compress > ratStrain72.log
-mailx -s "[$SERVER]Pipeline to create Gff3 data for Rat Strain assembly 7.2 ran" $EMAILLIST < ratStrain72.log
+$RUNLOAD -object:strains > strains.log
+mailx -s "[$SERVER]Pipeline to create Gff3 data for STRAINS ran" $EMAILLIST < strains.log
 
 
 ##### DISEASE ONTOLOGY

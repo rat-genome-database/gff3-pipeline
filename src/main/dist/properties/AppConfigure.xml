@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Jan 19, 2022 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Feb 03, 2022 --" />
 
         <property name="speciesMappings">
             <map>
@@ -76,6 +76,17 @@
                 <value>species:HUMAN  mapKey:17  toDir:data/Marker/Human/ compress:yes</value>
                 <value>species:MOUSE  mapKey:18  toDir:data/Marker/Mouse/ compress:yes</value>
                 <value>species:MOUSE  mapKey:35  toDir:data/Marker/Mouse/ compress:yes</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="strainManager" class="edu.mcw.rgd.gff3.CreateGff4CongenicStrains">
+        <property name="processedAssemblies">
+            <list>
+                <value>species:RAT  mapKey:60  toDir:data/Strain/Rat/ compress:yes  assemblySymbol:rn3.4</value>
+                <value>species:RAT  mapKey:70  toDir:data/Strain/Rat/ compress:yes  assemblySymbol:rn5</value>
+                <value>species:RAT  mapKey:360 toDir:data/Strain/Rat/ compress:yes  assemblySymbol:rn6</value>
+                <value>species:RAT  mapKey:372 toDir:data/Strain/Rat/ compress:yes  assemblySymbol:rn7</value>
             </list>
         </property>
     </bean>

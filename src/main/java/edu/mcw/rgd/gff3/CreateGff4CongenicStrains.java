@@ -1,9 +1,12 @@
 package edu.mcw.rgd.gff3;
 
 import edu.mcw.rgd.datamodel.MapData;
+import edu.mcw.rgd.datamodel.SpeciesType;
 import edu.mcw.rgd.datamodel.Strain;
 import edu.mcw.rgd.datamodel.ontology.Annotation;
+import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
+import edu.mcw.rgd.process.mapping.MapManager;
 
 import java.util.*;
 
@@ -12,49 +15,48 @@ import java.util.*;
  * Date: Mar 23, 2011
  */
 public class CreateGff4CongenicStrains {
-    String toFile;
-    RgdGff3Dao dao = new RgdGff3Dao();
-    int map_key;
-    String source = "RGD_Rat_Strain";
-    
-    int strainsWithDiseaseAnn;
-    int strainsNoDisAnn;
-    int strainsWithPhenoAnn;
-    int strainsNoPhenoAnn;
-    int strainsNoAnn;
-    int strainsWithAnn;
 
-    public void creategff4CongenicStrains(boolean compress) throws Exception{
+    private RgdGff3Dao dao = new RgdGff3Dao();
+    private List<String> processedAssemblies;
+
+    final String source = "RGD_Rat_Strain";
+    
+    /**
+     * load the species list and assemblies from properties/AppConfigure.xml
+     */
+    public void run() throws Exception {
+        for( String assemblyInfo: processedAssemblies ) {
+            CreateInfo info = new CreateInfo();
+            info.parseFromString(assemblyInfo);
+
+            creategff4CongenicStrains(info);
+        }
+    }
+
+    public void creategff4CongenicStrains(CreateInfo info) throws Exception{
+
+        CounterPool counters = new CounterPool();
+
+        String speciesName = SpeciesType.getCommonName(info.getSpeciesTypeKey());
+
+        System.out.println("START Strain GFF3 Generator for  "+speciesName+"  MAP_KEY="+info.getMapKey()+"  ASSEMBLY "+ MapManager.getInstance().getMap(info.getMapKey()).getName());
+        System.out.println("========================");
 
         //create new file to write and add first line ##gff-version-3 is mandatory..!!!!
-        String gffFileCongenic = getToFile()+"RatCongenicStrains_RGD.gff3";
-        String RATMINEGffFile = getToFile()+"RatStrains_RATMINE.gff3";
-        String gffFileMutant = getToFile()+"RatMutantStrains_RGD.gff3";
+        String gffFileCongenic = info.getToDir()+speciesName+"_RatCongenicStrains_RGD.gff3";
+        String RATMINEGffFile = info.getToDir()+speciesName+"_RatStrains_RATMINE.gff3";
+        String gffFileMutant = info.getToDir()+speciesName+"_RatMutantStrains_RGD.gff3";
 
         //initialization of the gff3writer
-        Gff3ColumnWriter gff3WriterCongenic = new Gff3ColumnWriter(gffFileCongenic, false, compress);
-        Gff3ColumnWriter gff3WriterRATMINE = new Gff3ColumnWriter(RATMINEGffFile, false, compress);
-        Gff3ColumnWriter gff3WriterMutant = new Gff3ColumnWriter(gffFileMutant, false, compress);
+        Gff3ColumnWriter gff3WriterCongenic = new Gff3ColumnWriter(gffFileCongenic, false, info.isCompress());
+        Gff3ColumnWriter gff3WriterRATMINE = new Gff3ColumnWriter(RATMINEGffFile, false, info.isCompress());
+        Gff3ColumnWriter gff3WriterMutant = new Gff3ColumnWriter(gffFileMutant, false, info.isCompress());
 
         // get all active strains having positions on the given assembly
-        List<Strain> strainList = dao.getMappedStrains(map_key);
+        List<Strain> strainList = dao.getMappedStrains(info.getMapKey());
 
-        int congenicStrains=0;
-        int mutantStrains=0;
-        int mappedStrainCount=0;
-        int noMapPos=0;
-        int moreThanOneMapPosCount=0;
-
-        strainsWithDiseaseAnn=0;
-        strainsNoDisAnn=0;
-        strainsWithPhenoAnn=0;
-        strainsNoPhenoAnn=0;
-        strainsNoAnn=0;
-        strainsWithAnn=0;
-
-
-        //for each strain rgdid... get the annotations from the full annot table..
-        // and get the map data positions.
+        //for each strain get the annotations from full annot table
+        // and get the map data positions
         for(Strain strain: strainList){
 
             // we only have map positions for congenic and mutant strains
@@ -68,9 +70,9 @@ public class CreateGff4CongenicStrains {
                 continue;
             }
             if( isCongenic )
-                congenicStrains++;
+                counters.increment("congenicStrains");
             if( isMutant )
-                mutantStrains++;
+                counters.increment("mutantStrains");
 
 
             String note = strain.getOrigin();
@@ -87,20 +89,20 @@ public class CreateGff4CongenicStrains {
             String subStr = Utils.NVL(strain.getSubstrain(), "NA");
             String src = Utils.NVL(strain.getSource(), "NA");
 
-            Map<String,String> annotAttributes = processAnnotations(strain.getRgdId());
+            Map<String,String> annotAttributes = processAnnotations(strain.getRgdId(), counters);
 
 
-            List<MapData> newmdList = dao.getMapData(strain.getRgdId(), map_key);
+            List<MapData> newmdList = dao.getMapData(strain.getRgdId(), info.getMapKey());
 
             if(newmdList.size()>1){
-                moreThanOneMapPosCount++;
+                counters.increment("moreThanOneMapPosCount");
                 if( isCongenic ) {
                     strainTypeLc = "multicongenic";
                 }
             }else if(newmdList.size()==1){
-                mappedStrainCount++;
+                counters.increment("mappedStrainCount");
             }else if(newmdList.size()==0){
-                noMapPos++;
+                counters.increment("noMapPos");
             }
 
             //for each new map data list
@@ -163,33 +165,32 @@ public class CreateGff4CongenicStrains {
         gff3WriterRATMINE.close();
         gff3WriterMutant.close();
 
-        System.out.println("\nCongenic Strain records processed: "+ congenicStrains);
-        System.out.println("Mutant Strain records processed: "+ mutantStrains);
-        System.out.println("Total count of Strain having only one Map position: "+ mappedStrainCount);
-        System.out.println("Number of Strains with more than one Map position: "+ moreThanOneMapPosCount);
-        System.out.println("Number of Strains having NO Map positions: "+ noMapPos);
-        System.out.println("Number of Strains with Annotation: "+ strainsWithAnn);
-        System.out.println("Number of Strains with NO Annotations at all: "+ strainsNoAnn);
-        System.out.println("Number of Strain Records with Disease annotations: "+ strainsWithDiseaseAnn);
-        System.out.println("Number of Strain Records with NO Disease annotations: "+ strainsNoDisAnn);
-        System.out.println("Number of Strain Records with Phenotype annotations: "+ strainsWithPhenoAnn);
-        System.out.println("Number of Strain Records with NO Phenotype annotations: "+ strainsNoPhenoAnn);
+        System.out.println("\nCongenic Strain records processed: "+ counters.get("congenicStrains"));
+        System.out.println("Mutant Strain records processed: "+ counters.get("mutantStrains"));
+        System.out.println("Total count of Strain having only one Map position: "+ counters.get("mappedStrainCount"));
+        System.out.println("Number of Strains with more than one Map position: "+ counters.get("moreThanOneMapPosCount"));
+        System.out.println("Number of Strains having NO Map positions: "+ counters.get("noMapPos"));
+        System.out.println("Number of Strains with Annotation: "+ counters.get("strainsWithAnn"));
+        System.out.println("Number of Strains with NO Annotations at all: "+ counters.get("strainsNoAnn"));
+        System.out.println("Number of Strain Records with Disease annotations: "+ counters.get("strainsWithDiseaseAnn"));
+        System.out.println("Number of Strain Records with NO Disease annotations: "+ counters.get("strainsNoDisAnn"));
+        System.out.println("Number of Strain Records with Phenotype annotations: "+ counters.get("strainsWithPhenoAnn"));
+        System.out.println("Number of Strain Records with NO Phenotype annotations: "+ counters.get("strainsNoPhenoAnn"));
         System.out.println("\nGFF3 File SUCCESSFUL!");
-
     }
 
-    Map<String,String> processAnnotations(int strainRgdId) throws Exception {
+    Map<String,String> processAnnotations(int strainRgdId, CounterPool counters) throws Exception {
 
         List<Annotation> disAnn = new ArrayList<>();
         List<Annotation> pheAnn = new ArrayList<>();
 
         List<Annotation> annList = dao.getAnnotations(strainRgdId);
         if( annList.isEmpty() ){
-            strainsNoAnn++;
+            counters.increment("strainsNoAnn");
             return Collections.emptyMap();
         }
 
-        strainsWithAnn++;
+        counters.increment("strainsWithAnn");
         Map<String,String> annotAttributes = new HashMap<>();
 
         for(Annotation annObj:annList){
@@ -201,7 +202,7 @@ public class CreateGff4CongenicStrains {
         }
 
         if(disAnn.size()!=0){
-            strainsWithDiseaseAnn++;
+            counters.increment("strainsWithDiseaseAnn");
 
             String disOntValues="";
             for( Annotation disease: disAnn ){
@@ -212,11 +213,11 @@ public class CreateGff4CongenicStrains {
 
             annotAttributes.put("DiseaseOntologyAssociation",disOntValues);
         }else {
-            strainsNoDisAnn++;
+            counters.increment("strainsNoDisAnn");
         }
 
         if(pheAnn.size()!=0){
-            strainsWithPhenoAnn++;
+            counters.increment("strainsWithPhenoAnn");
 
             String pheOntValues="";
 
@@ -228,7 +229,7 @@ public class CreateGff4CongenicStrains {
 
             annotAttributes.put("PhenotypeOntologyAssociation",pheOntValues);
         }else {
-            strainsNoPhenoAnn++;
+            counters.increment("strainsNoPhenoAnn");
         }
 
         return annotAttributes;
@@ -246,18 +247,11 @@ public class CreateGff4CongenicStrains {
         }
     }
 
-    public String getToFile() {
-        return toFile;
+    public void setProcessedAssemblies(List processedAssemblies) {
+        this.processedAssemblies = processedAssemblies;
     }
 
-    public void setToFile(String toFile) {
-        this.toFile = toFile;
-    }
-    public int getMap_key() {
-        return map_key;
-    }
-
-    public void setMap_key(int map_key) {
-        this.map_key = map_key;
+    public List getProcessedAssemblies() {
+        return processedAssemblies;
     }
 }
