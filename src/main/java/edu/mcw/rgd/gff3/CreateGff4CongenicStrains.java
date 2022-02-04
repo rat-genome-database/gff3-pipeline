@@ -34,23 +34,32 @@ public class CreateGff4CongenicStrains {
     }
 
     public void creategff4CongenicStrains(CreateInfo info) throws Exception{
-
         CounterPool counters = new CounterPool();
 
         String speciesName = SpeciesType.getCommonName(info.getSpeciesTypeKey());
+        String assemblySymbol = info.getAssemblySymbol()!=null ? info.getAssemblySymbol() : Gff3Utils.getAssemblySymbol(info.getMapKey());
 
         System.out.println("START Strain GFF3 Generator for  "+speciesName+"  MAP_KEY="+info.getMapKey()+"  ASSEMBLY "+ MapManager.getInstance().getMap(info.getMapKey()).getName());
         System.out.println("========================");
 
-        //create new file to write and add first line ##gff-version-3 is mandatory..!!!!
-        String gffFileCongenic = info.getToDir()+speciesName+"_RatCongenicStrains_RGD.gff3";
-        String RATMINEGffFile = info.getToDir()+speciesName+"_RatStrains_RATMINE.gff3";
-        String gffFileMutant = info.getToDir()+speciesName+"_RatMutantStrains_RGD.gff3";
+        String gffFileCongenic = info.getToDir()+"/"+assemblySymbol+"_CongenicStrains.gff3";
+        String RATMINEGffFile = info.getToDir()+"/"+assemblySymbol+"_Strains_RATMINE.gff3";
+        String gffFileMutant = info.getToDir()+"/"+assemblySymbol+"_MutantStrains.gff3";
 
         //initialization of the gff3writer
         Gff3ColumnWriter gff3WriterCongenic = new Gff3ColumnWriter(gffFileCongenic, false, info.isCompress());
         Gff3ColumnWriter gff3WriterRATMINE = new Gff3ColumnWriter(RATMINEGffFile, false, info.isCompress());
         Gff3ColumnWriter gff3WriterMutant = new Gff3ColumnWriter(gffFileMutant, false, info.isCompress());
+
+        String header = "# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n";
+        header += "# Species: "+ speciesName+"\n";
+        header += "# Assembly: "+ MapManager.getInstance().getMap(info.getMapKey()).getName()+"\n";
+        header += "# Primary Contact: mtutaj@mcw.edu\n";
+        header += "# Generated: "+new Date()+"\n";
+
+        gff3WriterCongenic.print(header);
+        gff3WriterMutant.print(header);
+
 
         // get all active strains having positions on the given assembly
         List<Strain> strainList = dao.getMappedStrains(info.getMapKey());

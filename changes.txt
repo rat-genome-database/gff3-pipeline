@@ -1,3 +1,6 @@
+Feb 04, 2022
+  strains: added verbose gff3 header
+
 Feb 03, 2022
   strains: simplified code for handling strains
 
