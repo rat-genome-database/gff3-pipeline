@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Feb 04, 2022 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Feb 23, 2022 --" />
 
         <property name="speciesMappings">
             <map>

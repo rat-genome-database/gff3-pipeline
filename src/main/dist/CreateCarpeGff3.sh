@@ -15,6 +15,12 @@ RUNLOAD="$APP_HOME/run.sh"
 
 cd $APP_HOME
 
+# mRatBN7.2 samples
+LOGFILE=cron_ratcn72.log
+rm $LOGFILE
+$RUNLOAD -patientID:372 -source:CN -toFile:$OUTDIR/rat7/ -chr:$CHR_RAT -compress  2>&1 | tee -a $LOGFILE
+mailx -s "[$SERVER]Pipeline to create Gff3 data for ratcn 7.2 ran" $EMAILLIST<$LOGFILE
+
 # Rnor6.0 samples
 LOGFILE=cron_ratcn60.log
 rm $LOGFILE

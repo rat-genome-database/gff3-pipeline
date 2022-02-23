@@ -19,16 +19,18 @@ mainPipelineOutput="/home/rgddata/pipelines/RGDGff3Pipeline/data/strain_specific
 
 ###################################
 
-assemblies=( "6" "5" "3_4" )
+assemblies=( "7" "6" "5" "3_4" )
 
 for ASSEMBLY in "${assemblies[@]}"
 do
 
         mainOrgDir="Rat/rn${ASSEMBLY}"
-        datasetDir="data_rgd${ASSEMBLY}"
         organism=Rat
+        datasetDir="data_rgd${ASSEMBLY}"
         assembly="data_rgd${ASSEMBLY}"
-
+        if [[ ${ASSEMBLY} == "7" ]]; then
+          datasetDir="data_rn7_2"
+        fi
 
         printf "***********************************\n"
         printf "Beginning processing of Strain Specific Damaging Variants for assembly ${ASSEMBLY} ...\n"
