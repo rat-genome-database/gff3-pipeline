@@ -15,6 +15,7 @@ if [ "$SERVER" == "HANSEN" ]; then
     scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Eva/EVA_CanFam3.1.gff3.gz .
     scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Eva/EVA_Sscrofa11.1.gff3.gz .
     scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Eva/EVA_Sscrofa10.2.gff3.gz .
+    scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Eva/EVA_ChlSab1.1.gff3.gz .
     cd ../../../../..
 else
     GFF3_LOC="/home/rgddata/pipelines/RGDGff3Pipeline/data/Eva"
@@ -147,5 +148,25 @@ else
     echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
 fi
 
+
+echo
+echo "Green Monkey 1.1"
+
+TMP_INPUT_FILE=$GFF3_LOC/EVA_ChlSab1.1.gff3.gz
+if [ -f $TMP_INPUT_FILE ]; then
+    gunzip -c $TMP_INPUT_FILE > /tmp/grnMonkey1_EVA.gff3
+
+    ./remove-track.pl --dir /jbrowse/data_chlSab2 --trackLabel EVA --delete
+
+    ./flatfile-to-json.pl \
+      --gff /tmp/grnMonkey1_EVA.gff3 \
+      --trackLabel EVA \
+      --key "EVA" \
+      --out /jbrowse/data_chlSab2 \
+      --trackType JBrowse/View/Track/CanvasFeatures \
+      --config "{ \"category\" : \"Variants/DbSNPs\" }"
+else
+    echo "ERROR: File not found: $TMP_INPUT_FILE" |  mailx -s "[$SERVER] GFF3 JBrowse Loader: missing file $TMP_INPUT_FILE" $EMAILLIST
+fi
 
 echo "=== OK ==="
