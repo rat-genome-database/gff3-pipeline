@@ -20,14 +20,14 @@ public class NcbiPrep {
 
     public static void main(String[] args) throws Exception {
 
-        int mapKey = 1313;
-        boolean isScaffoldAssembly = true;
+        int mapKey = 634;
+        boolean isScaffoldAssembly = false;
 
-        // for scaffold assemblies, prefix must be an empty string; for chromsome assemblies it must be 'Chr'
+        // for scaffold assemblies, prefix must be an empty string; for chromosome assemblies it must be 'Chr'
         final String chrPrefix = isScaffoldAssembly ? "" : "Chr";
 
-        String fname = "/Users/mtutaj/Downloads/GCF_015252025.1_Vero_WHO_p1.0_genomic.fna.gz";
-        String outDir = "/data/ref/fasta/vero_who_p1.0";
+        String fname = "/Users/mtutaj/Downloads/GCF_014441545.1_ROS_Cfam_1.0_genomic.fna.gz";
+        String outDir = "/data/ref/fasta/ROS_Cfam_1.0";
 
         MapDAO dao = new MapDAO();
         List<Chromosome> chromosomes = dao.getChromosomes(mapKey);
