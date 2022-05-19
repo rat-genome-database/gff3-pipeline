@@ -2,16 +2,12 @@ package edu.mcw.rgd.gff3;
 
 import edu.mcw.rgd.process.FileDownloader;
 import edu.mcw.rgd.process.Utils;
-import edu.mcw.rgd.process.mapping.MapManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.GZIPOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author mtutaj
@@ -29,25 +25,47 @@ import java.util.zip.GZIPOutputStream;
  */
 public class EnsemblPrep {
     private Map<Integer, String> ensemblGff;
+    private Map<Integer, String> ensemblJBrowseDataDirs;
+    private String outDir;
     Logger log = LogManager.getLogger("ensembl");
+    SimpleDateFormat sdt = new SimpleDateFormat("yyyyMMdd");
 
     public void run() throws Exception {
 
+        // ensure output directory does exist
+        File outputDir = new File(getOutDir());
+        outputDir.mkdirs();
+
+        String shName = "loadAllEnsembl_"+sdt.format(new Date())+".sh";
+        BufferedWriter sh = Utils.openWriter(shName);
+        sh.write("#!/bin/bash\n");
+        sh.write("SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`\n");
+        sh.write("EMAILLIST=mtutaj@mcw.edu,llamers@mcw.edu\n");
+        sh.write("JBROWSE_HOME=\"/rgd/JBrowse-1.16.3/\"\n");
+        sh.write("GFF3_LOC=/home/rgddata/pipelines/RGDGff3Pipeline/"+getOutDir()+"\n");
+        sh.write("\n");
+        sh.write("cd $JBROWSE_HOME\n");
+        sh.write("set -e\n");
+        sh.write("\n");
+
         // open input and output files
-        Set<Integer> mapKeys =ensemblGff.keySet();
+        Set<Integer> mapKeys = ensemblGff.keySet();
         for(Integer mapKey : mapKeys) {
-            String inputFiles = downloadEnsemblGffFile(ensemblGff.get(mapKey),mapKey);
-            String assemblyName = MapManager.getInstance().getMap(mapKey).getName();
-            log.info("Downloaded gff file from ensembl with assembly "+assemblyName);
-            int pos = inputFiles.indexOf(".gff3");
-            String modelFileName = inputFiles.substring(0, pos) + "-model" + inputFiles.substring(pos);
-            String featureFileName = inputFiles.substring(0, pos) + "-feature" + inputFiles.substring(pos);
+            String inputFile = downloadEnsemblGffFile(ensemblGff.get(mapKey));
+            int pos = inputFile.indexOf(".gff3");
+            log.info("Downloaded gff file from Ensembl: "+inputFile);
+            String modelFileName = inputFile.substring(0, pos) + "-model" + inputFile.substring(pos);
+            String featureFileName = inputFile.substring(0, pos) + "-feature" + inputFile.substring(pos);
 
-            BufferedReader in = Utils.openReader(inputFiles);
-            BufferedWriter modelFile = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(modelFileName))));
-            BufferedWriter featureFile = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(featureFileName))));
+            int lastSlashPos = inputFile.lastIndexOf("/");
+            int dotPos = inputFile.indexOf(".",lastSlashPos);
+            String assemblyName = inputFile.substring(dotPos+1, pos); // f.e. GRCh38.106
 
-            log.info("opened file " + inputFiles);
+            BufferedReader in = Utils.openReader(inputFile);
+            BufferedWriter modelFile = Utils.openWriter(modelFileName);
+            BufferedWriter featureFile = Utils.openWriter(featureFileName);
+
+            log.info("opened file " + inputFile);
             log.info("writing file " + modelFileName);
             log.info("writing file " + featureFileName);
 
@@ -56,7 +74,7 @@ public class EnsemblPrep {
             int modelFileLines = 0;
             int featureFileLines = 0;
 
-            Map<String, String> genbankToRefseqAccMap = parseSupercontigs(inputFiles);
+            Map<String, String> genbankToRefseqAccMap = parseSupercontigs(inputFile);
             Set<String> chromosomes = new HashSet<>();
 
             String line;
@@ -92,9 +110,9 @@ public class EnsemblPrep {
                         String genbankAcc = line.substring(0, chrLen);
                         String refseqAcc = genbankToRefseqAccMap.get(genbankAcc);
                         if (refseqAcc == null) {
-                            System.out.println("*** WARN: null scaffold acc");
+                            log.debug("*** WARN: null scaffold acc "+genbankAcc);
                         }
-                        if (chromosomes.add(refseqAcc)) {
+                        else if (chromosomes.add(refseqAcc)) {
                             log.info(refseqAcc);
                         }
                         line = refseqAcc + line.substring(chrLen);
@@ -124,8 +142,47 @@ public class EnsemblPrep {
             log.info("data lines written to model file: " + modelFileLines);
             log.info("data lines written to feature file: " + featureFileLines);
             log.info("***********************\n\n");
+
+            // write code for gff3 JBrowse loading script
+            String JBrowseDataDir = getEnsemblJBrowseDataDirs().get(mapKey);
+            if( !Utils.isStringEmpty(JBrowseDataDir) ) {
+                sh.write("echo \"" + assemblyName + "\"\n");
+                sh.write("\n");
+
+                lastSlashPos = modelFileName.lastIndexOf("/");
+                String modelFileName2 = modelFileName.substring(lastSlashPos+1);
+                String tmpGffFile = "/tmp/model." + mapKey + ".gff3";
+
+                sh.write("\n");
+                sh.write("gunzip -c ${GFF3_LOC}" + modelFileName2 + " > "+tmpGffFile+"\n");
+                sh.write("bin/remove-track.pl --dir "+JBrowseDataDir+" --trackLabel Ensembl_genes --delete\n");
+                sh.write("bin/flatfile-to-json.pl --gff "+tmpGffFile+" --trackLabel Ensembl_genes \\\n");
+                sh.write("    --key \"Ensembl ("+assemblyName+") Genes and Transcripts\" \\\n");
+                sh.write("    --out "+JBrowseDataDir+" \\\n");
+                sh.write("    --trackType JBrowse/View/Track/CanvasFeatures \\\n");
+                sh.write("    --config \"{ \\\"category\\\" : \\\"Gene Models/Ensembl Gene Features\\\" }\"\n");
+                sh.write("\n");
+
+
+                lastSlashPos = featureFileName.lastIndexOf("/");
+                String featureFileName2 = modelFileName.substring(lastSlashPos+1);
+                tmpGffFile = "/tmp/feature." + mapKey + ".gff3";
+
+                sh.write("\n");
+                sh.write("gunzip -c ${GFF3_LOC}" + featureFileName2 + " > "+tmpGffFile+"\n");
+                sh.write("bin/remove-track.pl --dir "+JBrowseDataDir+" --trackLabel Ensembl_features --delete\n");
+                sh.write("bin/flatfile-to-json.pl --gff "+tmpGffFile+" --trackLabel Ensembl_features \\\n");
+                sh.write("    --key \"Ensembl ("+assemblyName+") Features\" \\\n");
+                sh.write("    --out "+JBrowseDataDir+" \\\n");
+                sh.write("    --trackType JBrowse/View/Track/CanvasFeatures \\\n");
+                sh.write("    --config \"{ \\\"category\\\" : \\\"Gene Models/Ensembl Gene Features\\\" }\"\n");
+                sh.write("\n");
+                sh.write("echo \"======\"\n");
+                sh.write("\n");
+            }
         }
 
+        sh.close();
     }
 
     static Map<String,String> parseSupercontigs(String inputFile) throws IOException {
@@ -178,14 +235,15 @@ public class EnsemblPrep {
 
         return genbankToRefseqAccMap;
     }
-    String downloadEnsemblGffFile(String file, int key) throws Exception{
-        String assemblyName = MapManager.getInstance().getMap(key).getName();
-        String[] assembly = assemblyName.split(" ");
+
+    String downloadEnsemblGffFile(String file) throws Exception{
+
+        int lastSlashPos = file.lastIndexOf('/');
+        String localFileName = getOutDir()+file.substring(lastSlashPos+1);
         FileDownloader downloader = new FileDownloader();
         downloader.setExternalFile(file);
-        downloader.setLocalFile("data/Ensembl/"+assembly[0]+"_"+assembly[1]+".gff3");
+        downloader.setLocalFile(localFileName);
         downloader.setUseCompression(true);
-//        downloader.setPrependDateStamp(true);
         return downloader.downloadNew();
     }
 
@@ -195,5 +253,21 @@ public class EnsemblPrep {
 
     public Map<Integer, String> getEnsemblGff() {
         return ensemblGff;
+    }
+
+    public String getOutDir() {
+        return outDir;
+    }
+
+    public void setOutDir(String outDir) {
+        this.outDir = outDir;
+    }
+
+    public Map<Integer, String> getEnsemblJBrowseDataDirs() {
+        return ensemblJBrowseDataDirs;
+    }
+
+    public void setEnsemblJBrowseDataDirs(Map<Integer, String> ensemblJBrowseDataDirs) {
+        this.ensemblJBrowseDataDirs = ensemblJBrowseDataDirs;
     }
 }

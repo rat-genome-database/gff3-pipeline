@@ -1,5 +1,6 @@
-# generate gff3 files for Eva Variants
-#
+# 1) download gff3 files from Ensembl for species configured in properties/AppConfigure.xml
+# 2) split those files into model file and feature file
+# 3) generate bash script to load those files into JBrowse as JBrowse tracks
 . /etc/profile
 
 APP_HOME=/home/rgddata/pipelines/RGDGff3Pipeline
@@ -11,8 +12,7 @@ DATA_RELEASE_DIR=/home/rgddata/data_release/GFF3
 
 SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
 if [ "$SERVER" == "REED" ]; then
-  EMAILLIST=jrsmith@mcw.edu,RGD.Developers@mcw.edu
-#  EMAILLIST=mtutaj@mcw.edu,llamers@mcw.edu
+  EMAILLIST=mtutaj@mcw.edu,llamers@mcw.edu
 else
   EMAILLIST=mtutaj@mcw.edu,llamers@mcw.edu
 fi

@@ -1,3 +1,7 @@
+May 19, 2022
+  updated Ensembl JBrowse tracks from build 101 to 106; new assemblies: mRatBN7.2.106, GRCm39.106, ROS_Cfam.1.0.106
+  added generation of JBrowse tracks loading script
+
 Feb 23, 2022
   strain specific variants: added generation and loading of strain specific variant and damaging variants for rn7
 
