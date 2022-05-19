@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build May 18, 2022 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build May 19, 2022 --" />
 
         <property name="speciesMappings">
             <map>
@@ -37,7 +37,8 @@
                 <value>species:BONOBO     mapKey:511  toDir:data/Gene/Bonobo/     compress:yes</value>
                 <value>species:BONOBO     mapKey:513  toDir:data/Gene/Bonobo/     compress:yes</value>
                 <value>species:CHINCHILLA mapKey:44   toDir:data/Gene/Chinchilla/ compress:yes</value>
-                <value>species:DOG        mapKey:631  toDir:data/Gene/Dog/        compress:yes</value>
+                <value>species:DOG        mapKey:631  toDir:data/Gene/Dog/        compress:yes</value><!-- canFam3 -->
+                <value>species:DOG        mapKey:634  toDir:data/Gene/Dog/        compress:yes</value><!-- ROS_CFam_1.0 -->
                 <value>species:MOLERAT    mapKey:1410 toDir:data/Gene/Molerat/    compress:yes</value>
                 <value>species:PIG        mapKey:910  toDir:data/Gene/Pig/        compress:yes</value>
                 <value>species:PIG        mapKey:911  toDir:data/Gene/Pig/        compress:yes</value>
