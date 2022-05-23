@@ -165,7 +165,7 @@ public class EnsemblPrep {
 
 
                 lastSlashPos = featureFileName.lastIndexOf("/");
-                String featureFileName2 = modelFileName.substring(lastSlashPos+1);
+                String featureFileName2 = featureFileName.substring(lastSlashPos+1);
                 tmpGffFile = "/tmp/feature." + mapKey + ".gff3";
 
                 sh.write("\n");
