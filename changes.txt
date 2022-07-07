@@ -1,3 +1,6 @@
+Jul 07, 2022
+  agr: tr biotype: fix for genes of type 'gene'
+
 May 23, 2022
   fixed typo in EnsemblPrep
 
