@@ -342,6 +342,7 @@ public class CreateGff4GeneAgr {
                 case "polymorphic_pseudogene":
                 case "processed_pseudogene":
                 case "unprocessed_pseudogene":
+                case "translated_processed_pseudogene":
                 case "translated_unprocessed_pseudogene":
                 case "transcribed_processed_pseudogene":
                 case "transcribed_unprocessed_pseudogene":
