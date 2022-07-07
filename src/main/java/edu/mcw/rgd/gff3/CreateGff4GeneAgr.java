@@ -48,16 +48,16 @@ public class CreateGff4GeneAgr {
         gff3Writer.print("#!data-source RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
         gff3Writer.print("#!assembly: "+ MapManager.getInstance().getMap(mapKey).getName()+"\n");
         if( mapKey==372 ) {
-            gff3Writer.print("#!annotationSource RefSeq 108\n");     // https://www.ncbi.nlm.nih.gov/genome/annotation_euk/Rattus_norvegicus/108/
-            gff3Writer.print("#!annotationSource ENSEMBL 105.72\n"); // https://m.ensembl.org/Rattus_norvegicus/Info/Annotation
+            gff3Writer.print("#!annotationSource RefSeq 108\n");     // https://www.ncbi.nlm.nih.gov/data-hub/genome/GCF_015227675.2/
+            gff3Writer.print("#!annotationSource ENSEMBL 106.72\n"); // https://m.ensembl.org/Rattus_norvegicus/Info/Annotation
         } else if( mapKey==38 ) {
-            gff3Writer.print("#!annotationSource RefSeq 109.20211119\n");     // https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.39
-            gff3Writer.print("#!annotationSource ENSEMBL 105.38\n"); // https://m.ensembl.org/Homo_sapiens/Info/Annotation
+            gff3Writer.print("#!annotationSource RefSeq 110 (GRCh38.p14)\n");     // https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.40
+            gff3Writer.print("#!annotationSource ENSEMBL 106.38\n"); // https://m.ensembl.org/Homo_sapiens/Info/Annotation
         }
         gff3Writer.print("#!date-produced "+sdt.format(new Date())+"\n");
         gff3Writer.print("#!species "+ species+"\n");
         gff3Writer.print("#!primary-contact mtutaj@mcw.edu\n");
-        gff3Writer.print("#!tool AGR GFF3 extractor  v 2022-01-20\n");
+        gff3Writer.print("#!tool AGR GFF3 extractor  v 2022-07-07\n");
 
         List<Gene> activeGenes = dao.getActiveGenes(speciesTypeKey);
         Collections.sort(activeGenes, new Comparator<Gene>() {
@@ -321,6 +321,7 @@ public class CreateGff4GeneAgr {
                     if (tr.getAccId().startsWith("XM_") || tr.getAccId().startsWith("NM_")) {
                         return "mRNA";
                     }
+                    return "transcript";
             }
         } else {
             switch(tr.getType()) {
@@ -341,6 +342,7 @@ public class CreateGff4GeneAgr {
                 case "polymorphic_pseudogene":
                 case "processed_pseudogene":
                 case "unprocessed_pseudogene":
+                case "translated_processed_pseudogene":
                 case "translated_unprocessed_pseudogene":
                 case "transcribed_processed_pseudogene":
                 case "transcribed_unprocessed_pseudogene":
