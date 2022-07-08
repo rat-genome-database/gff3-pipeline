@@ -60,7 +60,8 @@ public class CreateGff4Eva {
         Map<String, ArrayList<String>> rsSoCheck = new HashMap<>();
         int dataLinesWritten = 0;
         for(String chr : chromosomes) {
-
+            if (mapKey!=631)
+                rsSoCheck = new HashMap<>();
             List<Eva> data = dao.getEvaObjectsbyKeyandChrom(mapKey,chr);
             log.debug(" "+assemblyName+": data lines for Eva in chrom "+chr+": "+data.size());
 
