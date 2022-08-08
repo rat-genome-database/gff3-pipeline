@@ -49,15 +49,15 @@ public class CreateGff4GeneAgr {
         gff3Writer.print("#!assembly: "+ MapManager.getInstance().getMap(mapKey).getName()+"\n");
         if( mapKey==372 ) {
             gff3Writer.print("#!annotationSource RefSeq 108\n");     // https://www.ncbi.nlm.nih.gov/data-hub/genome/GCF_015227675.2/
-            gff3Writer.print("#!annotationSource ENSEMBL 106.72\n"); // https://m.ensembl.org/Rattus_norvegicus/Info/Annotation
+            gff3Writer.print("#!annotationSource ENSEMBL 107.72\n"); // https://m.ensembl.org/Rattus_norvegicus/Info/Annotation
         } else if( mapKey==38 ) {
             gff3Writer.print("#!annotationSource RefSeq 110 (GRCh38.p14)\n");     // https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.40
-            gff3Writer.print("#!annotationSource ENSEMBL 106.38\n"); // https://m.ensembl.org/Homo_sapiens/Info/Annotation
+            gff3Writer.print("#!annotationSource ENSEMBL 107.38\n"); // https://m.ensembl.org/Homo_sapiens/Info/Annotation
         }
         gff3Writer.print("#!date-produced "+sdt.format(new Date())+"\n");
         gff3Writer.print("#!species "+ species+"\n");
         gff3Writer.print("#!primary-contact mtutaj@mcw.edu\n");
-        gff3Writer.print("#!tool AGR GFF3 extractor  v 2022-07-07\n");
+        gff3Writer.print("#!tool AGR GFF3 extractor  v 2022-08-08\n");
 
         List<Gene> activeGenes = dao.getActiveGenes(speciesTypeKey);
         Collections.sort(activeGenes, new Comparator<Gene>() {
@@ -201,7 +201,7 @@ public class CreateGff4GeneAgr {
                                 attributes.put("Dbxref", trDbXrefs);
                             }
 
-                            String trBiotype = getTrBiotype(gType, gene.getName(), tr, i);
+                            String trBiotype = getTrBiotype(gType, tr);
                             gff3Writer.writeFirst8Columns(trMd.getChromosome(), dbName, trBiotype, trMd.getStartPos(), trMd.getStopPos(), ".", trMd.getStrand(), ".");
                             gff3Writer.writeAttributes4Gff3(attributes);
 
@@ -284,7 +284,7 @@ public class CreateGff4GeneAgr {
         dumpCounters(counters);
     }
 
-    String getTrBiotype(String geneType, String geneName, Transcript tr, int i) throws Exception {
+    String getTrBiotype(String geneType, Transcript tr) throws Exception {
         if( tr.getType()==null ) {
             switch (geneType) {
                 case "protein-coding":
@@ -340,6 +340,7 @@ public class CreateGff4GeneAgr {
                     return "processed_transcript";
                 case "pseudogene":
                 case "polymorphic_pseudogene":
+                case "protein_coding_LoF": // replaced 'polymorphic_pseudogene'; per Stan's recommendation, use 'pseudogenic_transcript' mapping
                 case "processed_pseudogene":
                 case "unprocessed_pseudogene":
                 case "translated_processed_pseudogene":

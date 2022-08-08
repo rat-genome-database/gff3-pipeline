@@ -2,22 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Jul 07, 2022 --" />
-
-        <property name="speciesMappings">
-            <map>
-                <entry key="RAT" value="3"/>
-                <entry key="HUMAN" value="1"/>
-                <entry key="MOUSE" value="2"/>
-                <entry key="BONOBO" value="5"/>
-                <entry key="CHINCHILLA" value="4"/>
-                <entry key="DOG" value="6"/>
-                <entry key="SQUIRREL" value="7"/>
-                <entry key="PIG" value="9"/>
-                <entry key="VERVET" value="13"/>
-                <entry key="MOLERAT" value="14"/>
-            </map>
-        </property>
+        <property name="version" value="--Gff3 generation pipeline -- build Aug 08, 2022 --" />
     </bean>
 
     <bean id="geneManager" class="edu.mcw.rgd.gff3.CreateGff4Gene">

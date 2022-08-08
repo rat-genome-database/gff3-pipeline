@@ -1,6 +1,6 @@
 package edu.mcw.rgd.gff3;
 
-import edu.mcw.rgd.datamodel.SpeciesType;
+import edu.mcw.rgd.process.mapping.MapManager;
 
 /**
  * configuration info used to run an gf33 create job
@@ -23,7 +23,7 @@ public class CreateInfo {
                 String name = field.substring(0, colonPos).trim();
                 String value = field.substring(colonPos+1).trim();
                 switch(name) {
-                    case "species": speciesTypeKey = Manager.getSpeciesMappings().get(value); break;
+                    case "species": break; // ignore it: we will derive speciesTypeKey from mapKey
                     case "mapKey": mapKey = Integer.parseInt(value); break;
                     case "toDir": toDir = value; break;
                     case "compress": compress = (value.equals("yes") ? true : false); break;
@@ -31,6 +31,10 @@ public class CreateInfo {
                     default: throw new Exception("unknown field: "+name);
                 }
             }
+        }
+
+        if( mapKey>0 ) {
+            speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
         }
     }
 

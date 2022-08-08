@@ -1,5 +1,8 @@
-Jul 07, 2022
+Aug 08, 2022
   agr: fix in tr biotype processing
+
+Jul 07, 2022
+  agr: tr biotype: fix for genes of type 'gene'
   agr: updated header for generated gff3 files
 
 May 23, 2022
