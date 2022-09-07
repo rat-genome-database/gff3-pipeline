@@ -41,7 +41,7 @@ public class EnsemblPrep {
         sh.write("#!/bin/bash\n");
         sh.write("SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`\n");
         sh.write("EMAILLIST=mtutaj@mcw.edu,llamers@mcw.edu\n");
-        sh.write("JBROWSE_HOME=\"/rgd/JBrowse-1.16.3/\"\n");
+        sh.write("JBROWSE_HOME=\"/rgd/JBrowse-1.16.11/\"\n");
         sh.write("GFF3_LOC=/home/rgddata/pipelines/RGDGff3Pipeline/"+getOutDir()+"\n");
         sh.write("\n");
         sh.write("cd $JBROWSE_HOME\n");

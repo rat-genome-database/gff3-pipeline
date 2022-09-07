@@ -23,7 +23,7 @@ if [ "$SERVER" == "HANSEN" ]; then
     scp -p rgddata@travis.rgd.mcw.edu:/home/rgddata/pipelines/RGDGff3Pipeline/data/Ensembl/CanFam3.1_Ensembl-feature.gff3.gz .
     cd ../../../../..
 else
-    JBROWSE_HOME="/rgd/JBrowse-1.16.3/"
+    JBROWSE_HOME="/rgd/JBrowse-1.16.11/"
     GFF3_LOC="/home/rgddata/pipelines/RGDGff3Pipeline/data/Ensembl"
 fi
 

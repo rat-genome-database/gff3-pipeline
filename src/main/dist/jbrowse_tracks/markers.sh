@@ -3,7 +3,7 @@
 #
 # NOTE: this script is not finished! it is a start ...
 
-JBROWSE_HOME="/rgd/JBrowse-1.16.3/"
+JBROWSE_HOME="/rgd/JBrowse-1.16.11/"
 GFF3_LOC="/home/rgddata/pipelines/RGDGff3Pipeline/data/Marker"
 
 cd $JBROWSE_HOME/bin

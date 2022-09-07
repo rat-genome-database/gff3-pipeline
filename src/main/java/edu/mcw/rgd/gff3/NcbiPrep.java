@@ -20,6 +20,8 @@ public class NcbiPrep {
 
     public static void main(String[] args) throws Exception {
 
+        //prepUthFastaFiles();
+
         int mapKey = 634;
         boolean isScaffoldAssembly = false;
 
@@ -76,4 +78,56 @@ public class NcbiPrep {
         }
         return null;
     }
+
+    static void prepUthFastaFiles() throws Exception {
+
+        String fname =   "/Users/mtutaj/Downloads/rat4/shr.fasta";
+        String outName = "/Users/mtutaj/Downloads/rat4/shr2.fa";
+
+        // orig lines:
+        //   >chrY Rattus norvegicus strain WKY/Bbb RGD_1581635 chromosome Y, whole genome shotgun sequence
+        //   >JALPNS010000023.1 Rattus norvegicus strain WKY/Bbb RGD_1581635 unassigned_1, whole genome shotgun sequence
+        // new line
+        // >ChrY
+        // >JAL...  lines are skipped
+        BufferedReader in = Utils.openReader(fname);
+        BufferedWriter out = Utils.openWriter(outName);
+        String line;
+        boolean scaffold = false;
+        int linesRead = 0;
+        int linesWritten = 0;
+
+        while( (line=in.readLine())!=null ) {
+
+            // header line
+            linesRead++;
+            if( line.startsWith(">") ) {
+                if( line.startsWith(">chr") ) {
+                    int spacePos = line.indexOf(" ");
+                    out.write(">Chr"+line.substring(4, spacePos)+"\n");
+                    scaffold = false;
+                    linesWritten++;
+                } else {
+                    scaffold = true;
+                }
+                continue;
+            }
+
+            // data line
+            if( !scaffold ) {
+                out.write(line);
+                out.write("\n");
+                linesWritten++;
+            }
+        }
+
+        in.close();
+        out.close();
+
+        System.out.println("lines read: "+linesRead);
+        System.out.println("lines written: "+linesWritten);
+
+        System.exit(0);
+    }
+
 }

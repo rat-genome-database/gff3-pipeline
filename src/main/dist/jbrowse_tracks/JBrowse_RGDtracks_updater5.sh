@@ -26,7 +26,7 @@
 # Aurash
 #############################################
 
-jbrowseHome="/rgd/JBrowse-1.16.3/"
+jbrowseHome="/rgd/JBrowse-1.16.11/"
 
 mainGFF3home="/rgd/data/gff3"
 workingDir="pipelineOutput"
