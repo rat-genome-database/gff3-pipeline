@@ -15,7 +15,7 @@
 #      (f.e. MGI source inforation is shown for hundreds of rat genes)
 #6) Run the script 'ensembl.sh'
 
-cd /rgd/JBrowse-1.16.3/bin
+cd /rgd/JBrowse-1.16.11/bin
 
 set -e
 

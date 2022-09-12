@@ -57,11 +57,12 @@ public class CreateGff4Eva {
             gff3Writer = new Gff3ColumnWriter(gffFile, false, info.isCompress());
         }
         List<String> chromosomes = getChromosomes(info.getMapKey());
-        Map<String, ArrayList<String>> rsSoCheck = new HashMap<>();
+
         int dataLinesWritten = 0;
         for(String chr : chromosomes) {
-            if (mapKey!=631)
-                rsSoCheck = new HashMap<>();
+
+            Map<String, ArrayList<String>> rsSoCheck = new HashMap<>();
+
             List<Eva> data = dao.getEvaObjectsbyKeyandChrom(mapKey,chr);
             log.debug(" "+assemblyName+": data lines for Eva in chrom "+chr+": "+data.size());
 
@@ -89,7 +90,7 @@ public class CreateGff4Eva {
                             ArrayList<String> temp = rsSoCheck.get(rsId);
                             if (temp.indexOf(soTerm)==-1){
                                 temp.add(soTerm);
-                                rsSoCheck.replace(rsId, temp);
+                                rsSoCheck.put(rsId, temp);
                             }
                         }
                         break;
@@ -105,7 +106,7 @@ public class CreateGff4Eva {
                             ArrayList<String> temp = rsSoCheck.get(rsId);
                             if (temp.indexOf(soTerm)==-1){
                                 temp.add(soTerm);
-                                rsSoCheck.replace(rsId, temp);
+                                rsSoCheck.put(rsId, temp);
                             }
                         }
                         break;
@@ -121,7 +122,7 @@ public class CreateGff4Eva {
                             ArrayList<String> temp = rsSoCheck.get(rsId);
                             if (temp.indexOf(soTerm)==-1){
                                 temp.add(soTerm);
-                                rsSoCheck.replace(rsId, temp);
+                                rsSoCheck.put(rsId, temp);
                             }
                         }
                         break;
@@ -137,7 +138,7 @@ public class CreateGff4Eva {
                             ArrayList<String> temp = rsSoCheck.get(rsId);
                             if (temp.indexOf(soTerm)==-1){
                                 temp.add(soTerm);
-                                rsSoCheck.replace(rsId, temp);
+                                rsSoCheck.put(rsId, temp);
                             }
                         }
                         break;
@@ -153,7 +154,7 @@ public class CreateGff4Eva {
                             ArrayList<String> temp = rsSoCheck.get(rsId);
                             if (temp.indexOf(soTerm)==-1){
                                 temp.add(soTerm);
-                                rsSoCheck.replace(rsId, temp);
+                                rsSoCheck.put(rsId, temp);
                             }
                         }
                         break;
@@ -168,7 +169,7 @@ public class CreateGff4Eva {
                             ArrayList<String> temp = rsSoCheck.get(rsId);
                             if (temp.indexOf(soTerm)==-1){
                                 temp.add(soTerm);
-                                rsSoCheck.replace(rsId, temp);
+                                rsSoCheck.put(rsId, temp);
                             }
                         }
                         break;

@@ -1,7 +1,7 @@
 #!/bin/bash
 # load Promoters tracks
 
-JBROWSE_HOME="/rgd/JBrowse-1.16.3/"
+JBROWSE_HOME="/rgd/JBrowse-1.16.11/"
 GFF3_LOC="/home/rgddata/pipelines/RGDGff3Pipeline/data/Promoter"
 
 cd $JBROWSE_HOME/bin
