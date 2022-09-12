@@ -1,3 +1,7 @@
+Sep 12, 2022
+  gff3 tracks for CHEBI are generated only for rat, mouse and human (there is very little data available for other species)
+  JBrowse: loads CHEBI tracks only for rat, mouse and human
+
 Sep 09, 2022
   jbrowse scripts: changed JBrowse-1.16.3 into JBrowse-1.16.11 to avoid perl problems on new machine
 

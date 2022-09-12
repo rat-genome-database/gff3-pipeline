@@ -125,6 +125,9 @@ $RUNLOAD -ontAspect:D -species:MOLERAT -mapKey:1410 -toFile:$LOGDIR/Ont/Molerat/
 mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for molerat hetGla2 assembly ran" $EMAILLIST<cron_moleratDisease2.log
 
 ##### CHEBI ONTOLOGY
+##
+## note as of Sep 2022: Chem-Drug Annotations are available in bulk numbers only for rat, mouse and human
+##   for other species there are very few annotations available if at all
 
 $RUNLOAD -ontAspect:E -species:RAT -mapKey:60 -toFile:$LOGDIR/Ont/Rat/rat34/ -chr:* -compress &> cron_ratDrugGene34.log
 mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for rat 3.4 DrugGene related elements ran" $EMAILLIST<cron_ratDrugGene34.log
@@ -158,39 +161,6 @@ mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for mouse DrugGene asse
 $RUNLOAD -ontAspect:E -species:MOUSE -mapKey:239 -toFile:$LOGDIR/Ont/Mouse/mouse39/ -chr:* -compress &> cron_mouseDrugGene39.log
 mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for mouse DrugGene assembly 39 related elements ran" $EMAILLIST<cron_mouseDrugGene39.log
 
-
-$RUNLOAD -ontAspect:E -species:CHINCHILLA -mapKey:44 -toFile:$LOGDIR/Ont/Chinchilla/chinchilla10/ -chr:* -compress &> cron_chinchillaDrugGene10.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for chinchilla DrugGene assembly 1.0 ran" $EMAILLIST<cron_chinchillaDrugGene10.log
-
-$RUNLOAD -ontAspect:E -species:BONOBO -mapKey:511 -toFile:$LOGDIR/Ont/Bonobo/bonobo11/ -chr:* -compress &> cron_bonoboDrugGene11.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for bonobo DrugGene assembly 1.1 ran" $EMAILLIST<cron_bonoboDrugGene11.log
-
-$RUNLOAD -ontAspect:E -species:BONOBO -mapKey:513 -toFile:$LOGDIR/Ont/Bonobo/bonobo2/ -chr:* -compress &> cron_bonoboDrugGene2.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for bonobo DrugGene assembly Mhudiblu_PPA_v0 ran" $EMAILLIST<cron_bonoboDrugGene2.log
-
-$RUNLOAD -ontAspect:E -species:SQUIRREL -mapKey:720 -toFile:$LOGDIR/Ont/Squirrel/squirrel20/ -chr:* -compress &> cron_squirrelDrugGene20.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for squirrel DrugGene assembly 2.0 related elements ran" $EMAILLIST<cron_squirrelDrugGene20.log
-
-$RUNLOAD -ontAspect:E -species:DOG -mapKey:631 -toFile:$LOGDIR/Ont/Dog/dog31/ -chr:* -compress &> cron_dogDrugGene31.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for dog DrugGene assembly 3.1 related elements ran" $EMAILLIST<cron_dogDrugGene31.log
-
-$RUNLOAD -ontAspect:E -species:DOG -mapKey:634 -toFile:$LOGDIR/Ont/Dog/dog634/ -chr:* -compress &> cron_dogDrugGene634.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for dog DrugGene assembly ROS_Cfam_1.0 related elements ran" $EMAILLIST<cron_dogDrugGene634.log
-
-$RUNLOAD -ontAspect:E -species:PIG -mapKey:910 -toFile:$LOGDIR/Ont/Pig/pig10/ -chr:* -compress &> cron_pigDrugGene10.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for pig DrugGene assembly 10 related elements ran" $EMAILLIST<cron_pigDrugGene10.log
-
-$RUNLOAD -ontAspect:E -species:PIG -mapKey:911 -toFile:$LOGDIR/Ont/Pig/pig11/ -chr:* -compress &> cron_pigDrugGene11.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for pig DrugGene assembly 11 related elements ran" $EMAILLIST<cron_pigDrugGene11.log
-
-$RUNLOAD -ontAspect:E -species:VERVET -mapKey:1311 -toFile:$LOGDIR/Ont/Vervet/chlSab2/ -chr:* -compress &> cron_vervetDrugGene2.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for vervet ChlSab1.1 assembly ran" $EMAILLIST<cron_vervetDrugGene2.log
-
-$RUNLOAD -ontAspect:E -species:VERVET -mapKey:1313 -toFile:$LOGDIR/Ont/Vervet/Vero_WHO_p1/ -chr:* -compress &> cron_vervetDrugGeneVero.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for vervet Vero_WHO_p1.0 assembly ran" $EMAILLIST<cron_vervetDrugGeneVero.log
-
-$RUNLOAD -ontAspect:E -species:MOLERAT -mapKey:1410 -toFile:$LOGDIR/Ont/Molerat/hetGla2/ -chr:* -compress &> cron_moleratDrugGene2.log
-mailx -s "[$SERVER]Pipeline to create Ontology Gff3 data for molerat hetGla2 assembly ran" $EMAILLIST<cron_moleratDrugGene2.log
 
 ##### PROMOTERS
 #     all species: rat, mouse, human, dog

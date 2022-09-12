@@ -292,10 +292,15 @@ do
 		
 		elif [[ ${ontAccNum} =~ ^CHEBI.* ]]
 		then
-			# Insert 1 CHEBI track per accession number
-			# CHEBI Genes track insertion
-			./bin/flatfile-to-json.pl --gff "${currentWorkingOntPath}/${ontLabel}.gff3" --trackLabel "${ontLabel}" --key "${ontName} Related Genes" --out "${datasetDir}" --trackType JBrowse/View/Track/CanvasFeatures --clientConfig "{ \"color\" : \"#DF255A\", \"label\" : \"symbol,name\", \"description\" : \"\" }" --config "{ \"category\" : \"${ontCategory}\", \"onClick\" : { \"iconClass\" : \"dijitIconDatabase\", \"action\" : \"contentDialog\", \"content\" : \"<iframe src=\\\"${contentBlock}\\\" frameborder='0' marginheight='0' width='425' height='240' id='id_IFrame'></iframe>\", \"title\" : \"<center>RGD Feature Data for {name}</center>\" }, \"menuTemplate\" : [ { \"label\" : \"View RGD details\", \"iconClass\" : \"dijitIconDatabase\", \"action\" : \"contentDialog\", \"content\" : \"<iframe src=\\\"${contentBlock}\\\" frameborder='0' marginheight='0' width='425' height='240' id='id_IFrame'></iframe>\", \"title\" : \"<center>RGD Feature Data for {name}</center>\" }, { \"label\" : \"Highlight this feature\" } ] }"
-			echo "  +++ inserted track ${ontLabel}"
+
+			# only rat, mouse and human have CHEBI tracks -- there is no (or very little) data for other species
+			if [[ ${organism} =~ ^[rR]at.* || ${organism} =~ ^[hH]uman.* || ${organism} =~ ^[M]ouse.*]] ; then
+
+			  # Insert 1 CHEBI track per accession number
+			  # CHEBI Genes track insertion
+			  ./bin/flatfile-to-json.pl --gff "${currentWorkingOntPath}/${ontLabel}.gff3" --trackLabel "${ontLabel}" --key "${ontName} Related Genes" --out "${datasetDir}" --trackType JBrowse/View/Track/CanvasFeatures --clientConfig "{ \"color\" : \"#DF255A\", \"label\" : \"symbol,name\", \"description\" : \"\" }" --config "{ \"category\" : \"${ontCategory}\", \"onClick\" : { \"iconClass\" : \"dijitIconDatabase\", \"action\" : \"contentDialog\", \"content\" : \"<iframe src=\\\"${contentBlock}\\\" frameborder='0' marginheight='0' width='425' height='240' id='id_IFrame'></iframe>\", \"title\" : \"<center>RGD Feature Data for {name}</center>\" }, \"menuTemplate\" : [ { \"label\" : \"View RGD details\", \"iconClass\" : \"dijitIconDatabase\", \"action\" : \"contentDialog\", \"content\" : \"<iframe src=\\\"${contentBlock}\\\" frameborder='0' marginheight='0' width='425' height='240' id='id_IFrame'></iframe>\", \"title\" : \"<center>RGD Feature Data for {name}</center>\" }, { \"label\" : \"Highlight this feature\" } ] }"
+			  echo "  +++ inserted track ${ontLabel}"
+			fi
 		fi
 	done < ${startingHome}/${2}
 	fi
