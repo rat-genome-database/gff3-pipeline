@@ -106,7 +106,9 @@
             <list>
                 <value>species:RAT    mapKey:70   toDir:data/Eva/ compress:yes</value>
                 <value>species:RAT    mapKey:360  toDir:data/Eva/ compress:yes</value>
+                <value>species:RAT    mapKey:372  toDir:data/Eva/ compress:yes</value>
                 <value>species:MOUSE  mapKey:35   toDir:data/Eva/ compress:yes</value>
+                <value>species:MOUSE  mapKey:239   toDir:data/Eva/ compress:yes</value>
                 <value>species:PIG    mapKey:910  toDir:data/Eva/ compress:yes</value>
                 <value>species:PIG    mapKey:911  toDir:data/Eva/ compress:yes</value>
                 <value>species:DOG    mapKey:631  toDir:data/Eva/ compress:yes</value>
