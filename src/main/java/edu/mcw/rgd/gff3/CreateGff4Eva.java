@@ -76,7 +76,7 @@ public class CreateGff4Eva {
                 String rsId = data.get(i).getRsId();
                 String soTerm;
                 String evaSoTerm = data.get(i).getSoTerm();
-
+                int offset = 0;
                 switch (evaSoTerm) {
                     case "SO:0002007":
                     case "0002007":
@@ -174,8 +174,12 @@ public class CreateGff4Eva {
                         }
                         break;
                     }
+                    if (data.get(i).getRefNuc()==null)
+                        offset = 0;
+                    else
+                        offset = data.get(i).getRefNuc().length()-1;
                 if(i+1==data.size()) {
-                    gff3Writer.writeFirst8Columns(data.get(i).getChromosome(), "EVA", soTerm, data.get(i).getPos(), data.get(i).getPos(), ".", ".", ".");
+                    gff3Writer.writeFirst8Columns(data.get(i).getChromosome(), "EVA", soTerm, data.get(i).getPos(), data.get(i).getPos()+offset, ".", ".", ".");
                     HashMap<String, String> attributes = new HashMap<>();
 
                     if(rsSoCheck.get( rsId ).indexOf(soTerm) == 0 ) {// terms are the same
@@ -187,8 +191,8 @@ public class CreateGff4Eva {
                     }
 
                     attributes.put("Alias", rsId);
-                    prevVarNuc = "/"+data.get(i).getVarNuc();
-                    attributes.put("allele", data.get(i).getRefNuc() + prevVarNuc);
+                    prevVarNuc = "/"+Utils.NVL(data.get(i).getVarNuc(),"-");
+                    attributes.put("allele", Utils.NVL(data.get(i).getRefNuc(),"-") + prevVarNuc);
                     gff3Writer.writeAttributes4Gff3(attributes);
                     dataLinesWritten++;
                 }
@@ -199,7 +203,7 @@ public class CreateGff4Eva {
                     }
                     else {
 
-                        gff3Writer.writeFirst8Columns(data.get(i).getChromosome(), "EVA", soTerm, data.get(i).getPos(), data.get(i).getPos(), ".", ".", ".");
+                        gff3Writer.writeFirst8Columns(data.get(i).getChromosome(), "EVA", soTerm, data.get(i).getPos(), data.get(i).getPos()+offset, ".", ".", ".");
                         HashMap<String, String> attributes = new HashMap<>();
 
                         if(rsSoCheck.get( rsId ).indexOf(soTerm) == 0 ) {// terms are the same
@@ -213,15 +217,15 @@ public class CreateGff4Eva {
                         attributes.put("Alias", data.get(i).getRsId());
                         String notHere = "-";
                         if(data.get(i).getRefNuc()==null) {
-                            prevVarNuc += "/" + data.get(i).getVarNuc();
+                            prevVarNuc += "/" + Utils.NVL(data.get(i).getVarNuc(),"-");
                             attributes.put("allele", notHere+prevVarNuc);
                         }
                         else if(data.get(i).getVarNuc()==null) {
-                            attributes.put("allele",data.get(i).getRefNuc()+"/"+notHere);
+                            attributes.put("allele",Utils.NVL(data.get(i).getRefNuc(),"-")+"/"+notHere);
                         }
                         else {
                             prevVarNuc += "/" + data.get(i).getVarNuc();
-                            attributes.put("allele", data.get(i).getRefNuc() + prevVarNuc);
+                            attributes.put("allele", Utils.NVL(data.get(i).getRefNuc(),"-") + prevVarNuc);
                         }
                         prevVarNuc = "";
                         gff3Writer.writeAttributes4Gff3(attributes);
