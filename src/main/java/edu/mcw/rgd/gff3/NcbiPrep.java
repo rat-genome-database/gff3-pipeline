@@ -20,7 +20,7 @@ public class NcbiPrep {
 
     public static void main(String[] args) throws Exception {
 
-        //prepUthFastaFiles();
+        //prepUthGff3Files();
 
         int mapKey = 634;
         boolean isScaffoldAssembly = false;
@@ -130,4 +130,42 @@ public class NcbiPrep {
         System.exit(0);
     }
 
+    static void prepUthGff3Files() throws Exception {
+
+        String fname =   "/Users/mtutaj/Downloads/rat4/wky.gff3.gz";
+        String outName = "/Users/mtutaj/Downloads/rat4/wky2.gff3.gz";
+
+        // copy comment lines as is
+        // convert chr?  into Chr? lines
+        // JAL...  lines are skipped
+        BufferedReader in = Utils.openReader(fname);
+        BufferedWriter out = Utils.openWriter(outName);
+        String line;
+        int linesRead = 0;
+        int linesWritten = 0;
+
+        while( (line=in.readLine())!=null ) {
+
+            linesRead++;
+            if( line.startsWith("#") ) {
+                out.write(line);
+                out.write("\n");
+                linesWritten++;
+            }
+            else if( line.startsWith("chr") ) {
+                out.write("C");
+                out.write(line.substring(1));
+                out.write("\n");
+                linesWritten++;
+            }
+        }
+
+        in.close();
+        out.close();
+
+        System.out.println("lines read: "+linesRead);
+        System.out.println("lines written: "+linesWritten);
+
+        System.exit(0);
+    }
 }
