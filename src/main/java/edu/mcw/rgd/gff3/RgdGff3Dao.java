@@ -145,6 +145,10 @@ public class RgdGff3Dao {
         return mapDAO.getChromosomes(mapKey);
     }
 
+    public void insertMapData(MapData md) throws Exception {
+        mapDAO.insertMapData(md);
+    }
+
     public List<Transcript> getTranscriptsForGene(int geneRgdId) throws Exception {
         return trDao.getTranscriptsForGene(geneRgdId);
     }

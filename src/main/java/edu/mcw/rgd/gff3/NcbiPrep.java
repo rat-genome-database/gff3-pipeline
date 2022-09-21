@@ -2,10 +2,14 @@ package edu.mcw.rgd.gff3;
 
 import edu.mcw.rgd.dao.impl.MapDAO;
 import edu.mcw.rgd.datamodel.Chromosome;
+import edu.mcw.rgd.datamodel.MapData;
 import edu.mcw.rgd.process.Utils;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author mtutaj
@@ -21,6 +25,7 @@ public class NcbiPrep {
     public static void main(String[] args) throws Exception {
 
         //prepUthGff3Files();
+        //loadUthPositions();
 
         int mapKey = 634;
         boolean isScaffoldAssembly = false;
@@ -168,4 +173,119 @@ public class NcbiPrep {
 
         System.exit(0);
     }
+
+    static void loadUthPositions() throws Exception {
+
+        //String fname =   "/Users/mtutaj/Downloads/rat4/shr.gff3.gz";
+        //int mapKey = 301;
+        //String fname =   "/Users/mtutaj/Downloads/rat4/shrsp.gff3.gz";
+        //int mapKey = 302;
+        String fname =   "/Users/mtutaj/Downloads/rat4/wky.gff3.gz";
+        int mapKey = 303;
+
+        int geneLines = 0;
+        int allLines = 0;
+        List<UthRec> uthGenes = new ArrayList<>();
+
+        BufferedReader in = Utils.openReader(fname);
+        String line;
+        while( (line=in.readLine())!=null ) {
+            allLines++;
+
+            // skip empty and comment lines
+            if( line.isEmpty() || line.startsWith("#") ) {
+                continue;
+            }
+
+            String[] cols = line.split("[\\t]", -1);
+
+            // sample line
+            //Chr1	BestRefSeq	gene	1761587	1794261	.	-	.	ID=gene-Pcmt1;Dbxref=GeneID:25604,RGD:3268;Name=Pcmt1;description=protein-L-isoaspartate (D-aspartate) O-methyltransferase 1;gbkey=Gene;gene=Pcmt1;gene_biotype=protein_coding;gene_synonym=PCM
+            String attrField = cols[8];
+            if( !attrField.startsWith("ID=gene-") ) {
+                continue;
+            }
+            geneLines++;
+
+            UthRec rec = new UthRec();
+            rec.mapKey = mapKey;
+            rec.chr = cols[0].substring(3).trim();
+            rec.startPos = Integer.parseInt(cols[3]);
+            rec.stopPos = Integer.parseInt(cols[4]);
+            rec.strand = cols[6];
+
+            Map<String,String> attrs = loadAttrs(attrField);
+            String geneSymbol = attrs.get("Name");
+            if( geneSymbol!=null ) {
+                rec.geneSymbol = geneSymbol;
+            }
+            String dbxref = attrs.get("Dbxref");
+            if( dbxref!=null ) {
+                String[] xrefs = dbxref.split("[,]");
+                for( String xref: xrefs ) {
+
+                    if( xref.startsWith("GeneID:") ) {
+                        String egId = xref.substring(7);
+                        rec.geneId = egId;
+                    } else if( xref.startsWith("RGD:") ) {
+                        String rgdId = xref.substring(4);
+                        rec.geneRgdId = Integer.parseInt(rgdId);
+                    } else {
+                        System.out.println("unknown dbxref: "+xref);
+                    }
+                }
+            }
+            uthGenes.add(rec);
+        }
+        in.close();
+
+        RgdGff3Dao dao = new RgdGff3Dao();
+
+        int genesWithoutRgdId = 0;
+        for( UthRec rec: uthGenes ) {
+            if( rec.geneRgdId==0 ) {
+                genesWithoutRgdId++;
+            } else {
+                MapData md = new MapData();
+                md.setChromosome(rec.chr);
+                md.setMapKey(rec.mapKey);
+                md.setRgdId(rec.geneRgdId);
+                md.setSrcPipeline("UTH_Load");
+                md.setStartPos(rec.startPos);
+                md.setStopPos(rec.stopPos);
+                md.setStrand(rec.strand);
+                dao.insertMapData(md);
+            }
+        }
+
+        System.out.println("read lines: "+allLines);
+        System.out.println("gene lines: "+geneLines);
+        System.out.println("gene lines, no rgd id: "+genesWithoutRgdId);
+
+        System.exit(0);
+    }
+
+    static Map<String,String> loadAttrs(String attrField) {
+
+        Map<String,String> attrs = new HashMap<>();
+        String[] fields = attrField.split("[;]");
+        for( String field: fields ) {
+            int eqPos = field.indexOf("=");
+            String attrName = field.substring(0, eqPos);
+            String attrValue = field.substring(eqPos+1);
+            attrs.put(attrName, attrValue);
+        }
+        return attrs;
+    }
+}
+
+class UthRec {
+    public int mapKey;
+    public String chr;
+    public int startPos;
+    public int stopPos;
+    public String strand;
+    public String geneId;
+    public String geneSymbol;
+    public int geneRgdId;
 }
