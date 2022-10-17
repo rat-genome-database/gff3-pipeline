@@ -137,8 +137,8 @@ public class NcbiPrep {
 
     static void prepUthGff3Files() throws Exception {
 
-        String fname =   "/Users/mtutaj/Downloads/rat4/wky.gff3.gz";
-        String outName = "/Users/mtutaj/Downloads/rat4/wky2.gff3.gz";
+        String fname =   "/Users/mtutaj/Downloads/rat4/shrsp.gff3.gz";
+        String outName = "/Users/mtutaj/Downloads/rat4/shrsp2.gff3.gz";
 
         // copy comment lines as is
         // convert chr?  into Chr? lines
@@ -158,6 +158,20 @@ public class NcbiPrep {
                 linesWritten++;
             }
             else if( line.startsWith("chr") ) {
+
+                //Chr1	BestRefSeq	gene	1761587	1794261	.	-	.	ID=gene-Pcmt1;Dbxref=GeneID:25604,RGD:3268;Name=Pcmt1;description=protein-L-isoaspartate (D-aspartate) O-methyltransferase 1;gbkey=Gene;gene=Pcmt1;gene_biotype=protein_coding;gene_synonym=PCM
+                // remove attribute 'description' from the line
+                int descPos = line.indexOf(";description=");
+                if( descPos>0 ) {
+                    int descPos2 = line.indexOf(";", descPos+12);
+                    String line2;
+                    if( descPos2>descPos ) {
+                        line2 = line.substring(0, descPos) + line.substring(descPos2);
+                    } else {
+                        line2 = line.substring(0, descPos);
+                    }
+                    line = line2;
+                }
                 out.write("C");
                 out.write(line.substring(1));
                 out.write("\n");
@@ -250,7 +264,7 @@ public class NcbiPrep {
                 md.setChromosome(rec.chr);
                 md.setMapKey(rec.mapKey);
                 md.setRgdId(rec.geneRgdId);
-                md.setSrcPipeline("UTH_Load");
+                md.setSrcPipeline("NCBI");
                 md.setStartPos(rec.startPos);
                 md.setStopPos(rec.stopPos);
                 md.setStrand(rec.strand);
