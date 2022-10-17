@@ -1,3 +1,6 @@
+Oct 17, 2022
+  fixed typo in JBrowse loading script
+
 Sep 21, 2022
   load positions for UTH assemblies from gff3 file
 

@@ -294,7 +294,7 @@ do
 		then
 
 			# only rat, mouse and human have CHEBI tracks -- there is no (or very little) data for other species
-			if [[ ${organism} =~ ^[rR]at.* || ${organism} =~ ^[hH]uman.* || ${organism} =~ ^[M]ouse.*]] ; then
+			if [[ ${organism} =~ ^[rR]at.* || ${organism} =~ ^[hH]uman.* || ${organism} =~ ^[M]ouse.* ]] ; then
 
 			  # Insert 1 CHEBI track per accession number
 			  # CHEBI Genes track insertion
