@@ -1,3 +1,6 @@
+Oct 18, 2022
+  fixed typo in config for loading rn7 gene tracks
+
 Oct 17, 2022
   fixed typo in JBrowse loading script
 
