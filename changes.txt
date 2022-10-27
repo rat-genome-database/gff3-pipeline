@@ -1,3 +1,6 @@
+Oct 27, 2022
+  agr: added handling of tr biotype 'protein_coding_CDS_not_defined'
+
 Oct 18, 2022
   fixed typo in config for loading rn7 gene tracks
 
