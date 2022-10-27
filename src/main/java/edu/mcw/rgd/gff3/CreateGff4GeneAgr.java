@@ -388,6 +388,7 @@ public class CreateGff4GeneAgr {
                 case "retained_intron": // no suitable mappings
                 case "antisense":
                 case "nonsense_mediated_decay":
+                case "protein_coding_CDS_not_defined":
                     return "transcript";
             }
         }
