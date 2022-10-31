@@ -1,3 +1,6 @@
+Oct 31, 2022
+  genes: added sorting of lines, to be tabix-ready (gff3 file will be instantly ready to be used by tabix)
+
 Oct 27, 2022
   agr: added handling of tr biotype 'protein_coding_CDS_not_defined'
 
