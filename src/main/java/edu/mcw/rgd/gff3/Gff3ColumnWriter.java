@@ -95,14 +95,6 @@ public class Gff3ColumnWriter {
 
     public String prepFirst8Columns(String chrNum, String source, String type, Integer start, Integer stop, String score, String strand, String phase) {
 
-        boolean reverseStartStop = false;
-        if( start>stop ) {
-            reverseStartStop = true;
-            int tmp = start;
-            start = stop;
-            stop = tmp;
-        }
-
         String chr = chrNum;
         if( isRatmineCompatibleFormat() ) {
             switch(type) {
@@ -117,8 +109,14 @@ public class Gff3ColumnWriter {
         }
 
         String text = chr + "\t" + source + "\t" + type + "\t" + start + "\t" + stop + "\t" + score + "\t" + strand + "\t" + phase + "\t";
-        if( reverseStartStop ) {
+
+        if( start>stop ) {
             System.out.println("WARNING: reverse start pos > stop pos: "+getFileName()+" "+text);
+
+            int tmp = start;
+            start = stop;
+            stop = tmp;
+            text = chr + "\t" + source + "\t" + type + "\t" + start + "\t" + stop + "\t" + score + "\t" + strand + "\t" + phase + "\t";
         }
         return text;
     }
