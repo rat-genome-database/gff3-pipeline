@@ -38,7 +38,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/rat72_EVA.gff3 \
       --trackLabel EVA \
-      --key "EVA Release 3" \
+      --key "EVA Release 4" \
       --out /jbrowse/data_rn7_2 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Variants/DbSNPs\" }"
@@ -59,7 +59,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/rat60_EVA.gff3 \
       --trackLabel EVA \
-      --key "EVA Release 3" \
+      --key "EVA Release 4" \
       --out /jbrowse/data_rgd6 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Variants/DbSNPs\" }"
@@ -80,7 +80,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/rat50_EVA.gff3 \
       --trackLabel EVA \
-      --key "EVA Release 3" \
+      --key "EVA Release 4" \
       --out /jbrowse/data_rgd5 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Variants/DbSNPs\" }"
