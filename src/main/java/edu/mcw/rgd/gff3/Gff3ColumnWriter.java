@@ -1,14 +1,17 @@
 package edu.mcw.rgd.gff3;
 
+import edu.mcw.rgd.process.Utils;
+
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
 /**
  * @author pjayaraman
  * @since 9/9/11
- * @version %I%, %G%
- * <p>
  * convenience class to handle writing of gff or gff3 files
  */
 public class Gff3ColumnWriter {
@@ -92,10 +95,6 @@ public class Gff3ColumnWriter {
 
     public String prepFirst8Columns(String chrNum, String source, String type, Integer start, Integer stop, String score, String strand, String phase) {
 
-        if( start>stop ) {
-            System.out.println("WARNING: reverse start pos > stop pos");
-        }
-
         String chr = chrNum;
         if( isRatmineCompatibleFormat() ) {
             switch(type) {
@@ -110,6 +109,15 @@ public class Gff3ColumnWriter {
         }
 
         String text = chr + "\t" + source + "\t" + type + "\t" + start + "\t" + stop + "\t" + score + "\t" + strand + "\t" + phase + "\t";
+
+        if( start>stop ) {
+            System.out.println("WARNING: reverse start pos > stop pos: "+getFileName()+" "+text);
+
+            int tmp = start;
+            start = stop;
+            stop = tmp;
+            text = chr + "\t" + source + "\t" + type + "\t" + start + "\t" + stop + "\t" + score + "\t" + strand + "\t" + phase + "\t";
+        }
         return text;
     }
 
@@ -226,6 +234,62 @@ public class Gff3ColumnWriter {
             }
         }
         return buf.toString();
+    }
+
+    /**
+     * sorts the given gff3 file by 1 column (chromosome) and then by start pos (4th col) and stop pos (5th col)
+     * goal: tabix-ready gff3 file
+     */
+    public void sortInMemory(boolean compress) throws IOException {
+
+        String fname = getFileName();
+        if( compress ) {
+            if( !fname.endsWith(".gz") ) {
+                fname += ".gz";
+            }
+        }
+
+        BufferedReader in = Utils.openReader(fname);
+        String line;
+        ArrayList<String> lines = new ArrayList<>();
+        while( (line=in.readLine())!=null ) {
+            lines.add(line);
+        }
+        in.close();
+
+        Collections.sort(lines, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                String[] cols1 = o1.split("[\\t]", -1);
+                String[] cols2 = o2.split("[\\t]", -1);
+                if( cols1.length>=9 && cols2.length>=9 ) {
+                    // compare chromosomes
+                    int r = cols1[0].compareTo(cols2[0]);
+                    if( r!=0 ) {
+                        return r;
+                    }
+                    // compare start positions
+                    int pos1 = Integer.parseInt(cols1[3]);
+                    int pos2 = Integer.parseInt(cols2[3]);
+                    if( pos1!=pos2 ) {
+                        return pos1-pos2;
+                    }
+                    // compare end positions
+                    pos1 = Integer.parseInt(cols1[4]);
+                    pos2 = Integer.parseInt(cols2[4]);
+                    return pos1-pos2;
+                } else {
+                    return o1.compareTo(o2);
+                }
+            }
+        });
+
+        BufferedWriter out = Utils.openWriter(fname);
+        for( String l: lines ) {
+            out.write(l);
+            out.write("\n");
+        }
+        out.close();
     }
 
     public boolean isRatmineCompatibleFormat() {
