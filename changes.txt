@@ -1,3 +1,6 @@
+Jan 30, 2023
+  markers: removed generation of RatMine files (due to RatMine discontinuation)
+
 Jan 13, 2023
   updated build.gradle to be gradle 6.x + compatible
 
