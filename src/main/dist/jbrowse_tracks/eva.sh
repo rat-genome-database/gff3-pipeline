@@ -101,7 +101,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/mouse39_EVA.gff3 \
       --trackLabel EVA \
-      --key "EVA Release 3" \
+      --key "EVA Release 4" \
       --out /jbrowse/data_mm39 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Variants/DbSNPs\" }"
@@ -122,7 +122,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/mouse38_EVA.gff3 \
       --trackLabel EVA \
-      --key "EVA Release 3" \
+      --key "EVA Release 4" \
       --out /jbrowse/data_mm38 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Variants/DbSNPs\" }"
@@ -143,7 +143,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/dog31_EVA.gff3 \
       --trackLabel EVA \
-      --key "EVA Release 3" \
+      --key "EVA Release 4" \
       --out /jbrowse/data_dog3_1 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Variants/DbSNPs\" }"
@@ -164,7 +164,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/pig11_EVA.gff3 \
       --trackLabel EVA \
-      --key "EVA Release 3" \
+      --key "EVA Release 4" \
       --out /jbrowse/data_pig11_1 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Variants/DbSNPs\" }"
@@ -185,7 +185,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/pig10_EVA.gff3 \
       --trackLabel EVA \
-      --key "EVA Release 3" \
+      --key "EVA Release 4" \
       --out /jbrowse/data_pig10_2 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Variants/DbSNPs\" }"
@@ -206,7 +206,7 @@ if [ -f $TMP_INPUT_FILE ]; then
     ./flatfile-to-json.pl \
       --gff /tmp/grnMonkey1_EVA.gff3 \
       --trackLabel EVA \
-      --key "EVA Release 3" \
+      --key "EVA Release 4" \
       --out /jbrowse/data_chlSab2 \
       --trackType JBrowse/View/Track/CanvasFeatures \
       --config "{ \"category\" : \"Variants/DbSNPs\" }"
