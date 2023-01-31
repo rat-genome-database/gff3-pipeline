@@ -1,3 +1,9 @@
+Jan 30, 2023
+  markers: removed generation of RatMine files (due to RatMine discontinuation)
+
+Jan 13, 2023
+  updated build.gradle to be gradle 6.x + compatible
+
 Oct 31, 2022
   genes: added sorting of lines, to be tabix-ready (gff3 file will be instantly ready to be used by tabix)
   Gff3ColumnWriter: better reporting of features with start pos > stop pos
