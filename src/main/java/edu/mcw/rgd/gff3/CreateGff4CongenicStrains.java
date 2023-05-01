@@ -43,13 +43,11 @@ public class CreateGff4CongenicStrains {
         System.out.println("========================");
 
         String gffFileCongenic = info.getToDir()+"/"+assemblySymbol+"_CongenicStrains.gff3";
-        String RATMINEGffFile = info.getToDir()+"/"+assemblySymbol+"_Strains_RATMINE.gff3";
         String gffFileMutant = info.getToDir()+"/"+assemblySymbol+"_MutantStrains.gff3";
 
         //initialization of the gff3writer
-        Gff3ColumnWriter gff3WriterCongenic = new Gff3ColumnWriter(gffFileCongenic, false, info.isCompress());
-        Gff3ColumnWriter gff3WriterRATMINE = new Gff3ColumnWriter(RATMINEGffFile, false, info.isCompress());
-        Gff3ColumnWriter gff3WriterMutant = new Gff3ColumnWriter(gffFileMutant, false, info.isCompress());
+        Gff3ColumnWriter gff3WriterCongenic = new Gff3ColumnWriter(gffFileCongenic, false, info.getCompressMode() );
+        Gff3ColumnWriter gff3WriterMutant = new Gff3ColumnWriter(gffFileMutant, false, info.getCompressMode());
 
         String header = "# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n";
         header += "# Species: "+ speciesName+"\n";
@@ -129,12 +127,9 @@ public class CreateGff4CongenicStrains {
                     gff3WriterMutant.writeFirst8Columns(md.getChromosome(), source, strainTypeLc,
                             md.getStartPos(),md.getStopPos(),".",strand,".");
                 }
-                gff3WriterRATMINE.writeFirst8Columns(md.getChromosome(), source, strainTypeLc,
-                        md.getStartPos(),md.getStopPos(),".",strand,".");
 
                 //create attributes hash map for this line
                 Map<String, String> attributesHashMap = new HashMap<>();
-                Map<String, String> RATMINE_attributesHashMap = new HashMap<>();
 
                 emitAttributesForMultiCongenics(attributesHashMap, newmdList, md);
 
@@ -146,17 +141,8 @@ public class CreateGff4CongenicStrains {
                 attributesHashMap.put("origin", src);
                 attributesHashMap.put("Index","1");
 
-                RATMINE_attributesHashMap.put("ID",String.valueOf(strain.getRgdId()));
-                RATMINE_attributesHashMap.put("Name", strain.getSymbol());
-                RATMINE_attributesHashMap.put("Alias", "RGD"+strain.getRgdId()+","+strain.getRgdId()+","+
-                        "Strain:"+parentStr+","+subStr);
-                RATMINE_attributesHashMap.put("Note", note);
-                RATMINE_attributesHashMap.put("source", src);
-                RATMINE_attributesHashMap.put("Index","1");
-
                 for( Map.Entry<String,String> entry: annotAttributes.entrySet() ) {
                     attributesHashMap.put(entry.getKey(), entry.getValue());
-                    RATMINE_attributesHashMap.put(entry.getKey(), entry.getValue());
                 }
 
                 //write attributes into gff3 file
@@ -166,12 +152,10 @@ public class CreateGff4CongenicStrains {
                 if( isMutant ) {
                     gff3WriterMutant.writeAttributes4Gff3(attributesHashMap);
                 }
-                gff3WriterRATMINE.writeAttributes4Gff3(RATMINE_attributesHashMap);
             }
         }
 
         gff3WriterCongenic.close();
-        gff3WriterRATMINE.close();
         gff3WriterMutant.close();
 
         System.out.println("\nCongenic Strain records processed: "+ counters.get("congenicStrains"));

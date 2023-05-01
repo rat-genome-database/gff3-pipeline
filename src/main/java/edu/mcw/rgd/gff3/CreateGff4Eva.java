@@ -54,7 +54,7 @@ public class CreateGff4Eva {
         Gff3ColumnWriter gff3Writer = null;
         if(gff3Writer==null) {
             String gffFile = info.getToDir() + "EVA_" + assemblyName+ ".gff3";
-            gff3Writer = new Gff3ColumnWriter(gffFile, false, info.isCompress());
+            gff3Writer = new Gff3ColumnWriter(gffFile, false, info.getCompressMode());
         }
         List<String> chromosomes = getChromosomes(info.getMapKey());
 

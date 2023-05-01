@@ -15,7 +15,7 @@ public class CreateGff4ClinVar {
     private int mapKey;
     private int speciesTypeKey;
     private String toFile;
-    private boolean compress;
+    private int compressMode;
     private Map<String,String> allowedVarTypes;
     private RgdGff3Dao dao = new RgdGff3Dao();
 
@@ -32,13 +32,12 @@ public class CreateGff4ClinVar {
 
     /**
      * generate gff3 file for ClinVar
-     * @param compress
      */
-    public void run(boolean compress) throws Exception {
-        this.compress = compress;
+    public void run(int compressMode) throws Exception {
+        this.compressMode = compressMode;
 
         String gffFile = getToFile();
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, compress);
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, compressMode);
 
         int variantsBadType = 0;
         int variantsWithPos = 0;
@@ -163,7 +162,7 @@ public class CreateGff4ClinVar {
         this.toFile = toFile;
     }
 
-    public boolean isCompress() {
-        return compress;
+    public int getCompressMode() {
+        return compressMode;
     }
 }

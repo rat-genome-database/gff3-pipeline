@@ -108,7 +108,7 @@ public class CreateGff4ProteinDomains {
                 // lazy create of gff3 writer
                 if( gff3Writer==null ) {
                     String gffFile = info.getToDir()+assemblyName+"_domains.gff3";
-                    gff3Writer = new Gff3ColumnWriter(gffFile, false, info.isCompress());
+                    gff3Writer = new Gff3ColumnWriter(gffFile, false, info.getCompressMode());
 
                     gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
                     gff3Writer.print("# Species: "+ species+"\n");

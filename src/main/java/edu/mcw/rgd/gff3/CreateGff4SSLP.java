@@ -41,7 +41,7 @@ public class CreateGff4SSLP {
         System.out.println("========================");
 
 
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(info.getToDir()+"/"+assemblySymbol+"_markers.gff3", false, info.isCompress());
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(info.getToDir()+"/"+assemblySymbol+"_markers.gff3", false, info.getCompressMode());
         gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
         gff3Writer.print("# Species: "+ speciesName+"\n");
         gff3Writer.print("# Assembly: "+ MapManager.getInstance().getMap(info.getMapKey()).getName()+"\n");
@@ -50,7 +50,7 @@ public class CreateGff4SSLP {
 
         // set up writer to create fasta sequences of primer pairs..
         String fastaFileName = info.getToDir()+"/"+assemblySymbol+"_markers.fa";
-        if( info.isCompress() ) {
+        if( info.getCompressMode()!=Gff3ColumnWriter.COMPRESS_MODE_NONE ) {
             fastaFileName += ".gz";
         }
         BufferedWriter fastaWriterFile = Utils.openWriter(fastaFileName);

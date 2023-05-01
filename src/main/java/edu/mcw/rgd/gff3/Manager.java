@@ -31,7 +31,7 @@ public class Manager {
     String build;
     String source="RGD_CNRat";
     String ont_aspect;
-    boolean compress = false;
+    int compressMode = Gff3ColumnWriter.COMPRESS_MODE_NONE;
     String flavor;
     private String version;
 
@@ -121,7 +121,7 @@ public class Manager {
                 createGff4Ont.setMapKey(mapKey);
                 createGff4Ont.setOntAspect(ont_aspect);
                 createGff4Ont.setChromosomes(getChromosomes());
-                createGff4Ont.run(compress);
+                createGff4Ont.run(compressMode);
             }else{
                 throw new ArgumentsException("This script requires '-speciesTypeKey:','-mapKey:','-toFile:','-chr:' as parameters:\n" +
                         getUsage());
@@ -148,7 +148,7 @@ public class Manager {
                         info.setMapKey(mapKey);
                         info.setToDir(toDir);
                         info.setSpeciesTypeKey(speciesTypekey);
-                        info.setCompress(compress);
+                        info.setCompressMode(compressMode);
                         createGff.createGeneGff3(info);
                     } else if( flavor.equals("AGR") ){
                         CreateGff4GeneAgr createGff = new CreateGff4GeneAgr();
@@ -156,7 +156,7 @@ public class Manager {
                         createGff.setMapKeyEnsembl(mapKey2);
                         createGff.setGff3Path(toDir);
                         createGff.setSpeciesTypeKey(speciesTypekey);
-                        createGff.createGeneGff3(compress);
+                        createGff.createGeneGff3(compressMode);
                     } else {
                         throw new ArgumentsException("unknown gene flavor: "+flavor);
                     }
@@ -173,7 +173,7 @@ public class Manager {
                         info.setMapKey(mapKey);
                         info.setToDir(toDir);
                         info.setSpeciesTypeKey(speciesTypekey);
-                        info.setCompress(compress);
+                        info.setCompressMode(compressMode);
                         createGff.creategff4QTL(info);
 
                     }else{
@@ -193,7 +193,7 @@ public class Manager {
                     info.setMapKey(mapKey);
                     info.setToDir(toDir);
                     info.setSpeciesTypeKey(speciesTypekey);
-                    info.setCompress(compress);
+                    info.setCompressMode(compressMode);
                     create4Sslp.createGff4Markers(info);
 
                 }else{
@@ -211,7 +211,7 @@ public class Manager {
                     info.setMapKey(mapKey);
                     info.setToDir(toDir);
                     info.setSpeciesTypeKey(speciesTypekey);
-                    info.setCompress(compress);
+                    info.setCompressMode(compressMode);
                     create4Strains.creategff4CongenicStrains(info);
                 }else{
                     throw new ArgumentsException("This Script requires '-mapKey: -toFile:' as parameter:\n" +
@@ -224,7 +224,7 @@ public class Manager {
 
                 if( toDir!=null ){
                     createPromoters4Gene.setToDir(toDir);
-                    createPromoters4Gene.createGenomicElements(compress);
+                    createPromoters4Gene.createGenomicElements(compressMode);
                 }else{
                     throw new ArgumentsException("This Script requires -toDir:' " +
                             "as parameters:\n" + getUsage());
@@ -237,7 +237,7 @@ public class Manager {
                     creator.setMapKey(mapKey);
                     creator.setToFile(toFile);
                     creator.setSpeciesTypeKey(speciesTypekey);
-                    creator.run(compress);
+                    creator.run(compressMode);
                 }else{
                     throw new ArgumentsException("This Script requires '-mapKey: -species: -toFile:' " +
                             "as parameters:\n" + getUsage());
@@ -251,7 +251,7 @@ public class Manager {
                     info.setMapKey(mapKey);
                     info.setToDir(toDir);
                     info.setSpeciesTypeKey(speciesTypekey);
-                    info.setCompress(compress);
+                    info.setCompressMode(compressMode);
                     pdcreator.run(info);
                 }else{
                     throw new ArgumentsException("This Script requires '-mapKey: -species: -toDir:' as parameters:\n" + getUsage());
@@ -265,7 +265,7 @@ public class Manager {
                     createGff4DbSnp.setToFile(toFile);
                     createGff4DbSnp.setSpeciesTypeKey(speciesTypekey);
                     createGff4DbSnp.setBuild(build);
-                    createGff4DbSnp.run(compress);
+                    createGff4DbSnp.run(compressMode);
                 }else{
                     throw new ArgumentsException("This Script requires '-mapKey: -species: -toFile:' " +
                             "as parameters:\n" + getUsage());
@@ -373,7 +373,7 @@ public class Manager {
                     build = argArr[1];
                 }else
                 if(obj.startsWith("-compress")){
-                    compress = true;
+                    compressMode = Gff3ColumnWriter.COMPRESS_MODE_BGZIP;
                 }else
                 if(obj.startsWith("-flavor:")){
                     flavor = argArr[1];
@@ -449,12 +449,12 @@ public class Manager {
         return chromosomes;
     }
 
-    public boolean isCompress() {
-        return compress;
+    public int getCompressMode() {
+        return compressMode;
     }
 
-    public void setCompress(boolean compress) {
-        this.compress = compress;
+    public void setCompressMode(int compressMode) {
+        this.compressMode = compressMode;
     }
 
     public static String getShortSpeciesName(int speciesTypeKey) {
