@@ -60,6 +60,8 @@ public class CreateGff4SSLP {
 
         gff3Writer.close();
         fastaWriterFile.close();
+
+        gff3Writer.sortInMemory();
     }
 
     public void createGff4Markers(int mapKey, int speciesTypeKey, Gff3ColumnWriter gff3Writer, FastaWriter fastaWriter, CounterPool counters) throws Exception{

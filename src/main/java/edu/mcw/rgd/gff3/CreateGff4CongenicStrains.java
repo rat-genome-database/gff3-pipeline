@@ -156,7 +156,10 @@ public class CreateGff4CongenicStrains {
         }
 
         gff3WriterCongenic.close();
+        gff3WriterCongenic.sortInMemory();
+
         gff3WriterMutant.close();
+        gff3WriterMutant.sortInMemory();
 
         System.out.println("\nCongenic Strain records processed: "+ counters.get("congenicStrains"));
         System.out.println("Mutant Strain records processed: "+ counters.get("mutantStrains"));

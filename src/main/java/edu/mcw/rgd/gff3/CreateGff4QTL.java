@@ -79,6 +79,8 @@ public class CreateGff4QTL {
          //close file
         gff3Writer.close();
 
+        gff3Writer.sortInMemory();
+
         CalculateDensity calcDensity = new CalculateDensity();
         calcDensity.setRgdInfoList(rgdInfoList);
         calcDensity.setDensityWriter(densityFile);

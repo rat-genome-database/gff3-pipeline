@@ -221,10 +221,7 @@ public class CreateGff4Gene {
         }
 
         gff3Writer.close();
-
-        //System.out.println("starting sort ...");
-        gff3Writer.sortInMemory(info.getCompressMode()!=Gff3ColumnWriter.COMPRESS_MODE_NONE);
-        //System.out.println("ending sort ...");
+        gff3Writer.sortInMemory();
 
         dumpCounters(counters, assemblySymbol, msgBuf);
 

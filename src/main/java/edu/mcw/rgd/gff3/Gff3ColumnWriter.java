@@ -51,6 +51,8 @@ public class Gff3ColumnWriter {
         }
 
         String outFileName = fileName;
+
+        this.compressMode = compressMode;
         if( compressMode != COMPRESS_MODE_NONE ) {
             if( !outFileName.endsWith(".gz") ) {
                 outFileName += ".gz";
@@ -249,10 +251,10 @@ public class Gff3ColumnWriter {
      * sorts the given gff3 file by 1 column (chromosome) and then by start pos (4th col) and stop pos (5th col)
      * goal: tabix-ready gff3 file
      */
-    public void sortInMemory(boolean compress) throws IOException {
+    public void sortInMemory() throws IOException {
 
         String fname = getFileName();
-        if( compress ) {
+        if( compressMode!=Gff3ColumnWriter.COMPRESS_MODE_NONE ) {
             if( !fname.endsWith(".gz") ) {
                 fname += ".gz";
             }
@@ -294,12 +296,8 @@ public class Gff3ColumnWriter {
         });
 
         BufferedWriter out;
-        if( compress ) {
-            if( compressMode == COMPRESS_MODE_BGZIP ) {
-                out = new BufferedWriter(new OutputStreamWriter(new BlockCompressedOutputStream(fname)));
-            } else {
-                out = Utils.openWriter(fname);
-            }
+        if( compressMode == COMPRESS_MODE_BGZIP ) {
+            out = new BufferedWriter(new OutputStreamWriter(new BlockCompressedOutputStream(fname)));
         } else {
             out = Utils.openWriter(fname);
         }

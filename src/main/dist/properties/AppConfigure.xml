@@ -104,15 +104,15 @@
     <bean id="evaManager" class="edu.mcw.rgd.gff3.CreateGff4Eva">
         <property name="processedAssemblies">
             <list>
-                <value>species:RAT    mapKey:70   toDir:data/Eva/ compress:zip</value>
-                <value>species:RAT    mapKey:360  toDir:data/Eva/ compress:zip</value>
-                <value>species:RAT    mapKey:372  toDir:data/Eva/ compress:zip</value>
-                <value>species:MOUSE  mapKey:35   toDir:data/Eva/ compress:zip</value>
-                <value>species:MOUSE  mapKey:239   toDir:data/Eva/ compress:zip</value>
-                <value>species:PIG    mapKey:910  toDir:data/Eva/ compress:zip</value>
-                <value>species:PIG    mapKey:911  toDir:data/Eva/ compress:zip</value>
-                <value>species:DOG    mapKey:631  toDir:data/Eva/ compress:zip</value>
-                <value>species:VERVET mapKey:1311 toDir:data/Eva/ compress:zip</value>
+                <value>species:RAT    mapKey:70   toDir:data/Eva/ compress:gzip</value>
+                <value>species:RAT    mapKey:360  toDir:data/Eva/ compress:gzip</value>
+                <value>species:RAT    mapKey:372  toDir:data/Eva/ compress:gzip</value>
+                <value>species:MOUSE  mapKey:35   toDir:data/Eva/ compress:gzip</value>
+                <value>species:MOUSE  mapKey:239   toDir:data/Eva/ compress:gzip</value>
+                <value>species:PIG    mapKey:910  toDir:data/Eva/ compress:gzip</value>
+                <value>species:PIG    mapKey:911  toDir:data/Eva/ compress:gzip</value>
+                <value>species:DOG    mapKey:631  toDir:data/Eva/ compress:gzip</value>
+                <value>species:VERVET mapKey:1311 toDir:data/Eva/ compress:gzip</value>
             </list>
         </property>
     </bean>

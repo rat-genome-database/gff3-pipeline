@@ -125,6 +125,8 @@ public class CreateGff4ProteinDomains {
 
         if( gff3Writer!=null ) {
             gff3Writer.close();
+
+            gff3Writer.sortInMemory();
         }
 
         synchronized( this.getClass() ) {

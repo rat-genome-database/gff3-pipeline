@@ -10,6 +10,7 @@ import edu.mcw.rgd.process.mapping.MapManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.Map;
@@ -240,9 +241,11 @@ public class CreatePromoters4Gene {
         return gff3Writer;
     }
 
-    void closeGff3Writers() {
+    void closeGff3Writers() throws IOException {
         for( Gff3ColumnWriter gff3Writer: gff3Writers.values() ) {
             gff3Writer.close();
+
+            gff3Writer.sortInMemory();
         }
     }
     Map<Integer, Gff3ColumnWriter> gff3Writers = new HashMap<>();

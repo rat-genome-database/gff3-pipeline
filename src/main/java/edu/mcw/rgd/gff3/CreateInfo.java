@@ -28,10 +28,10 @@ public class CreateInfo {
                     case "toDir": toDir = value; break;
                     case "assemblySymbol": assemblySymbol = value; break;
                     case "compress": {
-                        if( value.equals("bgzip") ) {
+                        if( value.equals("bgzip") || value.equals("bgz") || value.equals("bgzf") ) {
                             compressMode = Gff3ColumnWriter.COMPRESS_MODE_BGZIP;
                         }
-                        else if( value.equals("zip") || value.equals("yes") ) {
+                        else if( value.equals("gzip") || value.equals("gz") || value.equals("yes") ) {
                             compressMode = Gff3ColumnWriter.COMPRESS_MODE_ZIP;
                         }
                         else {

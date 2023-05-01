@@ -188,6 +188,7 @@ public class CreateGff4Ontology {
                 }
 
                 gff3Writer.close();
+                gff3Writer.sortInMemory();
 
                 System.out.print("c"+chr + ":" + counter+", ");
             }
@@ -296,13 +297,11 @@ public class CreateGff4Ontology {
             if (relatedQtlMap.size() > 0) {
                 Set<Integer> relQtlKeys = relatedQtlMap.keySet();
 
-
                 for (int keys : relQtlKeys) {
                     entry.relQtls += keys + ":" + relatedQtlMap.get(keys) + ",";
                 }
+
             } else if (relatedQtlMap.size() == 0) {
-
-
                 entry.relQtls = "NA";
             }
             if (entry.relQtls.endsWith(",")) {
