@@ -1,6 +1,7 @@
 package edu.mcw.rgd.gff3;
 
 import edu.mcw.rgd.process.Utils;
+import htsjdk.samtools.util.BlockCompressedOutputStream;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -16,27 +17,31 @@ import java.util.zip.GZIPOutputStream;
  */
 public class Gff3ColumnWriter {
 
+    public static int COMPRESS_MODE_NONE = 0;
+    public static int COMPRESS_MODE_ZIP = 1;
+    public static int COMPRESS_MODE_BGZIP = 2;
+
     private PrintWriter gff3Writer;
-    private boolean ratmineCompatibleFormat;
+    private int compressMode;
     private boolean agrCompatibleFormat;
     private String gff3FileName;
 
     // init gff writer in gff3 format; do not compress output
     public Gff3ColumnWriter(String fileName) throws IOException {
-        init(fileName, false, false);
+        init(fileName, false, COMPRESS_MODE_NONE);
     }
 
     // init gff writer in gff or gff3 format; do not compress output
     public Gff3ColumnWriter(String fileName, boolean useGffFormat) throws IOException {
-        init(fileName, useGffFormat, false);
+        init(fileName, useGffFormat, COMPRESS_MODE_NONE);
     }
 
     // init gff writer in gff or gff3 format; do not compress output
-    public Gff3ColumnWriter(String fileName, boolean useGffFormat, boolean compress) throws IOException {
-        init(fileName, useGffFormat, compress);
+    public Gff3ColumnWriter(String fileName, boolean useGffFormat, int compressMode) throws IOException {
+        init(fileName, useGffFormat, compressMode);
     }
 
-    private void init(String fileName, boolean useGffFormat, boolean compress) throws IOException {
+    private void init(String fileName, boolean useGffFormat, int compressMode) throws IOException {
         // ensure the directory is created
         int lastSlashPos = fileName.lastIndexOf('/');
         if( lastSlashPos < 0 )
@@ -46,11 +51,17 @@ public class Gff3ColumnWriter {
         }
 
         String outFileName = fileName;
-        if( compress ) {
+
+        this.compressMode = compressMode;
+        if( compressMode != COMPRESS_MODE_NONE ) {
             if( !outFileName.endsWith(".gz") ) {
                 outFileName += ".gz";
             }
-            gff3Writer = new PrintWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(outFileName))));
+            if( compressMode == COMPRESS_MODE_ZIP ) {
+                gff3Writer = new PrintWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(outFileName))));
+            } else if( compressMode == COMPRESS_MODE_BGZIP ) {
+                gff3Writer = new PrintWriter(new OutputStreamWriter(new BlockCompressedOutputStream(outFileName)));
+            }
         }
         else {
             gff3Writer = new PrintWriter(outFileName);
@@ -96,7 +107,7 @@ public class Gff3ColumnWriter {
     public String prepFirst8Columns(String chrNum, String source, String type, Integer start, Integer stop, String score, String strand, String phase) {
 
         String chr = chrNum;
-        if( isRatmineCompatibleFormat() ) {
+        if( false ) {
             switch(type) {
                 case "EXON": type = "Exon"; break;
                 case "UTR5": type = "FivePrimeUTR"; break;
@@ -240,10 +251,10 @@ public class Gff3ColumnWriter {
      * sorts the given gff3 file by 1 column (chromosome) and then by start pos (4th col) and stop pos (5th col)
      * goal: tabix-ready gff3 file
      */
-    public void sortInMemory(boolean compress) throws IOException {
+    public void sortInMemory() throws IOException {
 
         String fname = getFileName();
-        if( compress ) {
+        if( compressMode!=Gff3ColumnWriter.COMPRESS_MODE_NONE ) {
             if( !fname.endsWith(".gz") ) {
                 fname += ".gz";
             }
@@ -284,7 +295,13 @@ public class Gff3ColumnWriter {
             }
         });
 
-        BufferedWriter out = Utils.openWriter(fname);
+        BufferedWriter out;
+        if( compressMode == COMPRESS_MODE_BGZIP ) {
+            out = new BufferedWriter(new OutputStreamWriter(new BlockCompressedOutputStream(fname)));
+        } else {
+            out = Utils.openWriter(fname);
+        }
+
         for( String l: lines ) {
             out.write(l);
             out.write("\n");
@@ -292,12 +309,12 @@ public class Gff3ColumnWriter {
         out.close();
     }
 
-    public boolean isRatmineCompatibleFormat() {
-        return ratmineCompatibleFormat;
+    public int getCompressMode() {
+        return compressMode;
     }
 
-    public void setRatmineCompatibleFormat(boolean ratmineCompatibleFormat) {
-        this.ratmineCompatibleFormat = ratmineCompatibleFormat;
+    public void setCompressMode(int compressMode) {
+        this.compressMode = compressMode;
     }
 
     public boolean isAgrCompatibleFormat() {

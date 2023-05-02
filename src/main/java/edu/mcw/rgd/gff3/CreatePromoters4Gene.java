@@ -10,6 +10,7 @@ import edu.mcw.rgd.process.mapping.MapManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class CreatePromoters4Gene {
         this.toDir = toDir;
     }
 
-    public void createGenomicElements(boolean compress) throws Exception{
+    public void createGenomicElements(int compressMode) throws Exception{
 
         long time0 = System.currentTimeMillis();
 
@@ -52,7 +53,7 @@ public class CreatePromoters4Gene {
                 List<MapData> mapObjects = mdao.getMapData(rgdid);
                 for (MapData mdObject : mapObjects) {
 
-                    Gff3ColumnWriter gff3Writer = getWriter(mdObject.getMapKey(), compress);
+                    Gff3ColumnWriter gff3Writer = getWriter(mdObject.getMapKey(), compressMode);
 
                     String strand = Utils.NVL(mdObject.getStrand(), ".");
 
@@ -202,7 +203,7 @@ public class CreatePromoters4Gene {
         log.info("PROMOTERS EXPORTED TO GFF3 FILES IN DIRECTORY "+getToDir()+"    elapsed "+Utils.formatElapsedTime(time0, System.currentTimeMillis()));
         log.info("===");
         for( int mapKey: rowsWritten.keySet() ) {
-            Gff3ColumnWriter writer = getWriter(mapKey, compress);
+            Gff3ColumnWriter writer = getWriter(mapKey, compressMode);
             log.info("   "+writer.getFileName()+":   "+rowsWritten.get(mapKey)+" rows");
         }
         log.info("===");
@@ -220,7 +221,7 @@ public class CreatePromoters4Gene {
         rowsWrittenMap.put(mapKey, rowsWritten);
     }
 
-    synchronized Gff3ColumnWriter getWriter(int mapKey, boolean compress) throws Exception {
+    synchronized Gff3ColumnWriter getWriter(int mapKey, int compressMode) throws Exception {
 
         Gff3ColumnWriter gff3Writer = gff3Writers.get(mapKey);
         if( gff3Writer==null ) {
@@ -229,7 +230,7 @@ public class CreatePromoters4Gene {
             int speciesTypeKey = map.getSpeciesTypeKey();
             String species = SpeciesType.getCommonName(speciesTypeKey);
 
-            gff3Writer = new Gff3ColumnWriter(getToDir()+species+"/"+map.getName()+"_promoters.gff3", false, compress);
+            gff3Writer = new Gff3ColumnWriter(getToDir()+species+"/"+map.getName()+"_promoters.gff3", false, compressMode);
             gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
             gff3Writer.print("# Species: "+ species+"\n");
             gff3Writer.print("# Assembly: "+ map.getName()+"\n");
@@ -240,9 +241,11 @@ public class CreatePromoters4Gene {
         return gff3Writer;
     }
 
-    void closeGff3Writers() {
+    void closeGff3Writers() throws IOException {
         for( Gff3ColumnWriter gff3Writer: gff3Writers.values() ) {
             gff3Writer.close();
+
+            gff3Writer.sortInMemory();
         }
     }
     Map<Integer, Gff3ColumnWriter> gff3Writers = new HashMap<>();

@@ -68,18 +68,18 @@ public class CreateGff4Ontology {
         this.chromosomes = chromosomes;
     }
 
-    public void run(boolean compress) throws Exception{
+    public void run(int compressMode) throws Exception{
 
         switch( getOntAspect() ) {
             case "D":
                 Collection<String> doTermAccs = getTermsInJBrowseSlim();
-                run(compress, doTermAccs);
+                run(compressMode, doTermAccs);
                 break;
 
             case "E":
                 final String termAcc = "CHEBI:24432"; // CHEBI term 'biological_role'
                 Collection<String> termAccs = dao.getTermDescendants(termAcc).keySet();
-                run(compress, termAccs);
+                run(compressMode, termAccs);
                 break;
 
             default:
@@ -87,7 +87,7 @@ public class CreateGff4Ontology {
         }
     }
 
-    public void run(boolean compress, Collection<String> termAccs) throws Exception{
+    public void run(int compressMode, Collection<String> termAccs) throws Exception{
 
         if( termAccs.isEmpty() ) {
             System.out.println("ERROR! no term accessions for aspect "+getOntAspect());
@@ -128,7 +128,7 @@ public class CreateGff4Ontology {
                 } else {
                     gffFile = fname + termAcc.replaceAll(":", "") + "_Ontology_" + shortSpeciesName + "_RGDChr" + chr + ".gff3";
                 }
-                gff3Writer = new Gff3ColumnWriter(gffFile, false, compress);
+                gff3Writer = new Gff3ColumnWriter(gffFile, false, compressMode);
 
                 // write as comment: date and time it was generated, spesies, assembly and ontology term
                 gff3Writer.print("#generated on "+new Date()+"\n");
@@ -188,6 +188,7 @@ public class CreateGff4Ontology {
                 }
 
                 gff3Writer.close();
+                gff3Writer.sortInMemory();
 
                 System.out.print("c"+chr + ":" + counter+", ");
             }
@@ -296,13 +297,11 @@ public class CreateGff4Ontology {
             if (relatedQtlMap.size() > 0) {
                 Set<Integer> relQtlKeys = relatedQtlMap.keySet();
 
-
                 for (int keys : relQtlKeys) {
                     entry.relQtls += keys + ":" + relatedQtlMap.get(keys) + ",";
                 }
+
             } else if (relatedQtlMap.size() == 0) {
-
-
                 entry.relQtls = "NA";
             }
             if (entry.relQtls.endsWith(",")) {

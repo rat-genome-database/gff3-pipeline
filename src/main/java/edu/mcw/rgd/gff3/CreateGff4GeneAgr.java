@@ -27,7 +27,7 @@ public class CreateGff4GeneAgr {
 
     Map<String, Integer> idMap = new HashMap<>();
 
-    public void createGeneGff3(boolean compress) throws Exception{
+    public void createGeneGff3(int compressMode) throws Exception{
 
         CdsUtils utilsNcbi = new CdsUtils(dao, mapKey);
         CdsUtils utilsEnsembl = new CdsUtils(dao, mapKeyEnsembl);
@@ -39,7 +39,7 @@ public class CreateGff4GeneAgr {
 
         Counters counters = new Counters();
 
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gff3Path+species+"_RGD_AGR.gff3", false, compress);
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gff3Path+species+"_RGD_AGR.gff3", false, compressMode);
         gff3Writer.setAgrCompatibleFormat(true);
 
         // date format as agreed on DQM meeting on May 18, 2021

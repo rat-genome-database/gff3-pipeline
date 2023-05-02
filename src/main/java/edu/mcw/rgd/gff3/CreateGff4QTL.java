@@ -44,11 +44,8 @@ public class CreateGff4QTL {
         System.out.println("========================");
 
         String gffFile = info.getToDir()+speciesName+"_RGDQTLS.gff3";
-        String RATMINEGffFile = info.getToDir()+speciesName+"_RATMINE_RGDQTLS.gff3";
 
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, info.isCompress());
-        Gff3ColumnWriter RATMINEgff3Writer = new Gff3ColumnWriter(RATMINEGffFile, false, info.isCompress());
-        RATMINEgff3Writer.setRatmineCompatibleFormat(true);
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, info.getCompressMode());
 
         PrintWriter densityFile = new PrintWriter(info.getToDir()+speciesName+"_density.gff");
 
@@ -56,7 +53,7 @@ public class CreateGff4QTL {
         List<RGDInfo> rgdInfoList = new ArrayList<RGDInfo>();
 
         for(QTL qtlObj: qtlList){
-            createGffFromQtlObject(qtlObj, gff3Writer, RATMINEgff3Writer, rgdInfoList, info.getMapKey(), info.getSpeciesTypeKey(), counters);
+            createGffFromQtlObject(qtlObj, gff3Writer, rgdInfoList, info.getMapKey(), info.getSpeciesTypeKey(), counters);
         }
 
         System.out.println("Number of Active Qtls processed:"+ counters.get("activeQtlCount"));
@@ -81,7 +78,8 @@ public class CreateGff4QTL {
 
          //close file
         gff3Writer.close();
-        RATMINEgff3Writer.close();
+
+        gff3Writer.sortInMemory();
 
         CalculateDensity calcDensity = new CalculateDensity();
         calcDensity.setRgdInfoList(rgdInfoList);
@@ -91,8 +89,8 @@ public class CreateGff4QTL {
         calcDensity.runDensityCalculator(verbose);
     }
 
-    public void createGffFromQtlObject(QTL qtlObject, Gff3ColumnWriter gff3Writer, Gff3ColumnWriter RATMINEgff3Writer,
-                                       List<RGDInfo> rgdInfoList, int mapKey, int speciesTypeKey, CounterPool counters) throws Exception {
+    public void createGffFromQtlObject(QTL qtlObject, Gff3ColumnWriter gff3Writer, List<RGDInfo> rgdInfoList,
+                                       int mapKey, int speciesTypeKey, CounterPool counters) throws Exception {
 
         int qtlKey = qtlObject.getKey();
         int rgdId = qtlObject.getRgdId();
@@ -191,15 +189,9 @@ public class CreateGff4QTL {
                         counters.increment("noMapsPosMethodId");
                 }
 
-                //write first 8 columns
                 gff3Writer.writeFirst8Columns(chrom, source, type, start, stop, ".",strand,".");
-                RATMINEgff3Writer.writeFirst8Columns(chrom, source, type, start, stop, ".",strand,".");
 
-
-                //initialize hashmap for attributes.
                 Map<String, String> attributesHashMap = new HashMap<String, String>();
-                Map<String, String> RATMINEattributesHashMap = new HashMap<String, String>();
-
 
                 //get related strains
                 String relStrain="";
@@ -291,25 +283,6 @@ public class CreateGff4QTL {
                 attributesHashMap.put("Index","1");
 
                 gff3Writer.writeAttributes4Gff3(attributesHashMap);
-
-
-                RATMINEattributesHashMap.put("ID",String.valueOf(rgdId));
-                RATMINEattributesHashMap.put("Name", symbol);
-                RATMINEattributesHashMap.put("fullName", full_name);
-                RATMINEattributesHashMap.put("Alias", "RGD:"+rgdId+", QTL:"+full_name);
-                RATMINEattributesHashMap.put("LOD",lod);
-                RATMINEattributesHashMap.put("pValue",pValue);
-                RATMINEattributesHashMap.put("Note",notes);
-                RATMINEattributesHashMap.put("Dbxref","RGD:"+rgdId);
-                RATMINEattributesHashMap.put("mappingMethod",mappingMethod);
-                RATMINEattributesHashMap.put("relatedQTLs",relQtls);
-                if(speciesTypeKey==3){
-                    RATMINEattributesHashMap.put("relatedStrains", relStrain);
-                }
-                RATMINEattributesHashMap.put("relatedGenes",relGenes);
-                RATMINEattributesHashMap.put("Index","1");
-
-                RATMINEgff3Writer.writeAttributes4Gff3(RATMINEattributesHashMap);
             }
         }
     }

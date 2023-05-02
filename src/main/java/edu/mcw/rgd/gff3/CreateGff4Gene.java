@@ -60,15 +60,12 @@ public class CreateGff4Gene {
 
         CounterPool counters = new CounterPool();
 
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(info.getToDir()+"/"+assemblySymbol+"_genes.gff3", false, info.isCompress());
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(info.getToDir()+"/"+assemblySymbol+"_genes.gff3", false, info.getCompressMode());
         gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
         gff3Writer.print("# Species: "+ species+"\n");
         gff3Writer.print("# Assembly: "+ MapManager.getInstance().getMap(info.getMapKey()).getName()+"\n");
         gff3Writer.print("# Primary Contact: mtutaj@mcw.edu\n");
         gff3Writer.print("# Generated: "+new Date()+"\n");
-
-        Gff3ColumnWriter RATMINEgff3Writer = new Gff3ColumnWriter(info.getToDir()+"/RATMINE_"+assemblySymbol+"_genes.gff3", false, info.isCompress());
-        RATMINEgff3Writer.setRatmineCompatibleFormat(true);
 
         List<Gene> activeGenes = dao.getActiveGenes(info.getSpeciesTypeKey());
 
@@ -97,10 +94,7 @@ public class CreateGff4Gene {
 
             for(MapData map : geneMap){
 
-                boolean writeRATMINE = geneRgdIdsEmitted.add(map.getRgdId());
-                if( !writeRATMINE ) {
-                    counters.increment(" Gene Loci skipped for RATMINE");
-                }
+                geneRgdIdsEmitted.add(map.getRgdId());
 
                 List<Transcript> trsOnMap = getTranscriptsForMap(geneTrs, map, utils);
 
@@ -120,7 +114,6 @@ public class CreateGff4Gene {
                 List<XdbId> xdbIds = getXdbIds(geneRgdId);
 
                 Map<String,String> attributesHashMap = new HashMap<>();
-                Map<String,String> RATMINEattributesHashMap = new HashMap<>();
 
                 String uniqueGeneId = getUniqueId("RGD"+gene.getRgdId(), idMap);
                 attributesHashMap.put("ID", uniqueGeneId);
@@ -138,35 +131,13 @@ public class CreateGff4Gene {
                     attributesHashMap.put("nomenclatureStatus", gene.getNcbiAnnotStatus());
                 }
 
-                String RATMINEuniqueGeneId = getUniqueId("RGD:"+gene.getRgdId(), idMap);
-                RATMINEattributesHashMap.put("ID", RATMINEuniqueGeneId);
-                RATMINEattributesHashMap.put("Name", gene.getSymbol());
-                RATMINEattributesHashMap.put("fullName", nameOfgene);
-                RATMINEattributesHashMap.put("Alias", "RGD"+gene.getRgdId()+","+gene.getRgdId()+","+nameOfgene);
-                if( annotDesc!=null )
-                    RATMINEattributesHashMap.put("Note",annotDesc);
-                RATMINEattributesHashMap.put("geneType",gene.getType());
-                RATMINEattributesHashMap.put("nomenclatureStatus", gene.getNcbiAnnotStatus());
-
-
-                String extDbString = getXdbString(xdbIds, counters, false);
+                String extDbString = getXdbString(xdbIds, counters);
                 if( !extDbString.isEmpty() ){
                     attributesHashMap.put("Dbxref",extDbString);
-
-                    extDbString = getXdbString(xdbIds, counters, true);
-                    RATMINEattributesHashMap.put("Dbxref", extDbString);
                 }
 
                 gff3Writer.writeFirst8Columns(map.getChromosome(),"RGD", "gene", map.getStartPos(),map.getStopPos(),".",map.getStrand(),".");
                 gff3Writer.writeAttributes4Gff3(attributesHashMap);
-
-                if( writeRATMINE ) {
-                    if(RATMINEuniqueGeneId.contains("_")) {
-                        log.debug("RATMINE error: dash in ID="+RATMINEuniqueGeneId);
-                    }
-                    RATMINEgff3Writer.writeFirst8Columns(map.getChromosome(), "RGD", "gene", map.getStartPos(), map.getStopPos(), ".", map.getStrand(), ".");
-                    RATMINEgff3Writer.writeAttributes4Gff3(RATMINEattributesHashMap);
-                }
 
                 if(trsOnMap.size()>1){
                     counters.increment(" Genes with more than one mapped transcript");
@@ -197,22 +168,8 @@ public class CreateGff4Gene {
                             attributesHashMap.put("isNonCoding", nc);
                             attributesHashMap.put("gene", gene.getSymbol());
 
-                            RATMINEattributesHashMap.put("ID", id);
-                            RATMINEattributesHashMap.put("Name", tr.getAccId());
-                            RATMINEattributesHashMap.put("Parent", RATMINEuniqueGeneId);
-                            RATMINEattributesHashMap.put("Alias", "RGD:"+tr.getRgdId());
-                            if( tr.getRefSeqStatus()!=null )
-                                RATMINEattributesHashMap.put("RefSeqStatus", tr.getRefSeqStatus());
-                            RATMINEattributesHashMap.put("isNon-Coding", nc);
-                            RATMINEattributesHashMap.put("gene", gene.getSymbol());
-
                             gff3Writer.writeFirst8Columns(trMd.getChromosome(), "RGD", "mRNA", trMd.getStartPos(),trMd.getStopPos(), ".", trMd.getStrand(), ".");
                             gff3Writer.writeAttributes4Gff3(attributesHashMap);
-
-                            if( writeRATMINE ) {
-                                RATMINEgff3Writer.writeFirst8Columns(trMd.getChromosome(), "RGD", "mRNA", trMd.getStartPos(), trMd.getStopPos(), ".", trMd.getStrand(), ".");
-                                RATMINEgff3Writer.writeAttributes4Gff3(RATMINEattributesHashMap);
-                            }
 
                             List<edu.mcw.rgd.gff3.CodingFeature> cfList = utils.buildCfList(trMd);
                             for(edu.mcw.rgd.gff3.CodingFeature cf: cfList){
@@ -245,18 +202,7 @@ public class CreateGff4Gene {
                                 if( cf.getNotes()!=null )
                                     attributesHashMap.put("Note", cf.getNotes());
 
-                                RATMINEattributesHashMap.put("ID", featureId);
-                                RATMINEattributesHashMap.put("Parent", id);
-                                if( cf.getNotes()!=null )
-                                    RATMINEattributesHashMap.put("Note", cf.getNotes());
-
-
                                 gff3Writer.writeAttributes4Gff3(attributesHashMap);
-
-                                if( writeRATMINE ) {
-                                    RATMINEgff3Writer.writeFirst8Columns(cf.getChromosome(), "RGD", String.valueOf(cf.getFeatureType()), cf.getStartPos(), cf.getStopPos(), ".", cf.getStrand(), cf.getCodingPhaseStr());
-                                    RATMINEgff3Writer.writeAttributes4Gff3(RATMINEattributesHashMap);
-                                }
                             }
                         }
                     }
@@ -275,11 +221,7 @@ public class CreateGff4Gene {
         }
 
         gff3Writer.close();
-        RATMINEgff3Writer.close();
-
-        //System.out.println("starting sort ...");
-        gff3Writer.sortInMemory(info.isCompress());
-        //System.out.println("ending sort ...");
+        gff3Writer.sortInMemory();
 
         dumpCounters(counters, assemblySymbol, msgBuf);
 
@@ -374,7 +316,7 @@ public class CreateGff4Gene {
      * @return xdb id string
      * @throws Exception
      */
-    private String getXdbString(List<XdbId> xdbList, CounterPool counters, boolean ratmineCompatible) throws Exception{
+    private String getXdbString(List<XdbId> xdbList, CounterPool counters) {
 
         Set<String> xdbIds = new TreeSet<>();
         for(XdbId externalId : xdbList ){
@@ -388,11 +330,7 @@ public class CreateGff4Gene {
                 }
 
                 if(externalId.getAccId().contains(":")){
-                    if( ratmineCompatible && externalId.getXdbKey()==XdbId.XDB_KEY_MGD ) {
-                        xdbEntry += externalId.getAccId();
-                    } else {
-                        xdbEntry += externalId.getAccId().replaceAll(":", "");
-                    }
+                    xdbEntry += externalId.getAccId().replaceAll(":", "");
                 }else{
                     xdbEntry += externalId.getAccId();
                 }

@@ -3,13 +3,13 @@ package edu.mcw.rgd.gff3;
 import edu.mcw.rgd.process.mapping.MapManager;
 
 /**
- * configuration info used to run an gf33 create job
+ * configuration info used to run a gf3 create job
  */
 public class CreateInfo {
     private String toDir;
     private int mapKey;
     private int speciesTypeKey;
-    private boolean compress;
+    private int compressMode;
     private String assemblySymbol;
 
     public void parseFromString(String s) throws Exception {
@@ -26,8 +26,18 @@ public class CreateInfo {
                     case "species": break; // ignore it: we will derive speciesTypeKey from mapKey
                     case "mapKey": mapKey = Integer.parseInt(value); break;
                     case "toDir": toDir = value; break;
-                    case "compress": compress = (value.equals("yes") ? true : false); break;
                     case "assemblySymbol": assemblySymbol = value; break;
+                    case "compress": {
+                        if( value.equals("bgzip") || value.equals("bgz") || value.equals("bgzf") ) {
+                            compressMode = Gff3ColumnWriter.COMPRESS_MODE_BGZIP;
+                        }
+                        else if( value.equals("gzip") || value.equals("gz") || value.equals("yes") ) {
+                            compressMode = Gff3ColumnWriter.COMPRESS_MODE_ZIP;
+                        }
+                        else {
+                            compressMode = Gff3ColumnWriter.COMPRESS_MODE_NONE;
+                        }
+                    } break;
                     default: throw new Exception("unknown field: "+name);
                 }
             }
@@ -62,12 +72,12 @@ public class CreateInfo {
         this.speciesTypeKey = speciesTypeKey;
     }
 
-    public boolean isCompress() {
-        return compress;
+    public int getCompressMode() {
+        return compressMode;
     }
 
-    public void setCompress(boolean compress) {
-        this.compress = compress;
+    public void setCompressMode(int compressMode) {
+        this.compressMode = compressMode;
     }
 
     public String getAssemblySymbol() {
@@ -79,10 +89,18 @@ public class CreateInfo {
     }
 
     public void dump() {
+        String compressModeStr = "none";
+        if( compressMode==Gff3ColumnWriter.COMPRESS_MODE_ZIP ) {
+            compressModeStr = "zip";
+        }
+        else if( compressMode==Gff3ColumnWriter.COMPRESS_MODE_BGZIP ) {
+            compressModeStr = "bgzip";
+        }
+
         System.out.println("toDir = "+toDir);
         System.out.println("mapKey = "+mapKey);
         System.out.println("speciesTypeKey = "+speciesTypeKey);
-        System.out.println("compress = "+compress);
+        System.out.println("compressMode = "+compressModeStr);
         if( assemblySymbol!=null ) {
             System.out.println("assemblySymbol = " + assemblySymbol);
         }
