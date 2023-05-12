@@ -45,7 +45,7 @@ contentBlock="https://rgd.mcw.edu/rgdweb/jbrowse/contextMenu.html?source={source
 ###################################
 
 # Main while-loop execution block
-while IFS=$'\t' read mainOrgDir pipelineGenes pipelineQTL pipelineSSLP pipelineStrains pipelineOnt datasetDir organism assembly
+while IFS=$'\t' read mainOrgDir pipelineGenes pipelineQTL pipelineSSLP pipelineStrains pipelineOnt datasetDir organism assembly pipelineGenesOnly
 do
 	printf "***********************************\n"
 	printf "Beginning processing of ${assembly} for species ${organism} ...\n"
@@ -72,14 +72,10 @@ do
 	fi
 	printf 'done!\n\n'
 	
-	## Initial clean-up
-	printf "Initiating clean-up ...: rm ${currentWorkingOntPath}/*.gff3* ${currentWorkingPath}/*.gff3* ${currentOrgPath}/*.gff3* \n"
-	rm -f ${currentWorkingOntPath}/*.gff3* ${currentWorkingPath}/*.gff3* ${currentOrgPath}/*.gff3*
-	printf 'done!\n\n'
-	
 	## Import pipeline GFF3 files
 	printf "Importing pipeline GFF3 files ... "
-	${reedPulldown}${mainPipelineOutput}/${pipelineGenes} ${currentWorkingPath}
+	  ${reedPulldown}${mainPipelineOutput}/${pipelineGenes} ${currentOrgPath}/ARGD_curated_genes.gff3.gz
+	  ${reedPulldown}${mainPipelineOutput}/${pipelineGenesOnly} ${currentOrgPath}/ARGD_curated_genesOnly.gff3.gz
 	printf "  GENES OK"
 	if [[ "${pipelineQTL}" != "null" ]]; then
 		${reedPulldown}${mainPipelineOutput}/${pipelineQTL} ${currentOrgPath}/AQTLS.gff3.gz
@@ -102,32 +98,6 @@ do
 	printf ' done!\n\n'
 	## End of pipeline importing
 	
-	
-	## Unzip imported GFF3 files
-	printf "Unzipping GFF3 files ... "
-	for file in ${currentOrgPath}/*.gff3.gz ${currentWorkingPath}/*.gff3.gz ; do
-		gzip -d ${file}
-	done
-	if [[ "${pipelineOnt}" != "null" ]]; then
-		for file in ${currentWorkingOntPath}/*.gff3.gz; do
-			gzip -d ${file}
-		done
-	fi
-	printf 'done!\n\n'
-	
-	
-	## Build GFF3 files to be loaded into JBrowse
-	printf "Building ARGD_curated_genes ... "
-	cat $(ls -v ${currentWorkingPath}/*.gff3) > ${currentOrgPath}/ARGD_curated_genes.gff3
-	printf 'done!\n'
-	
-	printf "Building ARGD_curated_genesOnly ... "
-	sed '/^##.*/d' ${currentOrgPath}/ARGD_curated_genes.gff3 | awk 'BEGIN { FS=OFS="\t" } { if( $3 == "gene" || $3 == "pseudogene" ) { print; } }' > ${currentOrgPath}/ARGD_curated_genesOnly.gff3
-	printf 'done!\n'
-	
-	printf "Building ARGD_curated_transcripts ... "
-	sed '/^##.*/d' ${currentOrgPath}/ARGD_curated_genes.gff3 | awk 'BEGIN { FS=OFS="\t" } { if( $3 == "mRNA" ) { sub( /[pP]arent=RGD[0-9_]*;/, "", $9 ); print; } else if( $3 == "exon" || $3 == "CDS" ) { print; } }' > ${currentOrgPath}/ARGD_curated_transcripts.gff3
-	printf 'done!\n'
 	
 	# And here come the ontology tracks!
 	if [[ "${pipelineOnt}" != "null" ]]; then
@@ -174,9 +144,6 @@ do
 	printf "\nMoved to JBrowse home directory: ${PWD}\n\n"
 	
 	# Purging old Gene Models, QTLs, and SSLP tracks
-	./bin/remove-track.pl --dir "${datasetDir}" --trackLabel "ARGD_curated_genes" --delete
-        ./bin/remove-track.pl --dir "${datasetDir}" --trackLabel "ARGD_curated_genesOnly" --delete
-        ./bin/remove-track.pl --dir "${datasetDir}" --trackLabel "ARGD_curated_transcripts" --delete
 	if [[ "${pipelineQTL}" != null ]]; then
         ./bin/remove-track.pl --dir "${datasetDir}" --trackLabel "AQTLS" --delete
 	fi
@@ -225,19 +192,28 @@ do
 	done < ${startingHome}/${2}
 	fi
 	
-	# New track insertion
+	###
+	# GENES
+
+	# obsolete track ARGD_curated_transcripts
+  ./bin/remove-track.pl --dir "${datasetDir}" --trackLabel "ARGD_curated_transcripts" --delete
+
 	# ARGD_curated_genes insertion
+  zcat "${currentOrgPath}/ARGD_curated_genes.gff3.gz" > "${currentOrgPath}/ARGD_curated_genes.gff3"
+	./bin/remove-track.pl --dir "${datasetDir}" --trackLabel "ARGD_curated_genes" --delete
 	./bin/flatfile-to-json.pl --gff "${currentOrgPath}/ARGD_curated_genes.gff3" --trackLabel "ARGD_curated_genes" --key "RGD ${organism} (${assembly}) Genes and Transcripts" --out "${datasetDir}" --trackType JBrowse/View/Track/CanvasFeatures --clientConfig "{ \"color\" : \"#DF255A\", \"featureScale\" : 0.0001, \"label\" : \"symbol,name\", \"description\" : \"\" }" --config "{ \"category\" : \"Gene Models/RGD Gene Features\", \"histograms\" : { \"color\" : \"#DF255A\", \"binsPerBlock\" : 25 }, \"onClick\" : { \"iconClass\" : \"dijitIconDatabase\", \"action\" : \"contentDialog\", \"content\" : \"<iframe src=\\\"${contentBlock}\\\" frameborder='0' marginheight='0' width='425' height='240' id='id_IFrame'></iframe>\", \"title\" : \"<center>RGD Feature Data for {name}</center>\" }, \"menuTemplate\" : [ { \"label\" : \"View RGD details\", \"iconClass\" : \"dijitIconDatabase\", \"action\" : \"contentDialog\", \"content\" : \"<iframe src=\\\"${contentBlock}\\\" frameborder='0' marginheight='0' width='425' height='240' id='id_IFrame'></iframe>\", \"title\" : \"<center>RGD Feature Data for {name}</center>\" }, { \"label\" : \"Highlight this feature\" } ] }"
+  rm "${currentOrgPath}/ARGD_curated_genes.gff3"
 	echo "+++ inserted track ARGD_curated_genes"
 	
 	# ARGD_curated_genesOnly insertion
+  zcat "${currentOrgPath}/ARGD_curated_genesOnly.gff3.gz" > "${currentOrgPath}/ARGD_curated_genesOnly.gff3"
+  ./bin/remove-track.pl --dir "${datasetDir}" --trackLabel "ARGD_curated_genesOnly" --delete
 	./bin/flatfile-to-json.pl --gff "${currentOrgPath}/ARGD_curated_genesOnly.gff3" --trackLabel "ARGD_curated_genesOnly" --key "RGD ${organism} (${assembly}) Genes" --out "${datasetDir}" --trackType JBrowse/View/Track/CanvasFeatures --clientConfig "{ \"color\" : \"#DF255A\", \"featureScale\" : 0.0001, \"label\" : \"symbol,name\", \"description\" : \"\" }" --config "{ \"category\" : \"Gene Models/RGD Gene Features\", \"glyph\" : \"JBrowse/View/FeatureGlyph/Box\", \"histograms\" : { \"color\" : \"#DF255A\", \"binsPerBlock\" : 25 }, \"onClick\" : { \"iconClass\" : \"dijitIconDatabase\", \"action\" : \"contentDialog\", \"content\" : \"<iframe src=\\\"${contentBlock}\\\" frameborder='0' marginheight='0' width='425' height='240' id='id_IFrame'></iframe>\", \"title\" : \"<center>RGD Feature Data for {name}</center>\" }, \"menuTemplate\" : [ { \"label\" : \"View RGD details\", \"iconClass\" : \"dijitIconDatabase\", \"action\" : \"contentDialog\", \"content\" : \"<iframe src=\\\"${contentBlock}\\\" frameborder='0' marginheight='0' width='425' height='240' id='id_IFrame'></iframe>\", \"title\" : \"<center>RGD Feature Data for {name}</center>\" }, { \"label\" : \"Highlight this feature\" } ] }"
+	rm "${currentOrgPath}/ARGD_curated_genesOnly.gff3"
 	echo "+++ inserted track ARGD_curated_genesOnly"
-	
-	# ARGD_curated_transcripts insertion
-	./bin/flatfile-to-json.pl --gff "${currentOrgPath}/ARGD_curated_transcripts.gff3" --trackLabel "ARGD_curated_transcripts" --key "RGD ${organism} (${assembly}) Transcripts" --out "${datasetDir}" --trackType JBrowse/View/Track/CanvasFeatures --clientConfig "{ \"color\" : \"#DF255A\", \"featureScale\" : 0.0001, \"label\" : \"symbol,name\", \"description\" : \"\" }" --config "{ \"category\" : \"Gene Models/RGD Gene Features\", \"histograms\" : { \"color\" : \"#DF255A\", \"binsPerBlock\" : 25 }, \"onClick\" : { \"iconClass\" : \"dijitIconDatabase\", \"action\" : \"contentDialog\", \"content\" : \"<iframe src=\\\"${contentBlock}\\\" frameborder='0' marginheight='0' width='425' height='240' id='id_IFrame'></iframe>\", \"title\" : \"<center>RGD Feature Data for {name}</center>\" }, \"menuTemplate\" : [ { \"label\" : \"View RGD details\", \"iconClass\" : \"dijitIconDatabase\", \"action\" : \"contentDialog\", \"content\" : \"<iframe src=\\\"${contentBlock}\\\" frameborder='0' marginheight='0' width='425' height='240' id='id_IFrame'></iframe>\", \"title\" : \"<center>RGD Feature Data for {name}</center>\" }, { \"label\" : \"Highlight this feature\" } ] }"
-	echo "+++ inserted track ARGD_curated_transcripts"
-	
+
+
+  ###
 	# AQTLS insertion
 	if [[ "${pipelineQTL}" != "null" ]]; then
 	./bin/flatfile-to-json.pl --gff "${currentOrgPath}/AQTLS.gff3" --trackLabel "AQTLS" --key "RGD ${organism} (${assembly}) QTLs" --out "${datasetDir}" --trackType JBrowse/View/Track/CanvasFeatures --clientConfig "{ \"color\" : \"#255ADF\", \"featureScale\" : 0.00002, \"label\" : \"symbol,name\", \"description\" : \"\" }" --config "{ \"category\" : \"QTLs/${organism} QTLs\", \"maxHeight\" : 2400, \"glyph\" : \"JBrowse/View/FeatureGlyph/Alignment\", \"histograms\" : { \"color\" : \"#255ADF\", \"binsPerBlock\" : 25 }, \"onClick\" : { \"iconClass\" : \"dijitIconDatabase\", \"action\" : \"contentDialog\", \"content\" : \"<iframe src=\\\"${contentBlock}\\\" frameborder='0' marginheight='0' width='425' height='240' id='id_IFrame'></iframe>\", \"title\" : \"<center>RGD Feature Data for {name}</center>\" }, \"menuTemplate\" : [ { \"label\" : \"View RGD details\", \"iconClass\" : \"dijitIconDatabase\", \"action\" : \"contentDialog\", \"content\" : \"<iframe src=\\\"${contentBlock}\\\" frameborder='0' marginheight='0' width='425' height='240' id='id_IFrame'></iframe>\", \"title\" : \"<center>RGD Feature Data for {name}</center>\" }, { \"label\" : \"Highlight this feature\" } ] }"
@@ -309,32 +285,23 @@ do
 	echo "=== generation of names index ==="
 	if [[ "${pipelineSSLP}" != "null" ]]; then
 		if [[ "${pipelineQTL}" != "null" ]]; then
-			./bin/generate-names.pl --out "${datasetDir}" --tracks "ARGD_curated_genes,ARGD_curated_transcripts,AQTLS,SSLP" --verbose --mem 4096000000
+			./bin/generate-names.pl --out "${datasetDir}" --tracks "ARGD_curated_genes,ARGD_curated_genesOnly,AQTLS,SSLP" --verbose --mem 4096000000
 		else
-			./bin/generate-names.pl --out "${datasetDir}" --tracks "ARGD_curated_genes,ARGD_curated_transcripts,SSLP" --verbose --mem 4096000000
+			./bin/generate-names.pl --out "${datasetDir}" --tracks "ARGD_curated_genes,ARGD_curated_genesOnly,SSLP" --verbose --mem 4096000000
 		fi
 	else
 		if [[ "${pipelineQTL}" != "null" ]]; then
-			./bin/generate-names.pl --out "${datasetDir}" --tracks "ARGD_curated_genes,ARGD_curated_transcripts,AQTLS" --verbose --mem 4096000000
+			./bin/generate-names.pl --out "${datasetDir}" --tracks "ARGD_curated_genes,ARGD_curated_genesOnly,AQTLS" --verbose --mem 4096000000
 		else
-			./bin/generate-names.pl --out "${datasetDir}" --tracks "ARGD_curated_genes,ARGD_curated_transcripts" --verbose --mem 4096000000
+			./bin/generate-names.pl --out "${datasetDir}" --tracks "ARGD_curated_genes,ARGD_curated_genesOnly" --verbose --mem 4096000000
 		fi
 	fi
 
 	popd
 	printf "COMPLETE!\nMoved back to: ${PWD}\n\n"
 	## End of JBrowse handling
-	
-	## Recursively GZip all GFF3 files
-	for file in $(find . -name "*.gff3") ; do
-		printf "GZipping ${file} ... "
-		gzip ${file}
-		printf 'done!\n'
-	done
-	
-	printf "\nAll GFF3 files have been GZipped.\n\n"
-	## End of GZipping process
-	
+
+
 done < ${1}
 
 printf "***********************************\n"

@@ -1,5 +1,6 @@
 May 12, 2023
   genes: generates '_genes_only' and _genes_and_transcripts' files
+  genes: updated loading of genes tracks into JBrowse
 
 May 01, 2023
   genes, strains, qtls: removed generation of RatMine files (due to RatMine discontinuation)
