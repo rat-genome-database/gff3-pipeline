@@ -7,7 +7,6 @@ cd $APP_HOME
 
 LOGDIR=$APP_HOME/data
 DATA_RELEASE_DIR_GFF3=/home/rgddata/data_release/GFF3
-DATA_RELEASE_DIR_GFF=/home/rgddata/data_release/GFF
 
 
 SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
@@ -175,10 +174,6 @@ mailx -s "[$SERVER]Pipeline to create promoter gff3 files ran" $EMAILLIST<promot
 echo "copy generated gff3 files to data_release directory:"
 echo "  rsync -zarv --prune-empty-dirs --include='*/' --include='*.gff3.gz' --exclude='*' $LOGDIR/ $DATA_RELEASE_DIR_GFF3/"
 rsync -zarv --prune-empty-dirs --include='*/' --include='*.gff3.gz' --exclude='*' $LOGDIR/ $DATA_RELEASE_DIR_GFF3/
-
-echo "copy generated gff files to data_release directory:"
-echo "  rsync -zarv --prune-empty-dirs --include='*/' --include='*.gff.gz' --exclude='*' $LOGDIR/ $DATA_RELEASE_DIR_GFF/"
-rsync -zarv --prune-empty-dirs --include='*/' --include='*.gff.gz' --exclude='*' $LOGDIR/ $DATA_RELEASE_DIR_GFF/
 
 echo "  rsync OK!"
 

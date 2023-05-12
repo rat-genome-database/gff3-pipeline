@@ -54,18 +54,19 @@ public class CreateGff4Gene {
         msgBuf.append("Generate GFF3 file for "+species+", MAP_KEY="+info.getMapKey()+" ("+assemblySymbol+")\n");
         msgBuf.append("    "+dao.getConnectionInfo()+"\n");
 
-        // March 2 2016: RATMINE gff3 loader does not allow one gene to have multiple loci
-        //               so we emit only first loci per gene
-        Set<Integer> geneRgdIdsEmitted = new ConcurrentSkipListSet<>();
-
         CounterPool counters = new CounterPool();
 
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(info.getToDir()+"/"+assemblySymbol+"_genes.gff3", false, info.getCompressMode());
-        gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
-        gff3Writer.print("# Species: "+ species+"\n");
-        gff3Writer.print("# Assembly: "+ MapManager.getInstance().getMap(info.getMapKey()).getName()+"\n");
-        gff3Writer.print("# Primary Contact: mtutaj@mcw.edu\n");
-        gff3Writer.print("# Generated: "+new Date()+"\n");
+        String headerInfo =
+            "# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n"+
+            "# Species: "+ species+"\n"+
+            "# Assembly: "+ MapManager.getInstance().getMap(info.getMapKey()).getName()+"\n"+
+            "# Primary Contact: mtutaj@mcw.edu\n"+
+            "# Generated: "+new Date()+"\n";
+
+        Gff3ColumnWriter gff3GenesOnly = new Gff3ColumnWriter(info.getToDir()+"/"+assemblySymbol+"_genes_only.gff3", false, info.getCompressMode());
+        gff3GenesOnly.print(headerInfo);
+        Gff3ColumnWriter gff3GenesAndTranscripts = new Gff3ColumnWriter(info.getToDir()+"/"+assemblySymbol+"_genes_and_transcripts.gff3", false, info.getCompressMode());
+        gff3GenesOnly.print(headerInfo);
 
         List<Gene> activeGenes = dao.getActiveGenes(info.getSpeciesTypeKey());
 
@@ -93,8 +94,6 @@ public class CreateGff4Gene {
             String nc="N";
 
             for(MapData map : geneMap){
-
-                geneRgdIdsEmitted.add(map.getRgdId());
 
                 List<Transcript> trsOnMap = getTranscriptsForMap(geneTrs, map, utils);
 
@@ -136,8 +135,10 @@ public class CreateGff4Gene {
                     attributesHashMap.put("Dbxref",extDbString);
                 }
 
-                gff3Writer.writeFirst8Columns(map.getChromosome(),"RGD", "gene", map.getStartPos(),map.getStopPos(),".",map.getStrand(),".");
-                gff3Writer.writeAttributes4Gff3(attributesHashMap);
+                gff3GenesOnly.writeFirst8Columns(map.getChromosome(),"RGD", "gene", map.getStartPos(),map.getStopPos(),".",map.getStrand(),".");
+                gff3GenesOnly.writeAttributes4Gff3(attributesHashMap);
+                gff3GenesAndTranscripts.writeFirst8Columns(map.getChromosome(),"RGD", "gene", map.getStartPos(),map.getStopPos(),".",map.getStrand(),".");
+                gff3GenesAndTranscripts.writeAttributes4Gff3(attributesHashMap);
 
                 if(trsOnMap.size()>1){
                     counters.increment(" Genes with more than one mapped transcript");
@@ -168,8 +169,8 @@ public class CreateGff4Gene {
                             attributesHashMap.put("isNonCoding", nc);
                             attributesHashMap.put("gene", gene.getSymbol());
 
-                            gff3Writer.writeFirst8Columns(trMd.getChromosome(), "RGD", "mRNA", trMd.getStartPos(),trMd.getStopPos(), ".", trMd.getStrand(), ".");
-                            gff3Writer.writeAttributes4Gff3(attributesHashMap);
+                            gff3GenesAndTranscripts.writeFirst8Columns(trMd.getChromosome(), "RGD", "mRNA", trMd.getStartPos(),trMd.getStopPos(), ".", trMd.getStrand(), ".");
+                            gff3GenesAndTranscripts.writeAttributes4Gff3(attributesHashMap);
 
                             List<edu.mcw.rgd.gff3.CodingFeature> cfList = utils.buildCfList(trMd);
                             for(edu.mcw.rgd.gff3.CodingFeature cf: cfList){
@@ -194,7 +195,7 @@ public class CreateGff4Gene {
                                     }
                                 }
 
-                                gff3Writer.writeFirst8Columns(cf.getChromosome(), "RGD", cf.getCanonicalName(), cf.getStartPos(), cf.getStopPos(), ".", cf.getStrand(), cf.getCodingPhaseStr());
+                                gff3GenesAndTranscripts.writeFirst8Columns(cf.getChromosome(), "RGD", cf.getCanonicalName(), cf.getStartPos(), cf.getStopPos(), ".", cf.getStrand(), cf.getCodingPhaseStr());
 
 
                                 attributesHashMap.put("ID", featureId);
@@ -202,7 +203,7 @@ public class CreateGff4Gene {
                                 if( cf.getNotes()!=null )
                                     attributesHashMap.put("Note", cf.getNotes());
 
-                                gff3Writer.writeAttributes4Gff3(attributesHashMap);
+                                gff3GenesAndTranscripts.writeAttributes4Gff3(attributesHashMap);
                             }
                         }
                     }
@@ -211,17 +212,19 @@ public class CreateGff4Gene {
                     counters.increment(" Genes with NO transcripts");
 
                     // generate fake feature for genes without features
-                    gff3Writer.writeFirst8Columns(map.getChromosome(), "RGD", getSoFeatureType(gType), map.getStartPos(),map.getStopPos(), ".", map.getStrand(), ".");
+                    gff3GenesAndTranscripts.writeFirst8Columns(map.getChromosome(), "RGD", getSoFeatureType(gType), map.getStartPos(),map.getStopPos(), ".", map.getStrand(), ".");
 
                     attributesHashMap.put("ID", getUniqueId("ftRGD"+geneRgdId, idMap));
                     attributesHashMap.put("Parent", uniqueGeneId);
-                    gff3Writer.writeAttributes4Gff3(attributesHashMap);
+                    gff3GenesAndTranscripts.writeAttributes4Gff3(attributesHashMap);
                 }
             }//end of map data loop
         }
 
-        gff3Writer.close();
-        gff3Writer.sortInMemory();
+        gff3GenesOnly.close();
+        gff3GenesOnly.sortInMemory();
+        gff3GenesAndTranscripts.close();
+        gff3GenesAndTranscripts.sortInMemory();
 
         dumpCounters(counters, assemblySymbol, msgBuf);
 
