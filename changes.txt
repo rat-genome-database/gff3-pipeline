@@ -1,3 +1,6 @@
+Jun 06, 2023
+  ensembl-prep: updated config to download gff3 files from Ensembl release 109 (instead of 106, as it was previously)
+
 May 12, 2023
   genes: generates '_genes_only' and _genes_and_transcripts' files
   genes: updated loading of genes tracks into JBrowse
