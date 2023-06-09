@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.*;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CreateGff4Gene {
@@ -18,19 +17,32 @@ public class CreateGff4Gene {
     RgdGff3Dao dao = new RgdGff3Dao();
     Logger log = LogManager.getLogger("gene");
 
-    private List<String> processedAssemblies;
+    private String outDir;
+    private List<Integer> processedMapKeys;
 
     /**
      * load the species list and assemblies from properties/AppConfigure.xml
      */
     public void run() {
 
-        processedAssemblies.parallelStream().forEach( assemblyInfo -> {
+        processedMapKeys.parallelStream().forEach( mapKey -> {
+
+            int speciesTypeKey = 0;
+            try {
+                speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
+            } catch( Exception e ) {
+            }
+            if( speciesTypeKey==0 ) {
+                return;
+            }
 
             CreateInfo info = new CreateInfo();
-            try {
-                info.parseFromString(assemblyInfo);
+            info.setMapKey( mapKey );
+            info.setToDir( Manager.getInstance().getAssemblies().get(mapKey) + "/" + getOutDir() );
+            info.setSpeciesTypeKey( speciesTypeKey );
+            info.setCompressMode( Gff3ColumnWriter.COMPRESS_MODE_BGZIP );
 
+            try {
                 createGeneGff3(info);
             } catch(Exception e) {
                 throw new RuntimeException(e);
@@ -46,26 +58,29 @@ public class CreateGff4Gene {
 
         CdsUtils utils = new CdsUtils(dao, info.getMapKey());
 
-        String species = SpeciesType.getCommonName(info.getSpeciesTypeKey());
+        String speciesName = SpeciesType.getCommonName(info.getSpeciesTypeKey());
         Map<String, AtomicInteger> idMap = new ConcurrentHashMap<>();
 
-        String assemblySymbol = Gff3Utils.getAssemblySymbol(info.getMapKey());
+        String ucscId = Gff3Utils.getAssemblySymbol(info.getMapKey());
+        String refseqId = MapManager.getInstance().getMap(info.getMapKey()).getRefSeqAssemblyName();
 
-        msgBuf.append("Generate GFF3 file for "+species+", MAP_KEY="+info.getMapKey()+" ("+assemblySymbol+")\n");
+        msgBuf.append("Generate GFF3 file for "+speciesName+", MAP_KEY="+info.getMapKey()+" ("+ucscId+")\n");
         msgBuf.append("    "+dao.getConnectionInfo()+"\n");
 
         CounterPool counters = new CounterPool();
 
         String headerInfo =
             "# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n"+
-            "# Species: "+ species+"\n"+
+            "# Species: "+ speciesName+"\n"+
             "# Assembly: "+ MapManager.getInstance().getMap(info.getMapKey()).getName()+"\n"+
             "# Primary Contact: mtutaj@mcw.edu\n"+
             "# Generated: "+new Date()+"\n";
 
-        Gff3ColumnWriter gff3GenesOnly = new Gff3ColumnWriter(info.getToDir()+"/"+assemblySymbol+"_genes_only.gff3", false, info.getCompressMode());
+        String fileName = info.getToDir() + "/" + speciesName + " " + refseqId+" ("+ucscId+")";
+
+        Gff3ColumnWriter gff3GenesOnly = new Gff3ColumnWriter(fileName+" Genes Only.gff3", false, info.getCompressMode());
         gff3GenesOnly.print(headerInfo);
-        Gff3ColumnWriter gff3GenesAndTranscripts = new Gff3ColumnWriter(info.getToDir()+"/"+assemblySymbol+"_genes_and_transcripts.gff3", false, info.getCompressMode());
+        Gff3ColumnWriter gff3GenesAndTranscripts = new Gff3ColumnWriter(fileName+" Genes and Transcripts.gff3", false, info.getCompressMode());
         gff3GenesOnly.print(headerInfo);
 
         List<Gene> activeGenes = dao.getActiveGenes(info.getSpeciesTypeKey());
@@ -121,7 +136,7 @@ public class CreateGff4Gene {
                 attributesHashMap.put("Alias", gene.getSymbol()+","+"RGD"+gene.getRgdId()+","+gene.getRgdId()
                         + "," + nameOfgene + getHgncMgiIds(xdbIds));
                 attributesHashMap.put("geneType", gType.replaceAll("\\-","_"));
-                attributesHashMap.put("species",species);
+                attributesHashMap.put("species", speciesName);
                 if( gene.getRefSeqStatus()!=null )
                     attributesHashMap.put("refSeqStatus",gene.getRefSeqStatus());
                 if( annotDesc!=null )
@@ -226,7 +241,7 @@ public class CreateGff4Gene {
         gff3GenesAndTranscripts.close();
         gff3GenesAndTranscripts.sortInMemory();
 
-        dumpCounters(counters, assemblySymbol, msgBuf);
+        dumpCounters(counters, ucscId, msgBuf);
 
         msgBuf.append("OK!  elapsed "+Utils.formatElapsedTime(time0, System.currentTimeMillis())+"\n");
         msgBuf.append("========\n");
@@ -360,7 +375,7 @@ public class CreateGff4Gene {
      * @return MGI/HGNC ids string
      * @throws Exception
      */
-    private String getHgncMgiIds(List<XdbId> xdbList) throws Exception{
+    private String getHgncMgiIds(List<XdbId> xdbList) {
 
         StringBuilder xdbIds = new StringBuilder();
         for(XdbId externalId : xdbList ){
@@ -383,21 +398,14 @@ public class CreateGff4Gene {
         extId.setRgdId(geneRgdId);
 
         List<XdbId> xdbList = dao.getXdbIds(extId);
-        Iterator<XdbId> it = xdbList.iterator();
-        while( it.hasNext() ) {
-            XdbId externalId = it.next();
-
-            if( externalId.getXdbKey()!=XdbId.XDB_KEY_NCBI_GENE &&
-                    externalId.getXdbKey()!=XdbId.XDB_KEY_MGD &&
-                    externalId.getXdbKey()!=XdbId.XDB_KEY_OMIM &&
-                    externalId.getXdbKey()!=XdbId.XDB_KEY_UNIPROT &&
-                    externalId.getXdbKey()!=XdbId.XDB_KEY_HGNC &&
-                    externalId.getXdbKey()!=XdbId.XDB_KEY_ENSEMBL_GENES &&
-                    externalId.getXdbKey()!=XdbId.XDB_KEY_ENSEMBL_TRANSCRIPT &&
-                    true){
-                it.remove();
-            }
-        }
+        xdbList.removeIf( externalId ->
+                externalId.getXdbKey() != XdbId.XDB_KEY_NCBI_GENE &&
+                externalId.getXdbKey() != XdbId.XDB_KEY_MGD &&
+                externalId.getXdbKey() != XdbId.XDB_KEY_OMIM &&
+                externalId.getXdbKey() != XdbId.XDB_KEY_UNIPROT &&
+                externalId.getXdbKey() != XdbId.XDB_KEY_HGNC &&
+                externalId.getXdbKey() != XdbId.XDB_KEY_ENSEMBL_GENES &&
+                externalId.getXdbKey() != XdbId.XDB_KEY_ENSEMBL_TRANSCRIPT);
         return xdbList;
     }
 
@@ -434,11 +442,19 @@ public class CreateGff4Gene {
         return idBase+"_"+cnt;
     }
 
-    public void setProcessedAssemblies(List<String> processedAssemblies) {
-        this.processedAssemblies = processedAssemblies;
+    public String getOutDir() {
+        return outDir;
     }
 
-    public List<String> getProcessedAssemblies() {
-        return processedAssemblies;
+    public void setOutDir(String outDir) {
+        this.outDir = outDir;
+    }
+
+    public List<Integer> getProcessedMapKeys() {
+        return processedMapKeys;
+    }
+
+    public void setProcessedMapKeys(List<Integer> processedMapKeys) {
+        this.processedMapKeys = processedMapKeys;
     }
 }
