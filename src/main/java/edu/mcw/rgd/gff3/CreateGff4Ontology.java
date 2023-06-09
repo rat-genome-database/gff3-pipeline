@@ -57,15 +57,14 @@ public class CreateGff4Ontology {
         }
     }
 
-    public void runOntology(Collection<String> doTermAccs, String outDirPattern) throws Exception {
+    public void runOntology(Collection<String> doTermAccs, String outDirName) throws Exception {
         long t0 = System.currentTimeMillis();
 
         int compressMode = Gff3ColumnWriter.COMPRESS_MODE_BGZIP;
         speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
 
         String assemblyDir = Manager.getInstance().getAssemblies().get(mapKey);
-        new File(assemblyDir).mkdirs(); // make sure the directory is always created
-
+        String mainDir = assemblyDir + "/" + outDirName;
 
         for( String termAcc: doTermAccs ) {
 
@@ -78,7 +77,8 @@ public class CreateGff4Ontology {
             if (!isTermAnnotated(termAcc))
                 continue;
 
-            String outDir = assemblyDir + "/" + trackName;
+            String outDir = mainDir + "/" + trackName;
+            new File(outDir).mkdirs(); // make sure the directory is always created
 
             // write as comment: date and time it was generated, species, assembly and ontology term
             String gffHeader = "";
