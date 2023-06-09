@@ -11,4 +11,5 @@ RUNLOAD="$APP_HOME/run.sh"
 $RUNLOAD -object:diseases > diseases.log
 $RUNLOAD -object:chebi > chebi.log
 $RUNLOAD -object:genes > genes.log
+$RUNLOAD -object:qtls > qtls.log
 

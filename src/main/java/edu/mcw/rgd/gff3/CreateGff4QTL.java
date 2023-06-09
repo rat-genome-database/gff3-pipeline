@@ -4,27 +4,31 @@ import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.mapping.MapManager;
 
-import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.Map;
 
-/**
- * @author BBakir
- * Date: Aug 11, 2008
- */
 public class CreateGff4QTL {
 
     private RgdGff3Dao dao = new RgdGff3Dao();
-    private List<String> processedAssemblies;
+    private String outDir;
+    private List<Integer> processedMapKeys;
 
     /**
      * load the species list and assemblies from properties/AppConfigure.xml
      */
     public void run() throws Exception {
-        for( String assemblyInfo: processedAssemblies ) {
+
+        for( int mapKey: getProcessedMapKeys() ) {
+
             CreateInfo info = new CreateInfo();
-            info.parseFromString(assemblyInfo);
+
+            int speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
+
+            info.setMapKey( mapKey );
+            info.setToDir( Manager.getInstance().getAssemblies().get(mapKey) + "/" + getOutDir() );
+            info.setSpeciesTypeKey( speciesTypeKey );
+            info.setCompressMode( Gff3ColumnWriter.COMPRESS_MODE_BGZIP );
 
             creategff4QTL(info);
         }
@@ -40,14 +44,16 @@ public class CreateGff4QTL {
 
         String speciesName = SpeciesType.getCommonName(info.getSpeciesTypeKey());
 
+        String ucscId = Gff3Utils.getAssemblySymbol(info.getMapKey());
+        String refseqId = MapManager.getInstance().getMap(info.getMapKey()).getRefSeqAssemblyName();
+        String fileName = info.getToDir() + "/" + speciesName + " " + refseqId+" ("+ucscId+")";
+
         System.out.println("START QTL GFF3 Generator for  "+speciesName+"  MAP_KEY="+info.getMapKey()+"  ASSEMBLY "+ MapManager.getInstance().getMap(info.getMapKey()).getName());
         System.out.println("========================");
 
-        String gffFile = info.getToDir()+speciesName+"_RGDQTLS.gff3";
+        String gffFile = fileName + " QTLs.gff3";
 
         Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, info.getCompressMode());
-
-        PrintWriter densityFile = new PrintWriter(info.getToDir()+speciesName+"_density.gff");
 
         List<QTL> qtlList = dao.getActiveQTLs(info.getSpeciesTypeKey());
         List<RGDInfo> rgdInfoList = new ArrayList<RGDInfo>();
@@ -76,17 +82,8 @@ public class CreateGff4QTL {
         System.out.println("Qtls NOT related to Qtls:" + counters.get("qtlswithNoRelQtls"));
         System.out.println("\nGFF3 File SUCCESSFUL!\n");
 
-         //close file
         gff3Writer.close();
-
         gff3Writer.sortInMemory();
-
-        CalculateDensity calcDensity = new CalculateDensity();
-        calcDensity.setRgdInfoList(rgdInfoList);
-        calcDensity.setDensityWriter(densityFile);
-
-        boolean verbose = false;
-        calcDensity.runDensityCalculator(verbose);
     }
 
     public void createGffFromQtlObject(QTL qtlObject, Gff3ColumnWriter gff3Writer, List<RGDInfo> rgdInfoList,
@@ -287,11 +284,19 @@ public class CreateGff4QTL {
         }
     }
 
-    public void setProcessedAssemblies(List processedAssemblies) {
-        this.processedAssemblies = processedAssemblies;
+    public String getOutDir() {
+        return outDir;
     }
 
-    public List getProcessedAssemblies() {
-        return processedAssemblies;
+    public void setOutDir(String outDir) {
+        this.outDir = outDir;
+    }
+
+    public List<Integer> getProcessedMapKeys() {
+        return processedMapKeys;
+    }
+
+    public void setProcessedMapKeys(List<Integer> processedMapKeys) {
+        this.processedMapKeys = processedMapKeys;
     }
 }

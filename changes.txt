@@ -1,6 +1,6 @@
 Jun 09, 2023
   ontologies: simplified code
-  genes: JBrowse2 files for rn7
+  genes, qtls: JBrowse2 files for rn7
 
 Jun 06, 2023
   ensembl-prep: updated config to download gff3 files from Ensembl release 109 (instead of 106, as it was previously)
