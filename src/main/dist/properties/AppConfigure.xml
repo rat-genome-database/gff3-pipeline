@@ -101,6 +101,85 @@
         </property>
     </bean>
 
+    <bean id="ontologyManager" class="edu.mcw.rgd.gff3.CreateGff4Ontology">
+        <!--sample output dir after resolving outDirForDiseases:
+             'data/jbrowse2/Rat/rn7/Disease Related Tracks'
+        -->
+        <property name="outDirForDiseases" value="data/jbrowse2/#ASSEMBLY#/Disease Related Tracks"/>
+        <property name="outDirForChebi" value="data/jbrowse2/#ASSEMBLY#/Gene-Chemical Interaction Tracks/Biological Role"/>
+        <property name="assemblies">
+            <map>
+                <entry key="Rat/rn7" value="372"/>
+            </map>
+        </property>
+        <property name="termTrackNames">
+            <map>
+                <entry key="DOID:1287"  value="Cardiovascular Diseases"/>
+                <entry key="DOID:1398"  value="Parasitic Diseases"/>
+                <entry key="DOID:14566" value="Neoplasms"/>
+                <entry key="DOID:150"   value="Mental Disorders"/>
+                <entry key="DOID:1579"  value="Respiratory Tract Diseases"/>
+                <entry key="DOID:16"    value="Skin and Connective Tissue Diseases"/>
+                <entry key="DOID:17"    value="Musculoskeletal Diseases"/>
+                <entry key="DOID:28"    value="Endocrine System Diseases"/>
+                <entry key="DOID:2914"  value="Immune System Diseases"/>
+                <entry key="DOID:5614"  value="Eye Diseases"/>
+                <entry key="DOID:77"    value="Digestive System Diseases"/>
+                <entry key="DOID:863"   value="Nervous System Diseases"/>
+                <entry key="DOID:9000298" value="Signs and Symptoms"/>
+                <entry key="DOID:9000723" value="Female Urogenital Diseases and Pregnancy Complications"/>
+                <entry key="DOID:9001349" value="Stomatognathic Diseases"/>
+                <entry key="DOID:9001600" value="Wounds and Injuries"/>
+                <entry key="DOID:9004324" value="Congenital, Hereditary, and Neonatal Diseases and Abnormalities"/>
+                <entry key="DOID:9004384" value="Bacterial Infections and Mycoses"/>
+                <entry key="DOID:9004985" value="Animal Diseases"/>
+                <entry key="DOID:9005463" value="Occupational Diseases"/>
+                <entry key="DOID:9007241" value="Otorhinolaryngologic Diseases"/>
+                <entry key="DOID:9007801" value="Diseases of the Aged"/>
+                <entry key="DOID:9008080" value="Hemic and Lymphatic Diseases"/>
+                <entry key="DOID:9008231" value="Nutritional and Metabolic Diseases"/>
+                <entry key="DOID:9008261" value="Induced Disorders"/>
+                <entry key="DOID:9008348" value="Male Urogenital Diseases"/>
+                <entry key="DOID:9008582" value="Developmental Diseases"/>
+                <entry key="DOID:934"     value="Virus Diseases"/>
+
+                <entry key="CHEBI:24850"  value="Insect Attractant"/>
+                <entry key="CHEBI:25573"  value="Nodulation  Factor"/>
+                <entry key="CHEBI:25728"  value="Osmolyte"/>
+                <entry key="CHEBI:33280"  value="Molecular Messenger"/>
+                <entry key="CHEBI:33281"  value="Antimicrobial Agent"/>
+                <entry key="CHEBI:35222"  value="Inhibitor"/>
+                <entry key="CHEBI:35703"  value="Xenobiotic"/>
+                <entry key="CHEBI:39317"  value="Growth Regulator"/>
+                <entry key="CHEBI:50188"  value="Provitamin"/>
+                <entry key="CHEBI:50846"  value="Immunomodulator"/>
+                <entry key="CHEBI:50913"  value="Fixative"/>
+                <entry key="CHEBI:52206"  value="Biochemical Role"/>
+                <entry key="CHEBI:52208"  value="Biophysical Role"/>
+                <entry key="CHEBI:52209"  value="Aetiopathogenetic Role"/>
+                <entry key="CHEBI:52210"  value="Pharmacological Role"/>
+                <entry key="CHEBI:52211"  value="Physiological Role"/>
+                <entry key="CHEBI:52290"  value="Mitogen"/>
+                <entry key="CHEBI:53000"  value="Epitope"/>
+                <entry key="CHEBI:53337"  value="Tissue Adhesive"/>
+                <entry key="CHEBI:59132"  value="Antigen"/>
+                <entry key="CHEBI:59174"  value="Hapten"/>
+                <entry key="CHEBI:60218"  value="Mimotope"/>
+                <entry key="CHEBI:63923"  value="Sclerotherapy Agent"/>
+                <entry key="CHEBI:64088"  value="Incretin Mimetic"/>
+                <entry key="CHEBI:64909"  value="Poison"/>
+                <entry key="CHEBI:68509"  value="Glutathione Depleting Agent"/>
+                <entry key="CHEBI:71212"  value="Prohormone"/>
+                <entry key="CHEBI:73190"  value="Antimutagen"/>
+                <entry key="CHEBI:73623"  value="Tolerogen"/>
+                <entry key="CHEBI:76219"  value="Fluorogen"/>
+                <entry key="CHEBI:140399" value="Specialized Proresolving Mediator"/>
+                <entry key="CHEBI:190286" value="Ceramide Mimetic"/>
+            </map>
+        </property>
+
+    </bean>
+
     <bean id="evaManager" class="edu.mcw.rgd.gff3.CreateGff4Eva">
         <property name="processedAssemblies">
             <list>

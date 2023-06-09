@@ -310,6 +310,14 @@ public class Manager {
                             CreateGff4Eva em = (CreateGff4Eva) (bf.getBean("evaManager"));
                             em.run();
                             return true;
+                        case "diseases":
+                            CreateGff4Ontology pdo = (CreateGff4Ontology) (bf.getBean("ontologyManager"));
+                            pdo.runDiseaseOntology();
+                            return true;
+                        case "chebi":
+                            CreateGff4Ontology pdw = (CreateGff4Ontology) (bf.getBean("ontologyManager"));
+                            pdw.runChebiOntology();
+                            return true;
                         case "gene":
                             objectTypeKey = RgdId.OBJECT_KEY_GENES;
                             break;

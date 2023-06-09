@@ -21,52 +21,162 @@ public class CreateGff4Ontology {
     OntologyXDAO ontXdao = new OntologyXDAO();
     QTLDAO qtldao = new QTLDAO();
 
+    // old - legacy -- properties
     List<String> chromosomes;
     int speciesTypeKey=0;
     int mapKey=0;
     String toFile;
     String ontAspect;
 
+    /// new properties
+    private String outDirForDiseases;
+    private String outDirForChebi;
+    private Map<String, Integer> assemblies;
+    private Map<String, String> termTrackNames;
 
-    public int getSpeciesTypeKey() {
-        return speciesTypeKey;
+
+    public void runDiseaseOntology() throws Exception {
+
+        ontAspect = "D";
+        Collection<String> doTermAccs = getTermsInJBrowseSlim();
+
+        for( String assembly: assemblies.keySet() ) {
+            runOntology(doTermAccs, assembly, getOutDirForDiseases());
+        }
     }
 
-    public void setSpeciesTypeKey(int speciesTypeKey) {
-        this.speciesTypeKey = speciesTypeKey;
+    public void runChebiOntology() throws Exception {
+
+        ontAspect = "E";
+        final String termAcc = "CHEBI:24432"; // CHEBI term 'biological_role'
+        Collection<String> termAccs = dao.getTermDescendants(termAcc).keySet();
+
+        for( String assembly: assemblies.keySet() ) {
+            runOntology(termAccs, assembly, getOutDirForChebi());
+        }
     }
 
-    public int getMapKey() {
-        return mapKey;
+    public void runOntology(Collection<String> doTermAccs, String assembly, String outDirPattern) throws Exception {
+        long t0 = System.currentTimeMillis();
+
+        int compressMode = Gff3ColumnWriter.COMPRESS_MODE_BGZIP;
+        mapKey = getAssemblies().get(assembly);
+        speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
+
+        String outDir = outDirPattern.replace("#ASSEMBLY#", assembly);
+        new File(outDir).mkdirs(); // make sure the directory is always created
+
+
+        for( String termAcc: doTermAccs ) {
+
+            String trackName = getTermTrackNames().get(termAcc);
+            if (trackName == null) {
+                System.out.println("**** ERROR *** TERM " + termAcc + " DOES NOT HAVE A MAPPING IN CONFIG FILE -- SKIPPED!");
+                continue;
+            }
+
+            if (!isTermAnnotated(termAcc))
+                continue;
+
+            String outDir2 = outDir + "/" + trackName;
+
+            // write as comment: date and time it was generated, species, assembly and ontology term
+            String gffHeader = "";
+            gffHeader += ("#generated on " + new Date() + "\n");
+            gffHeader += ("#" + SpeciesType.getCommonName(speciesTypeKey) + " assembly " + MapManager.getInstance().getMap(getMapKey()).getName() + "\n");
+            gffHeader += ("#disease ontology track for term '" + dao.getTerm(termAcc).getTerm() + "' (" + termAcc + ")\n");
+
+            Map<String, Term> mapAccAnnList = getAnnotatedChildTerms(termAcc);
+
+            String gffFile = outDir2 + "/" + trackName + " Related Genes.gff3";
+            Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, compressMode);
+            gff3Writer.print(gffHeader);
+
+            List<RGDInfo> rgdInfoList = new ArrayList<>();
+            int counter = processGenes("*", termAcc, gff3Writer, mapAccAnnList, rgdInfoList);
+
+            gff3Writer.close();
+            gff3Writer.sortInMemory();
+
+            Term rootTerm = dao.getTerm(termAcc);
+            String summaryMsg = ">>> "+rootTerm.getAccId() + " " + rootTerm.getTerm() + " written genes: "+counter;
+
+
+            //// QTLS
+
+            counter = 0;
+
+            gffFile = outDir2 + "/" + trackName + " Related QTLs.gff3";
+            gff3Writer = new Gff3ColumnWriter(gffFile, false, compressMode);
+            gff3Writer.print(gffHeader);
+
+            for (MapData md : dao.getMapDataByMapKeyChr("*", mapKey, RgdId.OBJECT_KEY_QTLS)) {
+                if (md.getStartPos() != null && md.getStopPos() != null) {
+
+                    Gff3Entry entry = new Gff3Entry(RgdId.OBJECT_KEY_QTLS, md);
+                    processQtl(entry);
+
+                    counter += processAnnotations(mapAccAnnList, entry);
+
+                    if (!entry.anns.equals("NA")) {
+                        createRGdInfo(entry, rgdInfoList);
+                        writeGff3Line(gff3Writer, entry, termAcc);
+                    }
+                }
+            }
+
+            gff3Writer.close();
+            if (counter > 0) {
+                gff3Writer.sortInMemory();
+            } else {
+                // no data -- delete it
+                new File(gffFile).delete();
+            }
+            summaryMsg += ", qtls: "+counter;
+
+
+            //// RAT STRAINS
+
+            if (speciesTypeKey == SpeciesType.RAT) {
+
+                counter = 0;
+
+                gffFile = outDir2 + "/" + trackName + " Related Strains.gff3";
+                gff3Writer = new Gff3ColumnWriter(gffFile, false, compressMode);
+                gff3Writer.print(gffHeader);
+
+                for (MapData md : dao.getMapDataByMapKeyChr("*", mapKey, RgdId.OBJECT_KEY_STRAINS)) {
+                    if (md.getStartPos() != null && md.getStopPos() != null) {
+
+                        Gff3Entry entry = new Gff3Entry(RgdId.OBJECT_KEY_STRAINS, md);
+                        processStrain(entry);
+
+                        counter += processAnnotations(mapAccAnnList, entry);
+
+                        if (!entry.anns.equals("NA")) {
+                            createRGdInfo(entry, rgdInfoList);
+                            writeGff3Line(gff3Writer, entry, termAcc);
+                        }
+                    }
+                }
+
+                gff3Writer.close();
+                if (counter > 0) {
+                    gff3Writer.sortInMemory();
+                } else {
+                    // no data -- delete it
+                    new File(gffFile).delete();
+                }
+                summaryMsg += ", strains: "+counter;
+            }
+            System.out.println(summaryMsg);
+        }
+
+        long t1 = System.currentTimeMillis();
+        System.out.println("============");
+        System.out.println("\nTotal time elapsed " + Utils.formatElapsedTime(t0, t1));
     }
 
-    public void setMapKey(int mapKey) {
-        this.mapKey = mapKey;
-    }
-
-    public String getToFile() {
-        return toFile;
-    }
-
-    public void setToFile(String toFile) {
-        this.toFile = toFile;
-    }
-
-    public String getOntAspect() {
-        return ontAspect;
-    }
-
-    public void setOntAspect(String ontAspect) {
-        this.ontAspect = ontAspect;
-    }
-
-    public List<String> getChromosomes() {
-        return chromosomes;
-    }
-
-    public void setChromosomes(List<String> chromosomes) {
-        this.chromosomes = chromosomes;
-    }
 
     public void run(int compressMode) throws Exception{
 
@@ -546,6 +656,78 @@ public class CreateGff4Ontology {
         public void setStrand(String strand) {
             this.strand = strand==null ? "." : strand;
         }
+    }
+
+    public int getSpeciesTypeKey() {
+        return speciesTypeKey;
+    }
+
+    public void setSpeciesTypeKey(int speciesTypeKey) {
+        this.speciesTypeKey = speciesTypeKey;
+    }
+
+    public int getMapKey() {
+        return mapKey;
+    }
+
+    public void setMapKey(int mapKey) {
+        this.mapKey = mapKey;
+    }
+
+    public String getToFile() {
+        return toFile;
+    }
+
+    public void setToFile(String toFile) {
+        this.toFile = toFile;
+    }
+
+    public String getOntAspect() {
+        return ontAspect;
+    }
+
+    public void setOntAspect(String ontAspect) {
+        this.ontAspect = ontAspect;
+    }
+
+    public List<String> getChromosomes() {
+        return chromosomes;
+    }
+
+    public void setChromosomes(List<String> chromosomes) {
+        this.chromosomes = chromosomes;
+    }
+
+    public String getOutDirForDiseases() {
+        return outDirForDiseases;
+    }
+
+    public void setOutDirForDiseases(String outDirForDiseases) {
+        this.outDirForDiseases = outDirForDiseases;
+    }
+
+    public String getOutDirForChebi() {
+        return outDirForChebi;
+    }
+
+    public void setOutDirForChebi(String outDirForChebi) {
+        this.outDirForChebi = outDirForChebi;
+    }
+
+    public Map<String, Integer> getAssemblies() {
+        return assemblies;
+    }
+
+    public void setAssemblies(Map<String, Integer> assemblies) {
+        this.assemblies = assemblies;
+    }
+
+    public Map<String, String> getTermTrackNames() {
+        return termTrackNames;
+    }
+
+    public void setTermTrackNames(Map<String, String> termTrackNames) {
+        this.termTrackNames = termTrackNames;
     }
 }
 
