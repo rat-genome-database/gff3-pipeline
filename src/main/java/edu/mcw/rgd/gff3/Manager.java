@@ -30,64 +30,38 @@ public class Manager {
     int patientID;
     String build;
     String source="RGD_CNRat";
-    String ont_aspect;
     int compressMode = Gff3ColumnWriter.COMPRESS_MODE_NONE;
     String flavor;
     private String version;
+
+    private java.util.Map<Integer, String> assemblies;
 
     Logger log = LogManager.getLogger("status");
 
     public static final int OBJECT_KEY_DB_SNP = -1;
 
-    public String getUsage() {
-        return usage;
+
+    static private Manager _instance;
+
+    static public Manager getInstance() {
+        return _instance;
     }
-
-    public void setUsage(String usage) {
-        this.usage = usage;
-    }
-
-    private String usage;
-
-    private static java.util.Map<String, Integer> speciesMappings;
 
     static public void main(String[] args) throws Exception {
         DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
         new XmlBeanDefinitionReader(bf).loadBeanDefinitions(new FileSystemResource("properties/AppConfigure.xml"));
         Manager creator = (Manager) (bf.getBean("manager"));
+        _instance = creator;
 
         System.out.println(creator.getVersion());
 
         try{
-            String codeUsage =
-                    "USAGE for RGD OBjects:\n" +
-                        "-object:gene/qtl/sslp/chromosome\n" +
-                        "-species:RAT/HUMAN/MOUSE\n Other Parameters may include:\n" +
-                        "-mapKey:360/70/60/18/13/35/17\n" +
-                        "-chr:<chromosome-range>\n"+
-                        "in Rat: chromosomes = 1-20,X,Y\n" +
-                        "in Mouse: chromosomes = 1-19,X,Y\n"+
-                        "in Human: chromosomes = 1-22,X,Y\n" +
-                        "-toFile:../log/RGDGFF3/Output/\n"+
-                        "-compress   (compress output files with gzip) \n" +
-                        "\n---------------------------------------------------\n" +
-                    "USAGE for CarpeNovo Variants:\n" +
-                        "-sampleID:<sampleId>\n" +
-                        "-patientID:<patientId>,  f.e. -patientID:500\n" +
-                        "-source:(this is freeText..byDefault it is CN\n" +
-                        "-toFile:../log/RGDGFF3/Output/\n"+
-                        "-chr:<chromosome-range>\n"+
-                        "in Rat: chromosomes = 1-20,X\n" +
-                        "in Mouse: chromosomes = 1-19,X,Y\n"+
-                        "in Human: chromosomes = 1-22,X,Y\n" +
-                        "Note: either sampleID or patientID is mandatory\n" +
-                        "\n-------------------------------------------------------\n";
-            creator.setUsage(codeUsage);
             creator.doMain(args, bf);
         }catch (Exception e){
             Utils.printStackTrace(e, creator.log);
         }
     }
+
 
     public void doMain(String[] args, DefaultListableBeanFactory bf) throws Exception {
         if( parseArgs(args, bf) ) {
@@ -99,8 +73,7 @@ public class Manager {
         }
         else if(sampleID!=0 || patientID!=0){
             if( source==null || toFile==null || getChromosomes()==null ){
-                throw new ArgumentsException("This script requires '-source:' '-toFile:' '-chr:' as parameters:\n" +
-                           getUsage());
+                throw new ArgumentsException("This script requires '-source:' '-toFile:' '-chr:' as parameters");
             }
 
             CreateGff4CarpeNovo createGffCarpe = new CreateGff4CarpeNovo();
@@ -113,28 +86,13 @@ public class Manager {
                 createGffCarpe.createGff3ForPatient(patientID);
 
         }
-        else if( ont_aspect!=null ){
-            if( speciesTypekey!=0 && mapKey>0 && toFile!=null && getChromosomes()!=null ){
-                CreateGff4Ontology createGff4Ont = new CreateGff4Ontology();
-                createGff4Ont.setSpeciesTypeKey(speciesTypekey);
-                createGff4Ont.setToFile(toFile);
-                createGff4Ont.setMapKey(mapKey);
-                createGff4Ont.setOntAspect(ont_aspect);
-                createGff4Ont.setChromosomes(getChromosomes());
-                createGff4Ont.run(compressMode);
-            }else{
-                throw new ArgumentsException("This script requires '-speciesTypeKey:','-mapKey:','-toFile:','-chr:' as parameters:\n" +
-                        getUsage());
-            }
-
-        }
         else if( flavor.equals("ensembl_prep") ) {
             EnsemblPrep ep = (EnsemblPrep) bf.getBean("ensemblPrep");
             ep.run();
 
         } else {
-            throw new ArgumentsException("This script requires '-object:' or '-sampleID' or '-ontAspect' as a parameter:\n" +
-                    "-sampleID:309/329/330\t-object:gene/qtl/sslp/strain\t-ontAspect:D/M/P/W/..\n" + getUsage());
+            throw new ArgumentsException("This script requires '-object:' or '-sampleID' as a parameter:\n" +
+                    "-sampleID:309/329/330\t-object:gene/qtl/sslp/strain");
         }
     }
 
@@ -161,7 +119,7 @@ public class Manager {
                         throw new ArgumentsException("unknown gene flavor: "+flavor);
                     }
                 }else{
-                    throw new ArgumentsException("This Script requires '-mapKey:','-toDir:','-species:' as parameters:\n" + getUsage());
+                    throw new ArgumentsException("This Script requires '-mapKey:','-toDir:','-species:' as parameters");
                 }
                 break;
 
@@ -177,12 +135,11 @@ public class Manager {
                         createGff.creategff4QTL(info);
 
                     }else{
-                        throw new ArgumentsException("This Script requires '-mapKey: and -toDir:' " +
-                                "as parameters:\n" + getUsage());
+                        throw new ArgumentsException("This Script requires '-mapKey: and -toDir:' as parameters");
                     }
                 }else{
                     throw new ArgumentsException("This Script requires '-species:' as a parameter:\n" +
-                            "-species:RAT/MOUSE/HUMAN\n" + getUsage());
+                            "-species:RAT/MOUSE/HUMAN");
                 }
                 break;
 
@@ -197,8 +154,7 @@ public class Manager {
                     create4Sslp.createGff4Markers(info);
 
                 }else{
-                    throw new ArgumentsException("This Script requires '-mapKey: -fromFile: -toFile:' " +
-                            "as parameters:\n" + getUsage());
+                    throw new ArgumentsException("This Script requires '-mapKey: -fromFile: -toFile:' as parameters");
                 }
                 break;
 
@@ -214,8 +170,7 @@ public class Manager {
                     info.setCompressMode(compressMode);
                     create4Strains.creategff4CongenicStrains(info);
                 }else{
-                    throw new ArgumentsException("This Script requires '-mapKey: -toFile:' as parameter:\n" +
-                            getUsage());
+                    throw new ArgumentsException("This Script requires '-mapKey: -toFile:' as parameter");
                 }
                 break;
 
@@ -226,8 +181,7 @@ public class Manager {
                     createPromoters4Gene.setToDir(toDir);
                     createPromoters4Gene.createGenomicElements(compressMode);
                 }else{
-                    throw new ArgumentsException("This Script requires -toDir:' " +
-                            "as parameters:\n" + getUsage());
+                    throw new ArgumentsException("This Script requires -toDir:' as parameters");
                 }
                 break;
 
@@ -239,8 +193,7 @@ public class Manager {
                     creator.setSpeciesTypeKey(speciesTypekey);
                     creator.run(compressMode);
                 }else{
-                    throw new ArgumentsException("This Script requires '-mapKey: -species: -toFile:' " +
-                            "as parameters:\n" + getUsage());
+                    throw new ArgumentsException("This Script requires '-mapKey: -species: -toFile:' as parameters");
                 }
                 break;
 
@@ -254,7 +207,7 @@ public class Manager {
                     info.setCompressMode(compressMode);
                     pdcreator.run(info);
                 }else{
-                    throw new ArgumentsException("This Script requires '-mapKey: -species: -toDir:' as parameters:\n" + getUsage());
+                    throw new ArgumentsException("This Script requires '-mapKey: -species: -toDir:' as parameters");
                 }
                 break;
 
@@ -267,13 +220,12 @@ public class Manager {
                     createGff4DbSnp.setBuild(build);
                     createGff4DbSnp.run(compressMode);
                 }else{
-                    throw new ArgumentsException("This Script requires '-mapKey: -species: -toFile:' " +
-                            "as parameters:\n" + getUsage());
+                    throw new ArgumentsException("This Script requires '-mapKey: -species: -toFile:' as parameters");
                 }
                 break;
 
             default:
-                throw new ArgumentsException("Invalid Object Type Key found!:\n" + getUsage());
+                throw new ArgumentsException("Invalid Object Type Key found!");
         }
     }
 
@@ -374,9 +326,6 @@ public class Manager {
                 if(obj.startsWith("-source:")){
                     source = argArr[1];
                 }else
-                if(obj.startsWith("-ontAspect:")){
-                    ont_aspect = argArr[1];
-                }else
                 if(obj.startsWith("-build:")){
                     build = argArr[1];
                 }else
@@ -388,7 +337,7 @@ public class Manager {
                 }
             }
         }else{
-            throw new ArgumentsException("Arguments not found..this script needs parameters.\n" + getUsage());
+            throw new ArgumentsException("Arguments not found..this script needs parameters");
         }
 
         // species post-processing: in case the species type is not parsable
@@ -465,9 +414,11 @@ public class Manager {
         this.compressMode = compressMode;
     }
 
-    public static String getShortSpeciesName(int speciesTypeKey) {
-        return SpeciesType.getShortName(speciesTypeKey);
+    public java.util.Map<Integer, String> getAssemblies() {
+        return assemblies;
+    }
+
+    public void setAssemblies(java.util.Map<Integer, String> assemblies) {
+        this.assemblies = assemblies;
     }
 }
-
-
