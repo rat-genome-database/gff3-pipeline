@@ -153,6 +153,14 @@
     </bean>
 
     <bean id="markerManager" class="edu.mcw.rgd.gff3.CreateGff4SSLP">
+        <property name="outDir" value="Markers/Rat Markers"/>
+        <property name="processedMapKeys">
+            <list>
+                <value>372</value>  <!-- rn7 -->
+            </list>
+        </property>
+
+        <!--
         <property name="processedAssemblies">
             <list>
                 <value>species:RAT    mapKey:60  toDir:data/Marker/Rat/ compress:bgzip  assemblySymbol:rn3.4</value>
@@ -164,7 +172,7 @@
                 <value>species:MOUSE  mapKey:18  toDir:data/Marker/Mouse/ compress:bgzip</value>
                 <value>species:MOUSE  mapKey:35  toDir:data/Marker/Mouse/ compress:bgzip</value>
             </list>
-        </property>
+        </property>-->
     </bean>
 
     <bean id="strainManager" class="edu.mcw.rgd.gff3.CreateGff4CongenicStrains">

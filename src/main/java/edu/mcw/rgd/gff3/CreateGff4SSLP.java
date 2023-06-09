@@ -16,15 +16,24 @@ public class CreateGff4SSLP {
 
     RgdGff3Dao dao = new RgdGff3Dao();
 
-    private List<String> processedAssemblies;
+    private String outDir;
+    private List<Integer> processedMapKeys;
 
     /**
      * load the species list and assemblies from properties/AppConfigure.xml
      */
     public void run() throws Exception {
-        for( String assemblyInfo: processedAssemblies ) {
+
+        for( int mapKey: getProcessedMapKeys() ) {
+
             CreateInfo info = new CreateInfo();
-            info.parseFromString(assemblyInfo);
+
+            int speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
+
+            info.setMapKey( mapKey );
+            info.setToDir( Manager.getInstance().getAssemblies().get(mapKey) + "/" + getOutDir() );
+            info.setSpeciesTypeKey( speciesTypeKey );
+            info.setCompressMode( Gff3ColumnWriter.COMPRESS_MODE_BGZIP );
 
             createGff4Markers(info);
         }
@@ -35,21 +44,23 @@ public class CreateGff4SSLP {
         CounterPool counters = new CounterPool();
 
         String speciesName = SpeciesType.getCommonName(info.getSpeciesTypeKey());
-        String assemblySymbol = info.getAssemblySymbol()!=null ? info.getAssemblySymbol() : Gff3Utils.getAssemblySymbol(info.getMapKey());
+        String ucscId = Gff3Utils.getAssemblySymbol(info.getMapKey());
+        String refseqId = MapManager.getInstance().getMap(info.getMapKey()).getRefSeqAssemblyName();
+        String fileName = info.getToDir() + "/" + speciesName + " " + refseqId+" ("+ucscId+")";
 
         System.out.println("START MARKER GFF3 Generator for  " + speciesName + "  MAP_KEY=" + info.getMapKey() + "  ASSEMBLY " + MapManager.getInstance().getMap(info.getMapKey()).getName());
         System.out.println("========================");
 
 
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(info.getToDir()+"/"+assemblySymbol+"_markers.gff3", false, info.getCompressMode());
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(fileName + " Markers.gff3", false, info.getCompressMode());
         gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
         gff3Writer.print("# Species: "+ speciesName+"\n");
         gff3Writer.print("# Assembly: "+ MapManager.getInstance().getMap(info.getMapKey()).getName()+"\n");
         gff3Writer.print("# Primary Contact: mtutaj@mcw.edu\n");
         gff3Writer.print("# Generated: "+new Date()+"\n");
 
-        // set up writer to create fasta sequences of primer pairs..
-        String fastaFileName = info.getToDir()+"/"+assemblySymbol+"_markers.fa";
+        // set up writer to create fasta sequences of primer pairs.
+        String fastaFileName = fileName + " Markers.fa";
         if( info.getCompressMode()!=Gff3ColumnWriter.COMPRESS_MODE_NONE ) {
             fastaFileName += ".gz";
         }
@@ -165,11 +176,19 @@ public class CreateGff4SSLP {
         return Utils.concatenate(aliases, ",");
     }
 
-    public void setProcessedAssemblies(List processedAssemblies) {
-        this.processedAssemblies = processedAssemblies;
+    public String getOutDir() {
+        return outDir;
     }
 
-    public List getProcessedAssemblies() {
-        return processedAssemblies;
+    public void setOutDir(String outDir) {
+        this.outDir = outDir;
+    }
+
+    public List<Integer> getProcessedMapKeys() {
+        return processedMapKeys;
+    }
+
+    public void setProcessedMapKeys(List<Integer> processedMapKeys) {
+        this.processedMapKeys = processedMapKeys;
     }
 }
