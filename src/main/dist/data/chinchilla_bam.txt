@@ -1,0 +1,44 @@
+Cl_Blood_M1_SRR391661_sorted.bam							Blood male1 - SRR391661
+Cl_Blood_M1_SRR391670_sorted.bam							Blood male1 - SRR391670
+Cl_Blood_M1_SRR396749_sorted.bam							Blood male1 - SRR396749
+Cl_Blood_M1_SRR445753_sorted.bam							Blood male1 - SRR445753
+Cl_Brain_M1_SRR391659_sorted.bam							Brain male1 - SRR391659
+Cl_Brain_M1_SRR391676_sorted.bam							Brain male1 - SRR391676
+Cl_Brain_M1_SRR396746_sorted.bam							Brain male1 - SRR396746
+Cl_Heart_M1_SRR391660_sorted.bam							Heart male1 - SRR391660
+Cl_Heart_M1_SRR391673_sorted.bam							Heart male1 - SRR391673
+Cl_Heart_M1_SRR396744_sorted.bam							Heart male1 - SRR396744
+Cl_Kidney_M1_SRR391665_sorted.bam							Kidney male1 - SRR391665
+Cl_Kidney_M1_SRR391668_sorted.bam							Kidney male1 - SRR391668
+Cl_Kidney_M1_SRR396745_sorted.bam							Kidney male1 - SRR396745
+Cl_Liver_M1_SRR391663_sorted.bam							Liver male1 - SRR391663
+Cl_Liver_M1_SRR391669_sorted.bam							Liver male1 - SRR391669
+Cl_Liver_M1_SRR396748_sorted.bam							Liver male1 - SRR396748
+Cl_Lungs_M1_SRR391666_sorted.bam							Lungs male1 - SRR391666
+Cl_Lungs_M1_SRR396743_sorted.bam							Lungs male1 - SRR396743
+Cl_Lungs_M1_SRR396750_sorted.bam							Lungs male1 - SRR396750
+Cl_Muscle_M1_SRR391667_sorted.bam							Skeletal muscle male1 - SRR391667
+Cl_Muscle_M1_SRR391672_sorted.bam							Skeletal muscle male1 - SRR391672
+Cl_Muscle_M1_SRR396741_sorted.bam							Skeletal muscle male1 - SRR396741
+Cl_Naso_M2_SRR494726_sorted.bam								Nasopharyngeal mucosa male2 - SRR494726
+Cl_Naso_M2_SRR494731_sorted.bam								Nasopharyngeal mucosa male2 - SRR494731
+Cl_Naso_M2_SRR496367_sorted.bam								Nasopharyngeal mucosa male2 - SRR496367
+Cl_Ovary_F1_SRR391671_sorted.bam							Ovary female1 - SRR391671
+Cl_Ovary_F1_SRR391674_sorted.bam							Ovary female1 - SRR391674
+Cl_Ovary_F1_SRR396754_sorted.bam							Ovary female1 - SRR396754
+Cl_Skin_M1_SRR391664_sorted.bam								Skin male1 - SRR391664
+Cl_Skin_M1_SRR391677_sorted.bam								Skin male1 - SRR391677
+Cl_Skin_M1_SRR396742_sorted.bam								Skin male1 - SRR396742
+Cl_Skin_M1_SRR445752_sorted.bam								Skin male1 - SRR445752
+Cl_Testis_M1_SRR391662_sorted.bam							Testis male1 - SRR391662
+Cl_Testis_M1_SRR396747_sorted.bam							Testis male1 - SRR396747
+Cl_Testis_M1_SRR396753_sorted.bam							Testis male1 - SRR396753
+Cl_Trachea_M1_SRR391675_sorted.bam							Trachea male1 - SRR391675
+Cl_Trachea_M1_SRR396751_sorted.bam							Trachea male1 - SRR396751
+Cl_Trachea_M1_SRR396752_sorted.bam							Trachea male1 - SRR396752
+Cl_Tubo_M1_SRR494728_sorted.bam								Tubotympanal mucosa male1 - SRR494728
+Cl_Tubo_M1_SRR494729_sorted.bam								Tubotympanal mucosa male1 - SRR494729
+Cl_Tubo_M1_SRR494732_sorted.bam								Tubotympanal mucosa male1 - SRR494732
+Cl_Tymp_M1_SRR494727_sorted.bam								Tympanic membrane male1 - SRR494727
+Cl_Tymp_M1_SRR494730_sorted.bam								Tympanic membrane male1 - SRR494730
+Cl_Tymp_M1_SRR496368_sorted.bam								Tympanic membrane male1 - SRR496368
