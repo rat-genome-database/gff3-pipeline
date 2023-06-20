@@ -17,7 +17,10 @@ public class CreateGff4ProteinDomains {
 
     private RgdGff3Dao dao = new RgdGff3Dao();
     Logger log = LogManager.getLogger("domains");
-    private List<String> processedAssemblies;
+
+    private List<Integer> processedMapKeys;
+    private String outDir;
+    private String trackName;
 
     /**
      * load the species list and assemblies from properties/AppConfigure.xml
@@ -31,11 +34,16 @@ public class CreateGff4ProteinDomains {
 
             long time0 = System.currentTimeMillis();
 
-            getProcessedAssemblies().parallelStream().forEach(assemblyInfo -> {
-
+            getProcessedMapKeys().parallelStream().forEach( mapKey -> {
                 try {
                     CreateInfo info = new CreateInfo();
-                    info.parseFromString(assemblyInfo);
+
+                    int speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
+
+                    info.setMapKey( mapKey );
+                    info.setToDir( Manager.getInstance().getAssemblies().get(mapKey) + "/" + getOutDir() );
+                    info.setSpeciesTypeKey( speciesTypeKey );
+                    info.setCompressMode( Gff3ColumnWriter.COMPRESS_MODE_BGZIP );
 
                     run(info);
                 } catch (Exception e) {
@@ -58,10 +66,15 @@ public class CreateGff4ProteinDomains {
      */
     public void run(CreateInfo info) throws Exception {
 
-        String species = SpeciesType.getCommonName(info.getSpeciesTypeKey());
+        String speciesName = SpeciesType.getCommonName(info.getSpeciesTypeKey());
 
-        String assemblyName = MapManager.getInstance().getMap(info.getMapKey()).getName();
+        String ucscId = Gff3Utils.getAssemblySymbol(info.getMapKey());
+        String refseqId = MapManager.getInstance().getMap(info.getMapKey()).getRefSeqAssemblyName();
+        String fileName = info.getToDir() + "/" + speciesName + " " + refseqId+" ("+ucscId+") ";
+
+        String gffFile = fileName + getTrackName() + ".gff3";
         Gff3ColumnWriter gff3Writer = null;
+
 
         List<String> chromosomes = getChromosomes(info.getMapKey());
 
@@ -72,7 +85,7 @@ public class CreateGff4ProteinDomains {
 
             List<MapData> mds = dao.getMapDataByMapKeyChr(chr, info.getMapKey(), RgdId.OBJECT_KEY_PROTEIN_DOMAINS);
 
-            log.debug("  "+assemblyName+": data lines written for chr "+chr+":  "+mds.size());
+            log.debug("  "+ucscId+": data lines written for chr "+chr+":  "+mds.size());
 
             for (MapData md : mds) {
                 Map<String, String> attributesHashMap = new HashMap<>();
@@ -107,12 +120,11 @@ public class CreateGff4ProteinDomains {
 
                 // lazy create of gff3 writer
                 if( gff3Writer==null ) {
-                    String gffFile = info.getToDir()+assemblyName+"_domains.gff3";
                     gff3Writer = new Gff3ColumnWriter(gffFile, false, info.getCompressMode());
 
                     gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
-                    gff3Writer.print("# Species: "+ species+"\n");
-                    gff3Writer.print("# Assembly: "+ assemblyName+"\n");
+                    gff3Writer.print("# Species: "+ speciesName+"\n");
+                    gff3Writer.print("# Assembly: "+ refseqId+"\n");
                     gff3Writer.print("# Primary Contact: mtutaj@mcw.edu\n");
                     gff3Writer.print("# Generated: "+new Date()+"\n");
                 }
@@ -130,13 +142,13 @@ public class CreateGff4ProteinDomains {
         }
 
         synchronized( this.getClass() ) {
-            log.info(species+", MAP_KEY="+info.getMapKey()+" ("+ assemblyName+")   -- data lines: "+Utils.formatThousands(dataLinesWritten));
+            log.info(speciesName+", MAP_KEY="+info.getMapKey()+" ("+ ucscId+")   -- data lines: "+Utils.formatThousands(dataLinesWritten));
         }
     }
 
     List<String> getChromosomes(int mapKey) throws Exception {
 
-        // truncate version numbers from scaffold accessions
+        // strip version numbers from scaffold accessions
         List<String> result = new ArrayList<>();
         List<Chromosome> chromosomes = dao.getChromosomes(mapKey);
         for( Chromosome chr: chromosomes ) {
@@ -153,11 +165,27 @@ public class CreateGff4ProteinDomains {
         return result;
     }
 
-    public void setProcessedAssemblies(List<String> processedAssemblies) {
-        this.processedAssemblies = processedAssemblies;
+    public List<Integer> getProcessedMapKeys() {
+        return processedMapKeys;
     }
 
-    public List<String> getProcessedAssemblies() {
-        return processedAssemblies;
+    public void setProcessedMapKeys(List<Integer> processedMapKeys) {
+        this.processedMapKeys = processedMapKeys;
+    }
+
+    public String getOutDir() {
+        return outDir;
+    }
+
+    public void setOutDir(String outDir) {
+        this.outDir = outDir;
+    }
+
+    public String getTrackName() {
+        return trackName;
+    }
+
+    public void setTrackName(String trackName) {
+        this.trackName = trackName;
     }
 }

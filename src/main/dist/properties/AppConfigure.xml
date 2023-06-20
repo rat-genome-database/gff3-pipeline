@@ -180,8 +180,8 @@
 
     <bean id="strainManager" class="edu.mcw.rgd.gff3.CreateGff4CongenicStrains">
         <property name="outDir" value="Strains"/>
-        <property name="congenicStrains" value="Rat Congenic Strains"/>
-        <property name="mutantStrains" value="Rat Mutant Strains"/>
+        <property name="congenicStrains" value="Congenic Strains"/>
+        <property name="mutantStrains" value="Mutant Strains"/>
         <property name="processedMapKeys">
             <list>
                 <value>372</value>  <!-- rn7 -->
@@ -193,12 +193,15 @@
     </bean>
 
     <bean id="proteinDomainManager" class="edu.mcw.rgd.gff3.CreateGff4ProteinDomains">
-        <property name="processedAssemblies">
+        <property name="outDir" value="Gene Models/RGD Gene Features"/>
+        <property name="trackName" value="Protein Domains"/>
+        <property name="processedMapKeys">
             <list>
-                <value>species:RAT    mapKey:60  toDir:data/ProteinDomain/ compress:bgzip</value>
-                <value>species:RAT    mapKey:70  toDir:data/ProteinDomain/ compress:bgzip</value>
-                <value>species:RAT    mapKey:360 toDir:data/ProteinDomain/ compress:bgzip</value>
-                <value>species:RAT    mapKey:372 toDir:data/ProteinDomain/ compress:bgzip</value>
+                <value>372</value>  <!-- rn7 -->
+            </list>
+        </property>
+<!--        <property name="processedAssemblies">
+            <list>
                 <value>species:HUMAN  mapKey:17  toDir:data/ProteinDomain/ compress:bgzip</value>
                 <value>species:HUMAN  mapKey:38  toDir:data/ProteinDomain/ compress:bgzip</value>
                 <value>species:MOUSE  mapKey:18  toDir:data/ProteinDomain/ compress:bgzip</value>
@@ -213,7 +216,7 @@
                 <value>species:SQUIRREL   mapKey:720  toDir:data/ProteinDomain/ compress:bgzip</value>
                 <value>species:VERVET     mapKey:1311 toDir:data/ProteinDomain/ compress:bgzip</value>
             </list>
-        </property>
+        </property>-->
     </bean>
 
     <bean id="evaManager" class="edu.mcw.rgd.gff3.CreateGff4Eva">

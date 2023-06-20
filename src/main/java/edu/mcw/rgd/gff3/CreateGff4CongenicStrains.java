@@ -29,19 +29,24 @@ public class CreateGff4CongenicStrains {
      */
     public void run() throws Exception {
 
-        for( int mapKey: getProcessedMapKeys() ) {
+        getProcessedMapKeys().parallelStream().forEach( mapKey -> {
 
-            CreateInfo info = new CreateInfo();
-            int speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
+            try {
+                CreateInfo info = new CreateInfo();
+                int speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
 
-            info.setMapKey( mapKey );
-            info.setToDir( Manager.getInstance().getAssemblies().get(mapKey) + "/" + getOutDir() );
-            info.setSpeciesTypeKey( speciesTypeKey );
-            info.setCompressMode( Gff3ColumnWriter.COMPRESS_MODE_BGZIP );
+                info.setMapKey(mapKey);
+                info.setToDir(Manager.getInstance().getAssemblies().get(mapKey) + "/" + getOutDir());
+                info.setSpeciesTypeKey(speciesTypeKey);
+                info.setCompressMode(Gff3ColumnWriter.COMPRESS_MODE_BGZIP);
 
-            run4Strains(info, false);
-            run4Strains(info, true);
-        }
+                run4Strains(info, false);
+                run4Strains(info, true);
+
+            } catch( Exception e ) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public void run4Strains(CreateInfo info, boolean processCongenicStrains) throws Exception{
@@ -63,7 +68,7 @@ public class CreateGff4CongenicStrains {
 
         String header = "# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n";
         header += "# Species: "+ speciesName+"\n";
-        header += "# Assembly: "+ MapManager.getInstance().getMap(info.getMapKey()).getName()+"\n";
+        header += "# Assembly: "+ refseqId+"\n";
         header += "# Primary Contact: mtutaj@mcw.edu\n";
         header += "# Generated: "+new Date()+"\n";
 

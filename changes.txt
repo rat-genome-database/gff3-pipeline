@@ -1,5 +1,5 @@
 Jun 20, 2023
-  mutant & congenic strains: JBrowse2 files for rn6, rn5 and rn4
+  mutant & congenic strains, protein domains: JBrowse2 files for rn6, rn5 and rn4
   ontologies, genes, qtls, markers: JBrowse2 files for rn6, rn5 and rn4
   bam conf generator: helper to generate JBrowse2 config info for a set of bam files
 
