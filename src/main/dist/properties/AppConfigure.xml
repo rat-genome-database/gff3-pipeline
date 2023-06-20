@@ -198,6 +198,9 @@
         <property name="processedMapKeys">
             <list>
                 <value>372</value>  <!-- rn7 -->
+                <value>360</value>  <!-- rn6 -->
+                <value>70</value>  <!-- rn5 -->
+                <value>60</value>  <!-- rn4 -->
             </list>
         </property>
 <!--        <property name="processedAssemblies">
