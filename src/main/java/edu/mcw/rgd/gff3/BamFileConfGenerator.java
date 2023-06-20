@@ -17,16 +17,18 @@ public class BamFileConfGenerator {
 
     void run() throws IOException {
 
-        HashMap<String,String> nameToFileMap = loadName2FileMap();
+        String fname = "data/chinchilla_bam.txt";
+        fname = "data/otitis_media.txt";
+        HashMap<String,String> nameToFileMap = loadName2FileMap(fname);
 
         String outFileName = "data/bam.conf";
         BufferedWriter out = Utils.openWriter(outFileName);
 
-        String jbrowseCategory = "Chinchilla Expression Data/RNA-seq - PRJNA78823";
+        String jbrowseCategory = "Chinchilla Expression Data/Otitis media - response to Streptococcus pneumoniae infection - PRJNA277957";
         boolean useBai = true;
-        String trackIdBase = "PRJNA78823";
+        String trackIdBase = "PRJNA277957";
         int trackIndex = 0;
-        String outDir = "chinchilla_RNAseq/";
+        String outDir = "PRJNA277957/"; // must be '/'-terminated
 
         for( Map.Entry<String, String> entry: nameToFileMap.entrySet() ) {
 
@@ -65,12 +67,10 @@ public class BamFileConfGenerator {
         out.close();
     }
 
-    HashMap<String,String> loadName2FileMap() throws IOException {
+    HashMap<String,String> loadName2FileMap(String fname) throws IOException {
 
         HashMap<String,String> nameToFileMap = new HashMap<>();
 
-
-        String fname = "data/chinchilla_bam.txt";
         BufferedReader in = Utils.openReader(fname);
         String line;
         while( (line=in.readLine())!=null ) {

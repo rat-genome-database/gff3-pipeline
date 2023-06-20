@@ -1,0 +1,17 @@
+90R.bam                                                                                                 Uninfected male SRR1910427
+91R.bam                                                                                                 Uninfected male SRR1910430
+92R.bam                                                                                                 Uninfected female SRR1910510
+93R.bam                                                                                                 Uninfected female SRR1910511
+94R.bam                                                                                                 Uninfected male SRR1910512
+95R.bam                                                                                                 Uninfected male SRR1910513
+70R.bam                                                                                                 Day 3 post transbular innoculation female SRR1910516
+96L.bam                                                                                                 Day 3 post transbular innoculation male SRR1910518
+97R.bam                                                                                                 Day 3 post transbular innoculation male SRR1910521
+100R.bam                                                                                                Day 3 post transbular innoculation female SRR1910522
+44R.bam                                                                                                 Day 3 post transbular innoculation male SRR1910514
+45R.bam                                                                                                 Day 3 post transbular innoculation male SRR1910515
+56R.bam                                                                                                 Day 17 post transbular innoculation male SRR1910523
+57R.bam                                                                                                 Day 17 post transbular innoculation male SRR1910524
+68R.bam                                                                                                 Day 17 post transbular innoculation female SRR1910525
+72R.bam                                                                                                 Day 17 post transbular innoculation female SRR1910526
+74R.bam                                                                                                 Day 17 post transbular innoculation male SRR1910527

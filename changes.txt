@@ -1,3 +1,7 @@
+Jun 20, 2023
+  ontologies, genes, qtls, markers: JBrowse2 files for rn6, rn5 and rn4
+  bam conf generator: helper to generate JBrowse2 config info for a set of bam files
+
 Jun 15, 2023
   agr gff3: updated assembly names for rat and human in gff3 headers
 
