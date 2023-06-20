@@ -17,7 +17,10 @@ import java.util.*;
 public class CreateGff4CongenicStrains {
 
     private RgdGff3Dao dao = new RgdGff3Dao();
-    private List<String> processedAssemblies;
+    private List<Integer> processedMapKeys;
+    private String outDir;
+    private String congenicStrains;
+    private String mutantStrains;
 
     final String source = "RGD_Rat_Strain";
     
@@ -25,29 +28,38 @@ public class CreateGff4CongenicStrains {
      * load the species list and assemblies from properties/AppConfigure.xml
      */
     public void run() throws Exception {
-        for( String assemblyInfo: processedAssemblies ) {
-            CreateInfo info = new CreateInfo();
-            info.parseFromString(assemblyInfo);
 
-            creategff4CongenicStrains(info);
+        for( int mapKey: getProcessedMapKeys() ) {
+
+            CreateInfo info = new CreateInfo();
+            int speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
+
+            info.setMapKey( mapKey );
+            info.setToDir( Manager.getInstance().getAssemblies().get(mapKey) + "/" + getOutDir() );
+            info.setSpeciesTypeKey( speciesTypeKey );
+            info.setCompressMode( Gff3ColumnWriter.COMPRESS_MODE_BGZIP );
+
+            run4Strains(info, false);
+            run4Strains(info, true);
         }
     }
 
-    public void creategff4CongenicStrains(CreateInfo info) throws Exception{
+    public void run4Strains(CreateInfo info, boolean processCongenicStrains) throws Exception{
         CounterPool counters = new CounterPool();
 
         String speciesName = SpeciesType.getCommonName(info.getSpeciesTypeKey());
-        String assemblySymbol = info.getAssemblySymbol()!=null ? info.getAssemblySymbol() : Gff3Utils.getAssemblySymbol(info.getMapKey());
 
-        System.out.println("START Strain GFF3 Generator for  "+speciesName+"  MAP_KEY="+info.getMapKey()+"  ASSEMBLY "+ MapManager.getInstance().getMap(info.getMapKey()).getName());
+        String ucscId = Gff3Utils.getAssemblySymbol(info.getMapKey());
+        String refseqId = MapManager.getInstance().getMap(info.getMapKey()).getRefSeqAssemblyName();
+        String fileName = info.getToDir() + "/" + speciesName + " " + refseqId+" ("+ucscId+") ";
+
+        System.out.println("START "+(processCongenicStrains?"Congenic":"Mutant") + " Strain GFF3 Generator for  "+speciesName
+                +"  MAP_KEY="+info.getMapKey()+"  ASSEMBLY "+ MapManager.getInstance().getMap(info.getMapKey()).getName());
         System.out.println("========================");
 
-        String gffFileCongenic = info.getToDir()+"/"+assemblySymbol+"_CongenicStrains.gff3";
-        String gffFileMutant = info.getToDir()+"/"+assemblySymbol+"_MutantStrains.gff3";
+        String gffFile = fileName + (processCongenicStrains ? getCongenicStrains() : getMutantStrains()) + ".gff3";
 
-        //initialization of the gff3writer
-        Gff3ColumnWriter gff3WriterCongenic = new Gff3ColumnWriter(gffFileCongenic, false, info.getCompressMode() );
-        Gff3ColumnWriter gff3WriterMutant = new Gff3ColumnWriter(gffFileMutant, false, info.getCompressMode());
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, info.getCompressMode());
 
         String header = "# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n";
         header += "# Species: "+ speciesName+"\n";
@@ -55,8 +67,7 @@ public class CreateGff4CongenicStrains {
         header += "# Primary Contact: mtutaj@mcw.edu\n";
         header += "# Generated: "+new Date()+"\n";
 
-        gff3WriterCongenic.print(header);
-        gff3WriterMutant.print(header);
+        gff3Writer.print(header);
 
 
         // get all active strains having positions on the given assembly
@@ -76,6 +87,14 @@ public class CreateGff4CongenicStrains {
             if( !(isCongenic || isMutant) ){
                 continue;
             }
+
+            if( processCongenicStrains && !isCongenic ) {
+                continue;
+            }
+            if( !processCongenicStrains && !isMutant ) {
+                continue;
+            }
+
             if( isCongenic )
                 counters.increment("congenicStrains");
             if( isMutant )
@@ -119,14 +138,8 @@ public class CreateGff4CongenicStrains {
                 String strand = Utils.NVL(md.getStrand(), ".");
 
                 //write first each columns for this line
-                if( isCongenic ) {
-                    gff3WriterCongenic.writeFirst8Columns(md.getChromosome(), source, strainTypeLc,
-                            md.getStartPos(),md.getStopPos(),".",strand,".");
-                }
-                if( isMutant ) {
-                    gff3WriterMutant.writeFirst8Columns(md.getChromosome(), source, strainTypeLc,
-                            md.getStartPos(),md.getStopPos(),".",strand,".");
-                }
+                gff3Writer.writeFirst8Columns(md.getChromosome(), source, strainTypeLc,
+                        md.getStartPos(),md.getStopPos(),".",strand,".");
 
                 //create attributes hash map for this line
                 Map<String, String> attributesHashMap = new HashMap<>();
@@ -146,20 +159,12 @@ public class CreateGff4CongenicStrains {
                 }
 
                 //write attributes into gff3 file
-                if( isCongenic ) {
-                    gff3WriterCongenic.writeAttributes4Gff3(attributesHashMap);
-                }
-                if( isMutant ) {
-                    gff3WriterMutant.writeAttributes4Gff3(attributesHashMap);
-                }
+                gff3Writer.writeAttributes4Gff3(attributesHashMap);
             }
         }
 
-        gff3WriterCongenic.close();
-        gff3WriterCongenic.sortInMemory();
-
-        gff3WriterMutant.close();
-        gff3WriterMutant.sortInMemory();
+        gff3Writer.close();
+        gff3Writer.sortInMemory();
 
         System.out.println("\nCongenic Strain records processed: "+ counters.get("congenicStrains"));
         System.out.println("Mutant Strain records processed: "+ counters.get("mutantStrains"));
@@ -172,7 +177,7 @@ public class CreateGff4CongenicStrains {
         System.out.println("Number of Strain Records with NO Disease annotations: "+ counters.get("strainsNoDisAnn"));
         System.out.println("Number of Strain Records with Phenotype annotations: "+ counters.get("strainsWithPhenoAnn"));
         System.out.println("Number of Strain Records with NO Phenotype annotations: "+ counters.get("strainsNoPhenoAnn"));
-        System.out.println("\nGFF3 File SUCCESSFUL!");
+        System.out.println("\nOK!");
     }
 
     Map<String,String> processAnnotations(int strainRgdId, CounterPool counters) throws Exception {
@@ -243,11 +248,35 @@ public class CreateGff4CongenicStrains {
         }
     }
 
-    public void setProcessedAssemblies(List processedAssemblies) {
-        this.processedAssemblies = processedAssemblies;
+    public List<Integer> getProcessedMapKeys() {
+        return processedMapKeys;
     }
 
-    public List getProcessedAssemblies() {
-        return processedAssemblies;
+    public void setProcessedMapKeys(List<Integer> processedMapKeys) {
+        this.processedMapKeys = processedMapKeys;
+    }
+
+    public String getOutDir() {
+        return outDir;
+    }
+
+    public void setOutDir(String outDir) {
+        this.outDir = outDir;
+    }
+
+    public String getCongenicStrains() {
+        return congenicStrains;
+    }
+
+    public void setCongenicStrains(String congenicStrains) {
+        this.congenicStrains = congenicStrains;
+    }
+
+    public String getMutantStrains() {
+        return mutantStrains;
+    }
+
+    public void setMutantStrains(String mutantStrains) {
+        this.mutantStrains = mutantStrains;
     }
 }

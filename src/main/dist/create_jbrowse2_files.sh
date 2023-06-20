@@ -13,4 +13,5 @@ $RUNLOAD -object:chebi > chebi.log
 $RUNLOAD -object:genes > genes.log
 $RUNLOAD -object:qtls > qtls.log
 $RUNLOAD -object:markers > markers.log
+$RUNLOAD -object:strains > strains.log
 

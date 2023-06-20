@@ -158,22 +158,6 @@ public class Manager {
                 }
                 break;
 
-            case RgdId.OBJECT_KEY_STRAINS:
-                CreateGff4CongenicStrains create4Strains = new CreateGff4CongenicStrains();
-
-                if( mapKey>0 && toDir!=null ){
-
-                    CreateInfo info = new CreateInfo();
-                    info.setMapKey(mapKey);
-                    info.setToDir(toDir);
-                    info.setSpeciesTypeKey(speciesTypekey);
-                    info.setCompressMode(compressMode);
-                    create4Strains.creategff4CongenicStrains(info);
-                }else{
-                    throw new ArgumentsException("This Script requires '-mapKey: -toFile:' as parameter");
-                }
-                break;
-
             case RgdId.OBJECT_KEY_PROMOTERS:
                 CreatePromoters4Gene createPromoters4Gene = new CreatePromoters4Gene();
 
@@ -275,9 +259,6 @@ public class Manager {
                             break;
                         case "qtl":
                             objectTypeKey = RgdId.OBJECT_KEY_QTLS;
-                            break;
-                        case "strain":
-                            objectTypeKey = RgdId.OBJECT_KEY_STRAINS;
                             break;
                         case "sslp":
                             objectTypeKey = RgdId.OBJECT_KEY_SSLPS;

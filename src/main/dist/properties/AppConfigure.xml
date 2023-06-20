@@ -179,12 +179,15 @@
     </bean>
 
     <bean id="strainManager" class="edu.mcw.rgd.gff3.CreateGff4CongenicStrains">
-        <property name="processedAssemblies">
+        <property name="outDir" value="Strains"/>
+        <property name="congenicStrains" value="Rat Congenic Strains"/>
+        <property name="mutantStrains" value="Rat Mutant Strains"/>
+        <property name="processedMapKeys">
             <list>
-                <value>species:RAT  mapKey:60  toDir:data/Strain/Rat/ compress:bgzip  assemblySymbol:rn3.4</value>
-                <value>species:RAT  mapKey:70  toDir:data/Strain/Rat/ compress:bgzip  assemblySymbol:rn5</value>
-                <value>species:RAT  mapKey:360 toDir:data/Strain/Rat/ compress:bgzip  assemblySymbol:rn6</value>
-                <value>species:RAT  mapKey:372 toDir:data/Strain/Rat/ compress:bgzip  assemblySymbol:rn7</value>
+                <value>372</value>  <!-- rn7 -->
+                <value>360</value>  <!-- rn6 -->
+                <value>70</value>  <!-- rn5 -->
+                <value>60</value>  <!-- rn4 -->
             </list>
         </property>
     </bean>
