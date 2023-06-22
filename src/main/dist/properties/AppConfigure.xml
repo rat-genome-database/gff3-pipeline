@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Jun 20, 2023 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Jun 22, 2023 --" />
 
         <property name="assemblies"><!-- file system location for files for given assembly-->
             <map>
@@ -10,6 +10,10 @@
                 <entry key="360" value="data/jbrowse2/Rat/rn6" />
                 <entry key= "70" value="data/jbrowse2/Rat/rn5" />
                 <entry key= "60" value="data/jbrowse2/Rat/rn4" />
+
+                <entry key="239" value="data/jbrowse2/Mouse/mm39" />
+                <entry key= "35" value="data/jbrowse2/Mouse/mm10" />
+                <entry key= "18" value="data/jbrowse2/Mouse/mm9" />
             </map>
         </property>
     </bean>
@@ -27,6 +31,10 @@
                 <value>360</value>  <!-- rn6 -->
                 <value>70</value>  <!-- rn5 -->
                 <value>60</value>  <!-- rn4 -->
+
+                <value>239</value>  <!-- mm39 -->
+                <value>35</value>  <!-- mm10 -->
+                <value>18</value>  <!-- mm9 -->
             </list>
         </property>
         <property name="termTrackNames">
@@ -105,6 +113,10 @@
                 <value>360</value>  <!-- rn6 -->
                 <value>70</value>  <!-- rn5 -->
                 <value>60</value>  <!-- rn4 -->
+
+                <value>239</value>  <!-- mm39 -->
+                <value>35</value>  <!-- mm10 -->
+                <value>18</value>  <!-- mm9 -->
             </list>
         </property>
         <!--
@@ -113,9 +125,6 @@
                 <value>species:HUMAN  mapKey:13  toDir:data/Gene/Human/ compress:bgzip</value>
                 <value>species:HUMAN  mapKey:17  toDir:data/Gene/Human/ compress:bgzip</value>
                 <value>species:HUMAN  mapKey:38  toDir:data/Gene/Human/ compress:bgzip</value>
-                <value>species:MOUSE  mapKey:18  toDir:data/Gene/Mouse/ compress:bgzip</value>
-                <value>species:MOUSE  mapKey:35  toDir:data/Gene/Mouse/ compress:bgzip</value>
-                <value>species:MOUSE  mapKey:239 toDir:data/Gene/Mouse/ compress:bgzip</value>
 
                 <value>species:BONOBO     mapKey:511  toDir:data/Gene/Bonobo/     compress:bgzip</value>
                 <value>species:BONOBO     mapKey:513  toDir:data/Gene/Bonobo/     compress:bgzip</value>
@@ -141,6 +150,10 @@
                 <value>360</value>  <!-- rn6 -->
                 <value>70</value>  <!-- rn5 -->
                 <value>60</value>  <!-- rn4 -->
+
+                <value>239</value>  <!-- mm39 -->
+                <value>35</value>  <!-- mm10 -->
+                <value>18</value>  <!-- mm9 -->
             </list>
         </property>
         <!--
@@ -149,9 +162,6 @@
                 <value>species:HUMAN  mapKey:13  toDir:data/Qtl/Human/human36/ compress:bgzip</value>
                 <value>species:HUMAN  mapKey:17  toDir:data/Qtl/Human/human37/ compress:bgzip</value>
                 <value>species:HUMAN  mapKey:38  toDir:data/Qtl/Human/human38/ compress:bgzip</value>
-                <value>species:MOUSE  mapKey:18  toDir:data/Qtl/Mouse/mouse37/ compress:bgzip</value>
-                <value>species:MOUSE  mapKey:35  toDir:data/Qtl/Mouse/mouse38/ compress:bgzip</value>
-                <value>species:MOUSE  mapKey:239 toDir:data/Qtl/Mouse/mouse39/ compress:bgzip</value>
             </list>
         </property>-->
     </bean>
@@ -164,6 +174,9 @@
                 <value>360</value>  <!-- rn6 -->
                 <value>70</value>  <!-- rn5 -->
                 <value>60</value>  <!-- rn4 -->
+
+                <value>35</value>  <!-- mm10 -->
+                <value>18</value>  <!-- mm9 -->
             </list>
         </property>
 
@@ -172,8 +185,6 @@
             <list>
                 <value>species:HUMAN  mapKey:13  toDir:data/Marker/Human/ compress:bgzip</value>
                 <value>species:HUMAN  mapKey:17  toDir:data/Marker/Human/ compress:bgzip</value>
-                <value>species:MOUSE  mapKey:18  toDir:data/Marker/Mouse/ compress:bgzip</value>
-                <value>species:MOUSE  mapKey:35  toDir:data/Marker/Mouse/ compress:bgzip</value>
             </list>
         </property>-->
     </bean>
@@ -201,14 +212,16 @@
                 <value>360</value>  <!-- rn6 -->
                 <value>70</value>  <!-- rn5 -->
                 <value>60</value>  <!-- rn4 -->
+
+                <value>239</value>  <!-- mm39 -->
+                <value>35</value>  <!-- mm10 -->
+                <value>18</value>  <!-- mm9 -->
             </list>
         </property>
 <!--        <property name="processedAssemblies">
             <list>
                 <value>species:HUMAN  mapKey:17  toDir:data/ProteinDomain/ compress:bgzip</value>
                 <value>species:HUMAN  mapKey:38  toDir:data/ProteinDomain/ compress:bgzip</value>
-                <value>species:MOUSE  mapKey:18  toDir:data/ProteinDomain/ compress:bgzip</value>
-                <value>species:MOUSE  mapKey:35  toDir:data/ProteinDomain/ compress:bgzip</value>
 
                 <value>species:BONOBO     mapKey:511  toDir:data/ProteinDomain/ compress:bgzip</value>
                 <value>species:CHINCHILLA mapKey:44   toDir:data/ProteinDomain/ compress:bgzip</value>

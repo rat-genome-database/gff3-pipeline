@@ -1,3 +1,6 @@
+Jun 22, 2023
+  jbrowse2: added mouse assemblies mm39, mm10 and mm9 to the processing
+  
 Jun 20, 2023
   mutant & congenic strains, protein domains: JBrowse2 files for rn6, rn5 and rn4
   ontologies, genes, qtls, markers: JBrowse2 files for rn6, rn5 and rn4
