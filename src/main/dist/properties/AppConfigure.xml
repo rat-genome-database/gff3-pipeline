@@ -2,18 +2,33 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Jun 22, 2023 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Jun 23, 2023 --" />
 
-        <property name="assemblies"><!-- file system location for files for given assembly-->
+        <property name="assemblies"><!-- file system location for files for given assembly: must be the same as found in '/ref/fasta' directory -->
             <map>
-                <entry key="372" value="data/jbrowse2/Rat/rn7" />
+                <entry key="372" value="data/jbrowse2/Rat/rn7.2" />
                 <entry key="360" value="data/jbrowse2/Rat/rn6" />
                 <entry key= "70" value="data/jbrowse2/Rat/rn5" />
-                <entry key= "60" value="data/jbrowse2/Rat/rn4" />
+                <entry key= "60" value="data/jbrowse2/Rat/rn3.4" />
 
                 <entry key="239" value="data/jbrowse2/Mouse/mm39" />
-                <entry key= "35" value="data/jbrowse2/Mouse/mm10" />
-                <entry key= "18" value="data/jbrowse2/Mouse/mm9" />
+                <entry key= "35" value="data/jbrowse2/Mouse/mm38" />
+                <entry key= "18" value="data/jbrowse2/Mouse/mm37" />
+
+                <entry key= "38" value="data/jbrowse2/Human/hg38" />
+                <entry key= "17" value="data/jbrowse2/Human/hg19" />
+                <entry key= "13" value="data/jbrowse2/Human/hg18" />
+
+                <entry key="911" value="data/jbrowse2/Pig/susScr11" />
+                <entry key="910" value="data/jbrowse2/Pig/susScr3" />
+
+                <entry key="634" value="data/jbrowse2/Dog/ROS_Cfam_1.0" />
+                <entry key="631" value="data/jbrowse2/Dog/canFam3" />
+
+                <entry key="1313" value="data/jbrowse2/Green Monkey/veroWho" />
+                <entry key="1311" value="data/jbrowse2/Green Monkey/chlSab2" />
+
+                <entry key="1410" value="data/jbrowse2/Naked Mole-Rat/hetGla2" />
             </map>
         </property>
     </bean>
@@ -35,6 +50,21 @@
                 <value>239</value>  <!-- mm39 -->
                 <value>35</value>  <!-- mm10 -->
                 <value>18</value>  <!-- mm9 -->
+
+                <value>38</value>  <!-- GRCh38 -->
+                <value>17</value>  <!-- GRCh37 -->
+                <value>13</value>  <!-- NCBI36 -->
+
+                <value>911</value>  <!-- Pig/susScr11 -->
+                <value>910</value>  <!-- Pig/susScr3 -->
+
+                <value>634</value>  <!-- Dog/ROS_Cfam_1.0 -->
+                <value>631</value>  <!-- Dog/canFam3 -->
+
+                <value>1313</value>  <!-- Green Monkey/veroWho -->
+                <value>1311</value>  <!-- Green Monkey/chlSab2 -->
+
+                <value>1410</value>  <!-- Naked Mole-Rat/hetGla2 -->
             </list>
         </property>
         <property name="termTrackNames">
@@ -117,26 +147,30 @@
                 <value>239</value>  <!-- mm39 -->
                 <value>35</value>  <!-- mm10 -->
                 <value>18</value>  <!-- mm9 -->
+
+                <value>38</value>  <!-- Human/GRCh38 -->
+                <value>17</value>  <!-- Human/GRCh37 -->
+                <value>13</value>  <!-- Human/NCBI36 -->
+
+                <value>911</value>  <!-- Pig/susScr11 -->
+                <value>910</value>  <!-- Pig/susScr3 -->
+
+                <value>634</value>  <!-- Dog/ROS_Cfam_1.0 -->
+                <value>631</value>  <!-- Dog/canFam3 -->
+
+                <value>1313</value>  <!-- Green Monkey/veroWho -->
+                <value>1311</value>  <!-- Green Monkey/chlSab2 -->
+
+                <value>1410</value>  <!-- Naked Mole-Rat/hetGla2 -->
             </list>
         </property>
         <!--
         <property name="processedAssemblies">
             <list>
-                <value>species:HUMAN  mapKey:13  toDir:data/Gene/Human/ compress:bgzip</value>
-                <value>species:HUMAN  mapKey:17  toDir:data/Gene/Human/ compress:bgzip</value>
-                <value>species:HUMAN  mapKey:38  toDir:data/Gene/Human/ compress:bgzip</value>
-
                 <value>species:BONOBO     mapKey:511  toDir:data/Gene/Bonobo/     compress:bgzip</value>
                 <value>species:BONOBO     mapKey:513  toDir:data/Gene/Bonobo/     compress:bgzip</value>
                 <value>species:CHINCHILLA mapKey:44   toDir:data/Gene/Chinchilla/ compress:bgzip</value>
-                <value>species:DOG        mapKey:631  toDir:data/Gene/Dog/        compress:bgzip</value> - canFam3 -
-                <value>species:DOG        mapKey:634  toDir:data/Gene/Dog/        compress:bgzip</value> - ROS_CFam_1.0 -
-                <value>species:MOLERAT    mapKey:1410 toDir:data/Gene/Molerat/    compress:bgzip</value>
-                <value>species:PIG        mapKey:910  toDir:data/Gene/Pig/        compress:bgzip</value>
-                <value>species:PIG        mapKey:911  toDir:data/Gene/Pig/        compress:bgzip</value>
                 <value>species:SQUIRREL   mapKey:720  toDir:data/Gene/Squirrel/   compress:bgzip</value>
-                <value>species:VERVET     mapKey:1311 toDir:data/Gene/Vervet/     compress:bgzip</value>
-                <value>species:VERVET     mapKey:1313 toDir:data/Gene/Vervet/     compress:bgzip</value>
             </list>
         </property>
         -->
@@ -154,16 +188,12 @@
                 <value>239</value>  <!-- mm39 -->
                 <value>35</value>  <!-- mm10 -->
                 <value>18</value>  <!-- mm9 -->
+
+                <value>38</value>  <!-- GRCh38 -->
+                <value>17</value>  <!-- GRCh37 -->
+                <value>13</value>  <!-- NCBI36 -->
             </list>
         </property>
-        <!--
-        <property name="processedAssemblies">
-            <list>
-                <value>species:HUMAN  mapKey:13  toDir:data/Qtl/Human/human36/ compress:bgzip</value>
-                <value>species:HUMAN  mapKey:17  toDir:data/Qtl/Human/human37/ compress:bgzip</value>
-                <value>species:HUMAN  mapKey:38  toDir:data/Qtl/Human/human38/ compress:bgzip</value>
-            </list>
-        </property>-->
     </bean>
 
     <bean id="markerManager" class="edu.mcw.rgd.gff3.CreateGff4SSLP">
@@ -177,16 +207,11 @@
 
                 <value>35</value>  <!-- mm10 -->
                 <value>18</value>  <!-- mm9 -->
+
+                <value>17</value>  <!-- GRCh37 -->
+                <value>13</value>  <!-- NCBI36 -->
             </list>
         </property>
-
-        <!--
-        <property name="processedAssemblies">
-            <list>
-                <value>species:HUMAN  mapKey:13  toDir:data/Marker/Human/ compress:bgzip</value>
-                <value>species:HUMAN  mapKey:17  toDir:data/Marker/Human/ compress:bgzip</value>
-            </list>
-        </property>-->
     </bean>
 
     <bean id="strainManager" class="edu.mcw.rgd.gff3.CreateGff4CongenicStrains">
@@ -216,19 +241,21 @@
                 <value>239</value>  <!-- mm39 -->
                 <value>35</value>  <!-- mm10 -->
                 <value>18</value>  <!-- mm9 -->
+
+                <value>38</value>  <!-- GRCh38 -->
+                <value>17</value>  <!-- GRCh37 -->
+
+                <value>911</value>  <!-- Pig/susScr11 -->
+                <value>910</value>  <!-- Pig/susScr3 -->
+
+                <value>631</value>  <!-- Dog/canFam3 -->
             </list>
         </property>
 <!--        <property name="processedAssemblies">
             <list>
-                <value>species:HUMAN  mapKey:17  toDir:data/ProteinDomain/ compress:bgzip</value>
-                <value>species:HUMAN  mapKey:38  toDir:data/ProteinDomain/ compress:bgzip</value>
-
                 <value>species:BONOBO     mapKey:511  toDir:data/ProteinDomain/ compress:bgzip</value>
                 <value>species:CHINCHILLA mapKey:44   toDir:data/ProteinDomain/ compress:bgzip</value>
-                <value>species:DOG        mapKey:631  toDir:data/ProteinDomain/ compress:bgzip</value>
                 <value>species:MOLERAT    mapKey:1410 toDir:data/ProteinDomain/ compress:bgzip</value>
-                <value>species:PIG        mapKey:910  toDir:data/ProteinDomain/ compress:bgzip</value>
-                <value>species:PIG        mapKey:911  toDir:data/ProteinDomain/ compress:bgzip</value>
                 <value>species:SQUIRREL   mapKey:720  toDir:data/ProteinDomain/ compress:bgzip</value>
                 <value>species:VERVET     mapKey:1311 toDir:data/ProteinDomain/ compress:bgzip</value>
             </list>

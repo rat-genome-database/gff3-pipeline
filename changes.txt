@@ -1,3 +1,6 @@
+Jun 26, 2023
+  jbrowse2: added assemblies for dog, pig, green monkey and naked mole rat
+
 Jun 22, 2023
   jbrowse2: added mouse assemblies mm39, mm10 and mm9 to the processing
   
