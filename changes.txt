@@ -1,3 +1,7 @@
+Jul 07, 2023
+  jbrowse2: temporarily restricting output only to rn7 assembly
+            tuned up output of gff3 files
+
 Jun 26, 2023
   jbrowse2: added assemblies for dog, pig, green monkey and naked mole rat
 

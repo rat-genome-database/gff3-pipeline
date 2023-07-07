@@ -21,12 +21,17 @@ public class CreateGff4QTL {
 
         for( int mapKey: getProcessedMapKeys() ) {
 
+            String assemblyDir = Manager.getInstance().getAssemblies().get(mapKey);
+            if( assemblyDir==null ) {
+                break;
+            }
+
             CreateInfo info = new CreateInfo();
 
             int speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
 
             info.setMapKey( mapKey );
-            info.setToDir( Manager.getInstance().getAssemblies().get(mapKey) + "/" + getOutDir() );
+            info.setToDir( assemblyDir + "/" + getOutDir() );
             info.setSpeciesTypeKey( speciesTypeKey );
             info.setCompressMode( Gff3ColumnWriter.COMPRESS_MODE_BGZIP );
 
@@ -267,9 +272,9 @@ public class CreateGff4QTL {
                 attributesHashMap.put("Name", "QTL:"+symbol);
                 attributesHashMap.put("fullName", full_name);
                 attributesHashMap.put("Alias", "RGD:"+rgdId+", QTL:"+full_name+","+symbol);
-                attributesHashMap.put("LOD",lod);
+                attributesHashMap.put("lod",lod);
                 attributesHashMap.put("pValue",pValue);
-                attributesHashMap.put("Note",notes);
+                attributesHashMap.put("description",notes);
                 attributesHashMap.put("Dbxref","RGD:"+rgdId);
                 attributesHashMap.put("mappingMethod",mappingMethod);
                 attributesHashMap.put("relatedQTLs",relQtls);
@@ -277,7 +282,7 @@ public class CreateGff4QTL {
                     attributesHashMap.put("relatedStrains", relStrain);
                 }
                 attributesHashMap.put("relatedGenes",relGenes);
-                attributesHashMap.put("Index","1");
+                //attributesHashMap.put("Index","1");
 
                 gff3Writer.writeAttributes4Gff3(attributesHashMap);
             }

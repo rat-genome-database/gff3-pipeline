@@ -27,6 +27,11 @@ public class CreateGff4Gene {
 
         processedMapKeys.parallelStream().forEach( mapKey -> {
 
+            String assemblyDir = Manager.getInstance().getAssemblies().get(mapKey);
+            if( assemblyDir==null ) {
+                return;
+            }
+
             int speciesTypeKey = 0;
             try {
                 speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
@@ -38,7 +43,7 @@ public class CreateGff4Gene {
 
             CreateInfo info = new CreateInfo();
             info.setMapKey( mapKey );
-            info.setToDir( Manager.getInstance().getAssemblies().get(mapKey) + "/" + getOutDir() );
+            info.setToDir( assemblyDir + "/" + getOutDir() );
             info.setSpeciesTypeKey( speciesTypeKey );
             info.setCompressMode( Gff3ColumnWriter.COMPRESS_MODE_BGZIP );
 
@@ -140,7 +145,7 @@ public class CreateGff4Gene {
                 if( gene.getRefSeqStatus()!=null )
                     attributesHashMap.put("refSeqStatus",gene.getRefSeqStatus());
                 if( annotDesc!=null )
-                    attributesHashMap.put("Note",annotDesc);
+                    attributesHashMap.put("description", annotDesc);
                 if( !Utils.isStringEmpty(gene.getNcbiAnnotStatus()) ) {
                     attributesHashMap.put("nomenclatureStatus", gene.getNcbiAnnotStatus());
                 }

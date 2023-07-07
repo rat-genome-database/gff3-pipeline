@@ -36,12 +36,17 @@ public class CreateGff4ProteinDomains {
 
             getProcessedMapKeys().parallelStream().forEach( mapKey -> {
                 try {
+                    String assemblyDir = Manager.getInstance().getAssemblies().get(mapKey);
+                    if( assemblyDir==null ) {
+                        return;
+                    }
+
                     CreateInfo info = new CreateInfo();
 
                     int speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
 
                     info.setMapKey( mapKey );
-                    info.setToDir( Manager.getInstance().getAssemblies().get(mapKey) + "/" + getOutDir() );
+                    info.setToDir( assemblyDir + "/" + getOutDir() );
                     info.setSpeciesTypeKey( speciesTypeKey );
                     info.setCompressMode( Gff3ColumnWriter.COMPRESS_MODE_BGZIP );
 

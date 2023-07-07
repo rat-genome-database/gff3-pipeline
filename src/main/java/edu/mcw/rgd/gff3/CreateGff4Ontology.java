@@ -64,6 +64,10 @@ public class CreateGff4Ontology {
         speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
 
         String assemblyDir = Manager.getInstance().getAssemblies().get(mapKey);
+        if( assemblyDir==null ) {
+            return;
+        }
+
         String mainDir = assemblyDir + "/" + outDirName;
 
         for( String termAcc: doTermAccs ) {
@@ -394,9 +398,9 @@ public class CreateGff4Ontology {
         Map<String, String> attributesHashMap = new HashMap<>();
         attributesHashMap.put("Dbxref", "RGD:" + entry.rgdId);
         attributesHashMap.put("ID", "RGD" + entry.rgdId);
-        attributesHashMap.put("Name", entry.name.replaceAll(",", "").replaceAll(";","|"));
-        attributesHashMap.put("symbol", entry.symbol);
-        attributesHashMap.put("note", entry.note.replaceAll(",", ""));
+        attributesHashMap.put("geneName", entry.name.replaceAll(",", "").replaceAll(";","|"));
+        attributesHashMap.put("Name", entry.symbol);
+        attributesHashMap.put("description", entry.note.replaceAll(",", ""));
         attributesHashMap.put("Alias", entry.aliasTerm);
         if (entry.objectKey == 1) {
             attributesHashMap.put("geneType", entry.gType);
@@ -407,7 +411,7 @@ public class CreateGff4Ontology {
             attributesHashMap.put("src", entry.src);
             attributesHashMap.put("objectTypeName", "Strain");
         } else if( entry.objectKey == 6 ) {
-            attributesHashMap.put("LOD", entry.lod);
+            attributesHashMap.put("lod", entry.lod);
             attributesHashMap.put("pValue", entry.pValue);
             attributesHashMap.put("relatedQTLs", entry.relQtls);
             if (speciesTypeKey == 3) {
