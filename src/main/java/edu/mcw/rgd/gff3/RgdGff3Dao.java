@@ -145,6 +145,16 @@ public class RgdGff3Dao {
         return mapDAO.getChromosomes(mapKey);
     }
 
+    public int getChromosomeSize(int mapKey, String chr) throws Exception {
+        List<Chromosome> list = getChromosomes(mapKey);
+        for( Chromosome c: list ) {
+            if( c.getChromosome().equals(chr) ) {
+                return c.getSeqLength();
+            }
+        }
+        return 0;
+    }
+
     public void insertMapData(MapData md) throws Exception {
         mapDAO.insertMapData(md);
     }

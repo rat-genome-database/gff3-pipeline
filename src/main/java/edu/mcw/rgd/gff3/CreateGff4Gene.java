@@ -72,6 +72,9 @@ public class CreateGff4Gene {
         msgBuf.append("Generate GFF3 file for "+speciesName+", MAP_KEY="+info.getMapKey()+" ("+ucscId+")\n");
         msgBuf.append("    "+dao.getConnectionInfo()+"\n");
 
+        Set<String> encounteredChromosomes = new HashSet<>();
+        Set<String> encounteredChromosomes2 = new HashSet<>();
+
         CounterPool counters = new CounterPool();
 
         String headerInfo =
@@ -86,7 +89,7 @@ public class CreateGff4Gene {
         Gff3ColumnWriter gff3GenesOnly = new Gff3ColumnWriter(fileName+" Genes Only.gff3", false, info.getCompressMode());
         gff3GenesOnly.print(headerInfo);
         Gff3ColumnWriter gff3GenesAndTranscripts = new Gff3ColumnWriter(fileName+" Genes and Transcripts.gff3", false, info.getCompressMode());
-        gff3GenesOnly.print(headerInfo);
+        gff3GenesAndTranscripts.print(headerInfo);
 
         List<Gene> activeGenes = dao.getActiveGenes(info.getSpeciesTypeKey());
 
@@ -114,6 +117,15 @@ public class CreateGff4Gene {
             String nc="N";
 
             for(MapData map : geneMap){
+
+                if( !encounteredChromosomes.contains(map.getChromosome()) ) {
+                    String chr = map.getChromosome();
+                    encounteredChromosomes.add(chr);
+                    int chrSize = dao.getChromosomeSize(map.getMapKey(), chr);
+                    if( chrSize>0 ) {
+                        gff3GenesOnly.print("##sequence-region " + (chr.length()>2?chr:"Chr"+chr) + " 1 " + chrSize + "\n");
+                    }
+                }
 
                 List<Transcript> trsOnMap = getTranscriptsForMap(geneTrs, map, utils);
 
@@ -155,10 +167,11 @@ public class CreateGff4Gene {
                     attributesHashMap.put("Dbxref",extDbString);
                 }
 
+                String attrStr = Gff3ColumnWriter.prepAttributes4Gff3(attributesHashMap);
                 gff3GenesOnly.writeFirst8Columns(map.getChromosome(),"RGD", "gene", map.getStartPos(),map.getStopPos(),".",map.getStrand(),".");
-                gff3GenesOnly.writeAttributes4Gff3(attributesHashMap);
+                gff3GenesOnly.print(attrStr);
                 gff3GenesAndTranscripts.writeFirst8Columns(map.getChromosome(),"RGD", "gene", map.getStartPos(),map.getStopPos(),".",map.getStrand(),".");
-                gff3GenesAndTranscripts.writeAttributes4Gff3(attributesHashMap);
+                gff3GenesAndTranscripts.print(attrStr);
 
                 if(trsOnMap.size()>1){
                     counters.increment(" Genes with more than one mapped transcript");
@@ -176,7 +189,16 @@ public class CreateGff4Gene {
                             if( !CdsUtils.transcriptPositionOverlapsGenePosition(trMd, map) )
                                 continue;
 
-                            String id = getUniqueId("mRNARGD"+tr.getRgdId(), idMap);
+                            if( !encounteredChromosomes2.contains(map.getChromosome()) ) {
+                                String chr2 = trMd.getChromosome();
+                                encounteredChromosomes2.add(chr2);
+                                int chrSize2 = dao.getChromosomeSize(map.getMapKey(), chr2);
+                                if( chrSize2>0 ) {
+                                    gff3GenesAndTranscripts.print("##sequence-region " + (chr2.length()>2?chr2:"Chr"+chr2) + " 1 " + chrSize2 + "\n");
+                                }
+                            }
+
+                            String id = getUniqueId("tr"+tr.getRgdId(), idMap);
 
                             counters.increment(" Mapped Transcripts");
 
@@ -197,12 +219,12 @@ public class CreateGff4Gene {
                                 String featureId;
 
                                 if(cf.getFeatureType()== TranscriptFeature.FeatureType.CDS){
-                                    featureId = getUniqueId("trFeatureCDS"+cf.getRgdId(), idMap);
+                                    featureId = getUniqueId("cds"+cf.getRgdId(), idMap);
 
                                     counters.increment(" Mapped CDSs");
                                 }
                                 else {
-                                    featureId = getUniqueId("trFeature"+cf.getRgdId(), idMap);
+                                    featureId = getUniqueId("ft"+cf.getRgdId(), idMap);
 
                                     if(cf.getFeatureType()== TranscriptFeature.FeatureType.EXON){
                                         counters.increment(" Mapped Exons");
@@ -234,7 +256,7 @@ public class CreateGff4Gene {
                     // generate fake feature for genes without features
                     gff3GenesAndTranscripts.writeFirst8Columns(map.getChromosome(), "RGD", getSoFeatureType(gType), map.getStartPos(),map.getStopPos(), ".", map.getStrand(), ".");
 
-                    attributesHashMap.put("ID", getUniqueId("ftRGD"+geneRgdId, idMap));
+                    attributesHashMap.put("ID", getUniqueId("gene"+geneRgdId, idMap));
                     attributesHashMap.put("Parent", uniqueGeneId);
                     gff3GenesAndTranscripts.writeAttributes4Gff3(attributesHashMap);
                 }

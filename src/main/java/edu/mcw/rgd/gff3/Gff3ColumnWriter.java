@@ -192,7 +192,7 @@ public class Gff3ColumnWriter {
      * @return gff3 content
      * @throws Exception
      */
-    public String prepAttributes4Gff3(Map<String, String> attributesMap) {
+    static public String prepAttributes4Gff3(Map<String, String> attributesMap) {
         StringBuffer buf = new StringBuffer();
         int attrCount = 0;
         for( Map.Entry<String, String> entry: attributesMap.entrySet() ) {
@@ -213,7 +213,7 @@ public class Gff3ColumnWriter {
      * <p>
      * We also encode ;=
      */
-    public String encodeAttrValueForGff3(String value) {
+    static public String encodeAttrValueForGff3(String value) {
         if( value==null ) {
             return "null";
         }
@@ -290,6 +290,12 @@ public class Gff3ColumnWriter {
                     pos2 = Integer.parseInt(cols2[4]);
                     return pos1-pos2;
                 } else {
+                    // '##' lines have absolute priority before the rest of lines
+                    int v1 = o1.startsWith("##") ? 0 : 1;
+                    int v2 = o2.startsWith("##") ? 0 : 1;
+                    if( v1!=v2 ) {
+                        return v1-v2;
+                    }
                     return o1.compareTo(o2);
                 }
             }
