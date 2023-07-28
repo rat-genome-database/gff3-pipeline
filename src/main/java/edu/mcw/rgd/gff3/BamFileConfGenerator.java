@@ -17,18 +17,40 @@ public class BamFileConfGenerator {
 
     void run() throws IOException {
 
+        String fname = "data/rn7bam.conf";
+        Info info = new Info();
+        HashMap<String,String> nameToFileMap = loadName2FileMap(fname, info);
+
+        run(nameToFileMap, info);
+
+
+        // chinchilla();
+    }
+
+    void chinchilla() throws IOException {
+
         String fname = "data/chinchilla_bam.txt";
         fname = "data/otitis_media.txt";
-        HashMap<String,String> nameToFileMap = loadName2FileMap(fname);
 
-        String outFileName = "data/bam.conf";
-        BufferedWriter out = Utils.openWriter(outFileName);
+        Info info = new Info();
+        HashMap<String,String> nameToFileMap = loadName2FileMap(fname, info);
 
-        String jbrowseCategory = "Chinchilla Expression Data/Otitis media - response to Streptococcus pneumoniae infection - PRJNA277957";
-        boolean useBai = true;
-        String trackIdBase = "PRJNA277957";
+        info.outFileName = "data/bam.conf";
+
+        info.jbrowseCategory = "Chinchilla Expression Data/Otitis media - response to Streptococcus pneumoniae infection - PRJNA277957";
+        info.useBai = true;
+        info.trackIdBase = "PRJNA277957";
+        info.bamDir = "PRJNA277957/"; // must be '/'-terminated
+
+        run(nameToFileMap, info);
+    }
+
+    void run( HashMap<String,String> nameToFileMap, Info info ) throws IOException {
+
+        BufferedWriter out = Utils.openWriter(info.outFileName);
+
         int trackIndex = 0;
-        String outDir = "PRJNA277957/"; // must be '/'-terminated
+        String outDir = info.bamDir;
 
         for( Map.Entry<String, String> entry: nameToFileMap.entrySet() ) {
 
@@ -36,44 +58,77 @@ public class BamFileConfGenerator {
             String bamTrackName = entry.getValue();
 
             trackIndex++;
-            String trackId = trackIdBase + "_" + trackIndex;
+            String trackId = info.trackIdBase + "_" + trackIndex;
 
-            out.write("\n");
-            out.write("[tracks."+trackId+"]\n");
-            out.write("storeClass = JBrowse/Store/SeqFeature/BAM\n");
-            out.write("urlTemplate = "+outDir+bamFileName+"\n");
-            if( useBai ) {
-                out.write("baiUrlTemplate = "+outDir+bamFileName+".bai\n");
+            if( bamFileName.endsWith("bam") ) {
+
+                out.write("\n");
+                out.write("[tracks." + trackId + "]\n");
+                out.write("storeClass = JBrowse/Store/SeqFeature/BAM\n");
+                out.write("urlTemplate = " + outDir + bamFileName + "\n");
+                if (info.useBai) {
+                    out.write("baiUrlTemplate = " + outDir + bamFileName + ".bai\n");
+                }
+                out.write("category = " + info.jbrowseCategory + "\n");
+                out.write("type = JBrowse/View/Track/Alignments2\n");
+                out.write("key = " + bamTrackName + "\n");
+
+                // generate coverage tracks
+
+                out.write("\n");
+                out.write("[tracks." + trackId + "c]\n");
+                out.write("storeClass = JBrowse/Store/SeqFeature/BAM\n");
+                out.write("urlTemplate = " + outDir + bamFileName + "\n");
+                if (info.useBai) {
+                    out.write("baiUrlTemplate = " + outDir + bamFileName + ".bai\n");
+                }
+                out.write("category = " + info.jbrowseCategory + "\n");
+                out.write("type = JBrowse/View/Track/SNPCoverage\n");
+                out.write("key = " + bamTrackName + " (Coverage)\n");
             }
-            out.write("category = "+jbrowseCategory+"\n");
-            out.write("type = JBrowse/View/Track/Alignments2\n");
-            out.write("key = "+bamTrackName+"\n");
 
-            // generate coverage tracks
+            else if(bamFileName.endsWith("vcf.gz") ) {
 
-            out.write("\n");
-            out.write("[tracks."+trackId+"c]\n");
-            out.write("storeClass = JBrowse/Store/SeqFeature/BAM\n");
-            out.write("urlTemplate = "+outDir+bamFileName+"\n");
-            if( useBai ) {
-                out.write("baiUrlTemplate = "+outDir+bamFileName+".bai\n");
+                out.write("\n");
+                out.write("[tracks." + trackId + "]\n");
+                out.write("storeClass = JBrowse/Store/SeqFeature/VCFTabix\n");
+                out.write("urlTemplate = " + outDir + bamFileName + "\n");
+                out.write("category = " + info.jbrowseCategory + "\n");
+                out.write("type = JBrowse/View/Track/CanvasVariants\n");
+                out.write("key = " + bamTrackName + "\n");
             }
-            out.write("category = "+jbrowseCategory+"\n");
-            out.write("type = JBrowse/View/Track/SNPCoverage\n");
-            out.write("key = "+bamTrackName+" (Coverage)\n");
-
         }
 
         out.close();
     }
 
-    HashMap<String,String> loadName2FileMap(String fname) throws IOException {
+    HashMap<String,String> loadName2FileMap(String fname, Info info) throws IOException {
 
         HashMap<String,String> nameToFileMap = new HashMap<>();
 
         BufferedReader in = Utils.openReader(fname);
         String line;
         while( (line=in.readLine())!=null ) {
+
+            if( line.startsWith("#") ) {
+                if (line.startsWith("#OUT=")) {
+                    info.outFileName = line.substring(5);
+                } else if (line.startsWith("#JBCAT=")) {
+                    info.jbrowseCategory = line.substring(7);
+                } else if (line.startsWith("#BAI=")) {
+                    String val = line.substring(5);
+                    int i = Integer.parseInt(val);
+                    info.useBai = i > 0;
+                } else if (line.startsWith("#TRACKIDBASE=")) {
+                    info.trackIdBase = line.substring(13);
+                } else if (line.startsWith("#BAMDIR=")) {
+                    info.bamDir = line.substring(8);
+                    if( !info.bamDir.endsWith("/") ) {
+                        info.bamDir += "/";
+                    }
+                }
+                continue;
+            }
 
             String s = line.trim();
 
@@ -96,5 +151,14 @@ public class BamFileConfGenerator {
         in.close();
 
         return nameToFileMap;
+    }
+
+    class Info {
+
+        public String outFileName;
+        public String jbrowseCategory;
+        public boolean useBai = true;
+        public String trackIdBase;
+        public String bamDir;
     }
 }

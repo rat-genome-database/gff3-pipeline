@@ -179,6 +179,22 @@
         -->
     </bean>
 
+    <bean id="ensemblManager" class="edu.mcw.rgd.gff3.CreateGff4Ensembl">
+        <property name="outDir" value="Gene Models/Ensembl Gene Features"/>
+        <property name="mappings">
+            <map>
+                <entry key="Rattus_norvegicus.mRatBN7.2.110-feature.gff3.gz" value="Ensembl (mRatBN7.2.110) Features.gff3.gz"/>
+                <entry key="Rattus_norvegicus.mRatBN7.2.110-model.gff3.gz" value="Ensembl (mRatBN7.2.110) Model.gff3.gz"/>
+            </map>
+        </property>
+        <property name="mappings2">
+            <map>
+                <entry key="Rattus_norvegicus.mRatBN7.2.110-feature.gff3.gz" value="372"/>
+                <entry key="Rattus_norvegicus.mRatBN7.2.110-model.gff3.gz" value="372"/>
+            </map>
+        </property>
+    </bean>
+
     <bean id="qtlManager" class="edu.mcw.rgd.gff3.CreateGff4QTL">
         <property name="outDir" value="QTLs/Rat QTLs"/>
         <property name="processedMapKeys">
@@ -284,22 +300,26 @@
         <property name="outDir" value="data/Ensembl/"/>
         <property name="ensemblGff">
             <map>
-                <entry key="40"  value="ftp://ftp.ensembl.org/pub/current_gff3/homo_sapiens/Homo_sapiens.GRCh38.109.gff3.gz"></entry>
-                <entry key="240" value="ftp://ftp.ensembl.org/pub/current_gff3/mus_musculus/Mus_musculus.GRCm39.109.gff3.gz"></entry>
-                <entry key="912" value="ftp://ftp.ensembl.org/pub/current_gff3/sus_scrofa/Sus_scrofa.Sscrofa11.1.109.gff3.gz"></entry>
-                <entry key="373" value="ftp://ftp.ensembl.org/pub/current_gff3/rattus_norvegicus/Rattus_norvegicus.mRatBN7.2.109.gff3.gz"></entry>
-                <entry key="512" value="ftp://ftp.ensembl.org/pub/current_gff3/pan_paniscus/Pan_paniscus.panpan1.1.109.gff3.gz"></entry>
-                <entry key="638" value="ftp://ftp.ensembl.org/pub/current_gff3/canis_lupus_familiaris/Canis_lupus_familiaris.ROS_Cfam_1.0.109.gff3.gz"></entry>
+                <entry key="373" value="ftp://ftp.ensembl.org/pub/current_gff3/rattus_norvegicus/Rattus_norvegicus.mRatBN7.2.110.gff3.gz"></entry>
+<!--
+                <entry key="40"  value="ftp://ftp.ensembl.org/pub/current_gff3/homo_sapiens/Homo_sapiens.GRCh38.110.gff3.gz"></entry>
+                <entry key="240" value="ftp://ftp.ensembl.org/pub/current_gff3/mus_musculus/Mus_musculus.GRCm39.110.gff3.gz"></entry>
+                <entry key="912" value="ftp://ftp.ensembl.org/pub/current_gff3/sus_scrofa/Sus_scrofa.Sscrofa11.1.110.gff3.gz"></entry>
+                <entry key="512" value="ftp://ftp.ensembl.org/pub/current_gff3/pan_paniscus/Pan_paniscus.panpan1.1.110.gff3.gz"></entry>
+                <entry key="638" value="ftp://ftp.ensembl.org/pub/current_gff3/canis_lupus_familiaris/Canis_lupus_familiaris.ROS_Cfam_1.0.110.gff3.gz"></entry>
+                -->
             </map>
         </property>
         <property name="ensemblJBrowseDataDirs">
             <map>
+                <entry key="373" value="data/jbrowse2/Rat/rn7.2/Gene Models/Ensembl Gene Features/"></entry>
+                <!--
                 <entry key="40"  value="data_hg38"></entry>
                 <entry key="240" value="data_mm39"></entry>
                 <entry key="912" value="data_pig11_1"></entry>
-                <entry key="373" value="data_rn7_2"></entry>
                 <entry key="512" value="data_bonobo1_1"></entry>
                 <entry key="638" value="data_rosCfam1"></entry>
+                -->
             </map>
         </property>
     </bean>

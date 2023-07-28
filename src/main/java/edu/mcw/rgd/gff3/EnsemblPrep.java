@@ -14,7 +14,6 @@ import java.util.*;
  * @since 11/20/2018
  * Prepares a gff3 file downloaded from Ensembl FTP site to be loaded by JBrowse scripts as an Ensembl track
  * <ol>
- *  <li>Prepends all chromosome names with 'Chr'
  *  <li>for supercontigs (scaffolds), emits contig RefSeq acc as the chromosome (f.e. NW_004956882)
  *  <li>Skips 'chromosome' lines
  *  <li>'biological_region' lines are written to 'features' file; everything else to 'model' file
@@ -36,30 +35,22 @@ public class EnsemblPrep {
         File outputDir = new File(getOutDir());
         outputDir.mkdirs();
 
-        String shName = "loadAllEnsembl_"+sdt.format(new Date())+".sh";
-        BufferedWriter sh = Utils.openWriter(shName);
-        sh.write("#!/bin/bash\n");
-        sh.write("SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`\n");
-        sh.write("EMAILLIST=mtutaj@mcw.edu,llamers@mcw.edu\n");
-        sh.write("JBROWSE_HOME=\"/rgd/JBrowse-1.16.11/\"\n");
-        sh.write("GFF3_LOC=/home/rgddata/pipelines/RGDGff3Pipeline/"+getOutDir()+"\n");
-        sh.write("\n");
-        sh.write("cd $JBROWSE_HOME\n");
-        sh.write("set -e\n");
-        sh.write("\n");
-
         // open input and output files
         Set<Integer> mapKeys = ensemblGff.keySet();
         for(Integer mapKey : mapKeys) {
             String inputFile = downloadEnsemblGffFile(ensemblGff.get(mapKey));
             int pos = inputFile.indexOf(".gff3");
             log.info("Downloaded gff file from Ensembl: "+inputFile);
-            String modelFileName = inputFile.substring(0, pos) + "-model" + inputFile.substring(pos);
-            String featureFileName = inputFile.substring(0, pos) + "-feature" + inputFile.substring(pos);
 
             int lastSlashPos = inputFile.lastIndexOf("/");
             int dotPos = inputFile.indexOf(".",lastSlashPos);
             String assemblyName = inputFile.substring(dotPos+1, pos); // f.e. GRCh38.106
+
+            String ensemblOutDir = getEnsemblJBrowseDataDirs().get(mapKey);
+
+            String modelFileName = inputFile.substring(0, pos) + "-model" + inputFile.substring(pos);
+            String featureFileName = inputFile.substring(0, pos) + "-feature" + inputFile.substring(pos);
+
 
             BufferedReader in = Utils.openReader(inputFile);
             BufferedWriter modelFile = Utils.openWriter(modelFileName);
@@ -87,7 +78,7 @@ public class EnsemblPrep {
                     continue;
                 }
                 // skip chromosome lines
-                if (line.contains("ID=chromosome:")) {
+                if (line.contains("ID=chromosome:") || line.contains("ID=region:") ) {
                     continue;
                 }
                 // process supercontig lines
@@ -103,8 +94,8 @@ public class EnsemblPrep {
                 // prepend line with 'Chr'
                 if (!line.startsWith("Chr")) {
                     int chrLen = line.indexOf('\t');
-                    if (chrLen <= 2) {
-                        line = "Chr" + line;
+                    if (chrLen <= 3) {
+                        ;
                     } else {
                         // replace genbank acc ids with refseq acc ids for supercontigs (scaffolds)
                         String genbankAcc = line.substring(0, chrLen);
@@ -142,47 +133,7 @@ public class EnsemblPrep {
             log.info("data lines written to model file: " + modelFileLines);
             log.info("data lines written to feature file: " + featureFileLines);
             log.info("***********************\n\n");
-
-            // write code for gff3 JBrowse loading script
-            String JBrowseDataDir = getEnsemblJBrowseDataDirs().get(mapKey);
-            if( !Utils.isStringEmpty(JBrowseDataDir) ) {
-                sh.write("echo \"" + assemblyName + "\"\n");
-                sh.write("\n");
-
-                lastSlashPos = modelFileName.lastIndexOf("/");
-                String modelFileName2 = modelFileName.substring(lastSlashPos+1);
-                String tmpGffFile = "/tmp/model." + mapKey + ".gff3";
-
-                sh.write("\n");
-                sh.write("gunzip -c ${GFF3_LOC}" + modelFileName2 + " > "+tmpGffFile+"\n");
-                sh.write("bin/remove-track.pl --dir "+JBrowseDataDir+" --trackLabel Ensembl_genes --delete\n");
-                sh.write("bin/flatfile-to-json.pl --gff "+tmpGffFile+" --trackLabel Ensembl_genes \\\n");
-                sh.write("    --key \"Ensembl ("+assemblyName+") Genes and Transcripts\" \\\n");
-                sh.write("    --out "+JBrowseDataDir+" \\\n");
-                sh.write("    --trackType JBrowse/View/Track/CanvasFeatures \\\n");
-                sh.write("    --config \"{ \\\"category\\\" : \\\"Gene Models/Ensembl Gene Features\\\" }\"\n");
-                sh.write("\n");
-
-
-                lastSlashPos = featureFileName.lastIndexOf("/");
-                String featureFileName2 = featureFileName.substring(lastSlashPos+1);
-                tmpGffFile = "/tmp/feature." + mapKey + ".gff3";
-
-                sh.write("\n");
-                sh.write("gunzip -c ${GFF3_LOC}" + featureFileName2 + " > "+tmpGffFile+"\n");
-                sh.write("bin/remove-track.pl --dir "+JBrowseDataDir+" --trackLabel Ensembl_features --delete\n");
-                sh.write("bin/flatfile-to-json.pl --gff "+tmpGffFile+" --trackLabel Ensembl_features \\\n");
-                sh.write("    --key \"Ensembl ("+assemblyName+") Features\" \\\n");
-                sh.write("    --out "+JBrowseDataDir+" \\\n");
-                sh.write("    --trackType JBrowse/View/Track/CanvasFeatures \\\n");
-                sh.write("    --config \"{ \\\"category\\\" : \\\"Gene Models/Ensembl Gene Features\\\" }\"\n");
-                sh.write("\n");
-                sh.write("echo \"======\"\n");
-                sh.write("\n");
-            }
         }
-
-        sh.close();
     }
 
     static Map<String,String> parseSupercontigs(String inputFile) throws IOException {
@@ -200,7 +151,7 @@ public class EnsemblPrep {
                 continue;
             }
             // skip chromosome lines
-            if( line.contains("ID=chromosome:") ) {
+            if( line.contains("ID=chromosome:") || line.contains("ID=region:") ) {
                 skippedChrLines++;
                 continue;
             }

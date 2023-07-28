@@ -23,7 +23,7 @@ $RUNLOAD -flavor:ensembl_prep > ensembl.log
 
 mailx -s "[$SERVER]Pipeline to download Ensembl Gff3 files ran" $EMAILLIST < logs/ensembl.log
 
-echo "copy generated gff3 files to data_release directory:"
-echo "  rsync -avd $LOGDIR/Ensembl/ $DATA_RELEASE_DIR/Ensembl/"
-rsync -avd $LOGDIR/Ensembl/ $DATA_RELEASE_DIR/Ensembl/
-echo "  rsync OK!"
+#echo "copy generated gff3 files to data_release directory:"
+#echo "  rsync -avd $LOGDIR/Ensembl/ $DATA_RELEASE_DIR/Ensembl/"
+#rsync -avd $LOGDIR/Ensembl/ $DATA_RELEASE_DIR/Ensembl/
+#echo "  rsync OK!"

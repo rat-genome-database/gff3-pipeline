@@ -212,6 +212,10 @@ public class Manager {
                             CreateGff4Gene gm = (CreateGff4Gene) (bf.getBean("geneManager"));
                             gm.run();
                             return true;
+                        case "ensembl":
+                            CreateGff4Ensembl ensm = (CreateGff4Ensembl) (bf.getBean("ensemblManager"));
+                            ensm.run();
+                            return true;
                         case "qtls":
                             CreateGff4QTL qm = (CreateGff4QTL) (bf.getBean("qtlManager"));
                             qm.run();

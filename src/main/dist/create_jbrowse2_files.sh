@@ -15,4 +15,5 @@ $RUNLOAD -object:qtls > qtls.log
 $RUNLOAD -object:markers > markers.log
 $RUNLOAD -object:strains > strains.log
 $RUNLOAD -object:proteinDomains > domains.log
+$RUNLOAD -object:ensembl > ensembl.log
 
