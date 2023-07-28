@@ -27,7 +27,7 @@ public class EnsemblPrep {
     private Map<Integer, String> ensemblJBrowseDataDirs;
     private String outDir;
     Logger log = LogManager.getLogger("ensembl");
-    SimpleDateFormat sdt = new SimpleDateFormat("yyyyMMdd");
+    //SimpleDateFormat sdt = new SimpleDateFormat("yyyyMMdd");
 
     public void run() throws Exception {
 
@@ -42,15 +42,12 @@ public class EnsemblPrep {
             int pos = inputFile.indexOf(".gff3");
             log.info("Downloaded gff file from Ensembl: "+inputFile);
 
-            int lastSlashPos = inputFile.lastIndexOf("/");
-            int dotPos = inputFile.indexOf(".",lastSlashPos);
-            String assemblyName = inputFile.substring(dotPos+1, pos); // f.e. GRCh38.106
-
-            String ensemblOutDir = getEnsemblJBrowseDataDirs().get(mapKey);
-
             String modelFileName = inputFile.substring(0, pos) + "-model" + inputFile.substring(pos);
             String featureFileName = inputFile.substring(0, pos) + "-feature" + inputFile.substring(pos);
 
+            //int lastSlashPos = inputFile.lastIndexOf("/");
+            //int dotPos = inputFile.indexOf(".",lastSlashPos);
+            //String assemblyName = inputFile.substring(dotPos+1, pos); // f.e. GRCh38.106
 
             BufferedReader in = Utils.openReader(inputFile);
             BufferedWriter modelFile = Utils.openWriter(modelFileName);
