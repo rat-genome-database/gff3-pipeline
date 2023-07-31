@@ -139,18 +139,22 @@ public class CreateGff4SSLP {
                         strand = ".";
                     }
 
-                    gff3Writer.writeFirst8Columns(chrom,"RGD","SSLPS",start,stop,".",strand,".");
-
                     sequenceRegionWatcher.emit(chrom);
+
+                    gff3Writer.writeFirst8Columns(chrom,"RGD","SSLPS",start,stop,".",strand,".");
 
                     //initialize hashmap for attributes
                     HashMap<String, String> attributesHashMap = new HashMap<>();
 
                     attributesHashMap.put("ID", sslpRgdId+"_"+start+"_"+stop);
                     attributesHashMap.put("Name", "SSLP:"+sslpSymbol);
-                    if( aliases!=null )
+                    if( aliases!=null ) {
+                        if( aliases.contains("\t") || aliases.contains("\n") ) {
+                            System.out.println("problem");
+                        }
                         attributesHashMap.put("Alias", aliases+","+"RGD:"+sslpRgdId+","+sslpRgdId+","+sslpSymbol);
-                     else
+                    }
+                    else
                         attributesHashMap.put("Alias", "RGD:"+sslpRgdId+","+sslpRgdId+","+sslpSymbol);
 
                     attributesHashMap.put("Dbxref", "RGD:"+sslpRgdId);
@@ -158,7 +162,6 @@ public class CreateGff4SSLP {
                     attributesHashMap.put("associatedGene", assocGeneRgdID);
 
                     gff3Writer.writeAttributes4Gff3(attributesHashMap);
-
                 }
             }
         }

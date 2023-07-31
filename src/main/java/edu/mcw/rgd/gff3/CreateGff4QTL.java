@@ -193,9 +193,9 @@ public class CreateGff4QTL {
                         counters.increment("noMapsPosMethodId");
                 }
 
-                gff3Writer.writeFirst8Columns(chrom, source, type, start, stop, ".",strand,".");
-
                 sequenceRegionWatcher.emit(chrom);
+
+                gff3Writer.writeFirst8Columns(chrom, source, type, start, stop, ".",strand,".");
 
                 Map<String, String> attributesHashMap = new HashMap<String, String>();
 
