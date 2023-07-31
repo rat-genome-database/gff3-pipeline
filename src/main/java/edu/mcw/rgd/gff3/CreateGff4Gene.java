@@ -72,9 +72,6 @@ public class CreateGff4Gene {
         msgBuf.append("Generate GFF3 file for "+speciesName+", MAP_KEY="+info.getMapKey()+" ("+ucscId+")\n");
         msgBuf.append("    "+dao.getConnectionInfo()+"\n");
 
-        Set<String> encounteredChromosomes = new HashSet<>();
-        Set<String> encounteredChromosomes2 = new HashSet<>();
-
         CounterPool counters = new CounterPool();
 
         String headerInfo =
@@ -90,6 +87,9 @@ public class CreateGff4Gene {
         gff3GenesOnly.print(headerInfo);
         Gff3ColumnWriter gff3GenesAndTranscripts = new Gff3ColumnWriter(fileName+" Genes and Transcripts.gff3", false, info.getCompressMode());
         gff3GenesAndTranscripts.print(headerInfo);
+
+        SequenceRegionWatcher sequenceRegionWatcher1 = new SequenceRegionWatcher(info.getMapKey(), gff3GenesOnly, dao);
+        SequenceRegionWatcher sequenceRegionWatcher2 = new SequenceRegionWatcher(info.getMapKey(), gff3GenesAndTranscripts, dao);
 
         List<Gene> activeGenes = dao.getActiveGenes(info.getSpeciesTypeKey());
 
@@ -118,14 +118,7 @@ public class CreateGff4Gene {
 
             for(MapData map : geneMap){
 
-                if( !encounteredChromosomes.contains(map.getChromosome()) ) {
-                    String chr = map.getChromosome();
-                    encounteredChromosomes.add(chr);
-                    int chrSize = dao.getChromosomeSize(map.getMapKey(), chr);
-                    if( chrSize>0 ) {
-                        gff3GenesOnly.print("##sequence-region " + (chr.length()>2?chr:"Chr"+chr) + " 1 " + chrSize + "\n");
-                    }
-                }
+                sequenceRegionWatcher1.emit(map.getChromosome());
 
                 List<Transcript> trsOnMap = getTranscriptsForMap(geneTrs, map, utils);
 
@@ -189,14 +182,7 @@ public class CreateGff4Gene {
                             if( !CdsUtils.transcriptPositionOverlapsGenePosition(trMd, map) )
                                 continue;
 
-                            if( !encounteredChromosomes2.contains(map.getChromosome()) ) {
-                                String chr2 = trMd.getChromosome();
-                                encounteredChromosomes2.add(chr2);
-                                int chrSize2 = dao.getChromosomeSize(map.getMapKey(), chr2);
-                                if( chrSize2>0 ) {
-                                    gff3GenesAndTranscripts.print("##sequence-region " + (chr2.length()>2?chr2:"Chr"+chr2) + " 1 " + chrSize2 + "\n");
-                                }
-                            }
+                            sequenceRegionWatcher2.emit(trMd.getChromosome());
 
                             String id = getUniqueId("tr"+tr.getRgdId(), idMap);
 
@@ -243,7 +229,7 @@ public class CreateGff4Gene {
                                 attributesHashMap.put("ID", featureId);
                                 attributesHashMap.put("Parent", id);
                                 if( cf.getNotes()!=null )
-                                    attributesHashMap.put("Note", cf.getNotes());
+                                    attributesHashMap.put("notes", cf.getNotes());
 
                                 gff3GenesAndTranscripts.writeAttributes4Gff3(attributesHashMap);
                             }

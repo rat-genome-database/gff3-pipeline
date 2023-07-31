@@ -70,6 +70,8 @@ public class CreateGff4Ontology {
 
         String mainDir = assemblyDir + "/" + outDirName;
 
+        SequenceRegionWatcher sequenceRegionWatcher = new SequenceRegionWatcher(0, null, null);
+
         for( String termAcc: doTermAccs ) {
 
             String trackName = getTermTrackNames().get(termAcc);
@@ -95,12 +97,18 @@ public class CreateGff4Ontology {
             String gffFile = outDir + "/" + trackName + " Related Genes.gff3";
             Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, compressMode);
             gff3Writer.print(gffHeader);
+            sequenceRegionWatcher.init(getMapKey(), gff3Writer, dao);
 
             List<RGDInfo> rgdInfoList = new ArrayList<>();
-            int counter = processGenes("*", termAcc, gff3Writer, mapAccAnnList, rgdInfoList);
+            int counter = processGenes("*", termAcc, gff3Writer, mapAccAnnList, rgdInfoList, sequenceRegionWatcher);
 
             gff3Writer.close();
-            gff3Writer.sortInMemory();
+            if (counter > 0) {
+                gff3Writer.sortInMemory();
+            } else {
+                // no data -- delete it
+                new File(gff3Writer.getOutFileName()).delete();
+            }
 
             Term rootTerm = dao.getTerm(termAcc);
             String summaryMsg = ">>> "+rootTerm.getAccId() + " " + rootTerm.getTerm() + " written genes: "+counter;
@@ -113,6 +121,7 @@ public class CreateGff4Ontology {
             gffFile = outDir + "/" + trackName + " Related QTLs.gff3";
             gff3Writer = new Gff3ColumnWriter(gffFile, false, compressMode);
             gff3Writer.print(gffHeader);
+            sequenceRegionWatcher.init(getMapKey(), gff3Writer, dao);
 
             for (MapData md : dao.getMapDataByMapKeyChr("*", mapKey, RgdId.OBJECT_KEY_QTLS)) {
                 if (md.getStartPos() != null && md.getStopPos() != null) {
@@ -125,6 +134,7 @@ public class CreateGff4Ontology {
                     if (!entry.anns.equals("NA")) {
                         createRGdInfo(entry, rgdInfoList);
                         writeGff3Line(gff3Writer, entry, termAcc);
+                        sequenceRegionWatcher.emit(md.getChromosome());
                     }
                 }
             }
@@ -134,7 +144,7 @@ public class CreateGff4Ontology {
                 gff3Writer.sortInMemory();
             } else {
                 // no data -- delete it
-                new File(gffFile).delete();
+                new File(gff3Writer.getOutFileName()).delete();
             }
             summaryMsg += ", qtls: "+counter;
 
@@ -148,6 +158,7 @@ public class CreateGff4Ontology {
                 gffFile = outDir + "/" + trackName + " Related Strains.gff3";
                 gff3Writer = new Gff3ColumnWriter(gffFile, false, compressMode);
                 gff3Writer.print(gffHeader);
+                sequenceRegionWatcher.init(getMapKey(), gff3Writer, dao);
 
                 for (MapData md : dao.getMapDataByMapKeyChr("*", mapKey, RgdId.OBJECT_KEY_STRAINS)) {
                     if (md.getStartPos() != null && md.getStopPos() != null) {
@@ -160,6 +171,7 @@ public class CreateGff4Ontology {
                         if (!entry.anns.equals("NA")) {
                             createRGdInfo(entry, rgdInfoList);
                             writeGff3Line(gff3Writer, entry, termAcc);
+                            sequenceRegionWatcher.emit(md.getChromosome());
                         }
                     }
                 }
@@ -169,7 +181,7 @@ public class CreateGff4Ontology {
                     gff3Writer.sortInMemory();
                 } else {
                     // no data -- delete it
-                    new File(gffFile).delete();
+                    new File(gff3Writer.getOutFileName()).delete();
                 }
                 summaryMsg += ", strains: "+counter;
             }
@@ -430,7 +442,8 @@ public class CreateGff4Ontology {
     ///////
     //// highly parallel code
 
-    int processGenes(String chr, String termAcc, Gff3ColumnWriter gff3Writer, Map<String, Term> mapAccAnnList, List<RGDInfo> rgdInfoList) throws Exception {
+    int processGenes(String chr, String termAcc, Gff3ColumnWriter gff3Writer, Map<String, Term> mapAccAnnList,
+                     List<RGDInfo> rgdInfoList, SequenceRegionWatcher sequenceRegionWatcher) throws Exception {
 
         AtomicInteger annotCount = new AtomicInteger(0);
         StringBuffer gff3Lines = new StringBuffer();
@@ -438,6 +451,8 @@ public class CreateGff4Ontology {
         dao.getMapDataByMapKeyChr(chr, mapKey, RgdId.OBJECT_KEY_GENES).parallelStream().forEach(md -> {
 
             if (md.getStartPos() != null && md.getStopPos() != null) {
+
+                sequenceRegionWatcher.emit(md.getChromosome());
 
                 try {
                     Gff3Entry entry = new Gff3Entry(RgdId.OBJECT_KEY_GENES, md);

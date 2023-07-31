@@ -60,11 +60,13 @@ public class CreateGff4QTL {
 
         Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, info.getCompressMode());
 
+        SequenceRegionWatcher sequenceRegionWatcher = new SequenceRegionWatcher(info.getMapKey(), gff3Writer, dao);
+
         List<QTL> qtlList = dao.getActiveQTLs(info.getSpeciesTypeKey());
         List<RGDInfo> rgdInfoList = new ArrayList<RGDInfo>();
 
         for(QTL qtlObj: qtlList){
-            createGffFromQtlObject(qtlObj, gff3Writer, rgdInfoList, info.getMapKey(), info.getSpeciesTypeKey(), counters);
+            createGffFromQtlObject(qtlObj, gff3Writer, rgdInfoList, info.getMapKey(), info.getSpeciesTypeKey(), counters, sequenceRegionWatcher);
         }
 
         System.out.println("Number of Active Qtls processed:"+ counters.get("activeQtlCount"));
@@ -92,7 +94,7 @@ public class CreateGff4QTL {
     }
 
     public void createGffFromQtlObject(QTL qtlObject, Gff3ColumnWriter gff3Writer, List<RGDInfo> rgdInfoList,
-                                       int mapKey, int speciesTypeKey, CounterPool counters) throws Exception {
+                                       int mapKey, int speciesTypeKey, CounterPool counters, SequenceRegionWatcher sequenceRegionWatcher) throws Exception {
 
         int qtlKey = qtlObject.getKey();
         int rgdId = qtlObject.getRgdId();
@@ -193,6 +195,8 @@ public class CreateGff4QTL {
 
                 gff3Writer.writeFirst8Columns(chrom, source, type, start, stop, ".",strand,".");
 
+                sequenceRegionWatcher.emit(chrom);
+
                 Map<String, String> attributesHashMap = new HashMap<String, String>();
 
                 //get related strains
@@ -282,7 +286,6 @@ public class CreateGff4QTL {
                     attributesHashMap.put("relatedStrains", relStrain);
                 }
                 attributesHashMap.put("relatedGenes",relGenes);
-                //attributesHashMap.put("Index","1");
 
                 gff3Writer.writeAttributes4Gff3(attributesHashMap);
             }

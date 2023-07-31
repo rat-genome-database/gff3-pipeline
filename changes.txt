@@ -1,3 +1,6 @@
+Jul 31, 2023
+  jbrowse2: added generation of '#sequence-region' lines for genes, qtls, sslps, protein domains and ontologies
+
 Jul 07, 2023
   jbrowse2: temporarily restricting output only to rn7 assembly
             tuned up output of gff3 files

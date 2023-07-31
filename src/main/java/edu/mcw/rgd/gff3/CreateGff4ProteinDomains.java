@@ -6,6 +6,7 @@ import edu.mcw.rgd.process.mapping.MapManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.util.*;
 import java.util.Map;
 
@@ -78,8 +79,9 @@ public class CreateGff4ProteinDomains {
         String fileName = info.getToDir() + "/" + speciesName + " " + refseqId+" ("+ucscId+") ";
 
         String gffFile = fileName + getTrackName() + ".gff3";
-        Gff3ColumnWriter gff3Writer = null;
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, info.getCompressMode());
 
+        SequenceRegionWatcher sequenceRegionWatcher = new SequenceRegionWatcher(info.getMapKey(), gff3Writer, dao);
 
         List<String> chromosomes = getChromosomes(info.getMapKey());
 
@@ -120,12 +122,11 @@ public class CreateGff4ProteinDomains {
                             proteins += ", "+protein;
                         }
                     }
-                    attributesHashMap.put("Note", proteins);
+                    attributesHashMap.put("proteins", proteins);
                 }
 
                 // lazy create of gff3 writer
                 if( gff3Writer==null ) {
-                    gff3Writer = new Gff3ColumnWriter(gffFile, false, info.getCompressMode());
 
                     gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
                     gff3Writer.print("# Species: "+ speciesName+"\n");
@@ -137,13 +138,18 @@ public class CreateGff4ProteinDomains {
                 gff3Writer.writeFirst8Columns(md.getChromosome(), "RGD", "sequence feature", md.getStartPos(), md.getStopPos(), ".", md.getStrand(), ".");
                 gff3Writer.writeAttributes4Gff3(attributesHashMap);
                 dataLinesWritten++;
+
+                sequenceRegionWatcher.emit(chr);
             }
         }
 
-        if( gff3Writer!=null ) {
-            gff3Writer.close();
-
+        gff3Writer.close();
+        if( dataLinesWritten>0 ) {
             gff3Writer.sortInMemory();
+        } else {
+            // no data in file: don't generate the file
+            File f = new File(gff3Writer.getOutFileName());
+            f.deleteOnExit();
         }
 
         synchronized( this.getClass() ) {

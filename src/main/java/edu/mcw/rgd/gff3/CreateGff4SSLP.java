@@ -82,6 +82,8 @@ public class CreateGff4SSLP {
 
     public void createGff4Markers(int mapKey, int speciesTypeKey, Gff3ColumnWriter gff3Writer, FastaWriter fastaWriter, CounterPool counters) throws Exception{
 
+        SequenceRegionWatcher sequenceRegionWatcher = new SequenceRegionWatcher(mapKey, gff3Writer, dao);
+
         int countSslps=0;
         int mapSslpCount=0;
         int noMapSslpPos=0;
@@ -138,6 +140,8 @@ public class CreateGff4SSLP {
                     }
 
                     gff3Writer.writeFirst8Columns(chrom,"RGD","SSLPS",start,stop,".",strand,".");
+
+                    sequenceRegionWatcher.emit(chrom);
 
                     //initialize hashmap for attributes
                     HashMap<String, String> attributesHashMap = new HashMap<>();

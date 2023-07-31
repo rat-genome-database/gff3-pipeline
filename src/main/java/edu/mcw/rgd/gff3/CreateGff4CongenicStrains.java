@@ -71,6 +71,8 @@ public class CreateGff4CongenicStrains {
 
         Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, info.getCompressMode());
 
+        SequenceRegionWatcher sequenceRegionWatcher = new SequenceRegionWatcher(info.getMapKey(), gff3Writer, dao);
+
         String header = "# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n";
         header += "# Species: "+ speciesName+"\n";
         header += "# Assembly: "+ refseqId+"\n";
@@ -143,7 +145,11 @@ public class CreateGff4CongenicStrains {
 
             //for each new map data list
             for(int m=0; m<newmdList.size(); m++){
+
                 MapData md = newmdList.get(m);
+
+                // emit ##sequence-region line if needed
+                sequenceRegionWatcher.emit(md.getChromosome());
 
                 String strand = Utils.NVL(md.getStrand(), ".");
 

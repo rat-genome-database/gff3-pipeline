@@ -25,6 +25,7 @@ public class Gff3ColumnWriter {
     private int compressMode;
     private boolean agrCompatibleFormat;
     private String gff3FileName;
+    private String outFileName;
 
     // init gff writer in gff3 format; do not compress output
     public Gff3ColumnWriter(String fileName) throws IOException {
@@ -50,7 +51,7 @@ public class Gff3ColumnWriter {
             new File(fileName.substring(0, lastSlashPos)).mkdirs();
         }
 
-        String outFileName = fileName;
+        outFileName = fileName;
 
         this.compressMode = compressMode;
         if( compressMode != COMPRESS_MODE_NONE ) {
@@ -74,6 +75,9 @@ public class Gff3ColumnWriter {
 
     public String getFileName() {
         return gff3FileName;
+    }
+    public String getOutFileName() {
+        return outFileName;
     }
 
     public void close() {
