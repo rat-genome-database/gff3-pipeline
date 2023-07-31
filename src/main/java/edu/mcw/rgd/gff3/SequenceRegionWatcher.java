@@ -32,7 +32,7 @@ public class SequenceRegionWatcher {
             int chrSize = 0;
 
             try {
-                dao.getChromosomeSize(mapKey, chr);
+                chrSize = dao.getChromosomeSize(mapKey, chr);
             } catch( Exception e ) {
                 throw new RuntimeException(e);
             }
