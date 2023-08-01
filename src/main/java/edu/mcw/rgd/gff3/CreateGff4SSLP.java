@@ -98,15 +98,16 @@ public class CreateGff4SSLP {
             int sslpRgdId = sslp.getRgdId();
             String sslpSymbol = sslp.getName();
 
-            String expectedSize="NA";
+            String expectedSize = null;
             if( sslp.getExpectedSize()!=null && sslp.getExpectedSize()>0 ) {
                 expectedSize = sslp.getExpectedSize().toString();
             }
 
-            String assocGeneRgdID = "NA";
+            String assocGeneRgdID = null;
             Gene gene = dao.getGeneBySslpKey(sslp.getKey());
             if( gene!=null ) {
                 sslpsAssocGeneRgd++;
+                assocGeneRgdID = "RGD:"+gene.getRgdId();
             }
 
 
@@ -150,7 +151,7 @@ public class CreateGff4SSLP {
                     attributesHashMap.put("Name", "SSLP:"+sslpSymbol);
                     if( aliases!=null ) {
                         if( aliases.contains("\t") || aliases.contains("\n") ) {
-                            System.out.println("problem");
+                            aliases = aliases.replace("\\s+", " ");
                         }
                         attributesHashMap.put("Alias", aliases+","+"RGD:"+sslpRgdId+","+sslpRgdId+","+sslpSymbol);
                     }
@@ -158,8 +159,12 @@ public class CreateGff4SSLP {
                         attributesHashMap.put("Alias", "RGD:"+sslpRgdId+","+sslpRgdId+","+sslpSymbol);
 
                     attributesHashMap.put("Dbxref", "RGD:"+sslpRgdId);
-                    attributesHashMap.put("expectedSize",expectedSize);
-                    attributesHashMap.put("associatedGene", assocGeneRgdID);
+                    if( expectedSize!=null ) {
+                        attributesHashMap.put("expectedSize", expectedSize);
+                    }
+                    if( assocGeneRgdID!=null ) {
+                        attributesHashMap.put("associatedGene", assocGeneRgdID);
+                    }
 
                     gff3Writer.writeAttributes4Gff3(attributesHashMap);
                 }

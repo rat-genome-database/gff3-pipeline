@@ -17,12 +17,16 @@ public class BamFileConfGenerator {
 
     void run() throws IOException {
 
-        String fname = "data/rn7bam.conf";
         Info info = new Info();
+        String fname = "data/shrspbam.conf";
         HashMap<String,String> nameToFileMap = loadName2FileMap(fname, info);
 
         run(nameToFileMap, info);
 
+        fname = "data/rn7bam.conf";
+        nameToFileMap = loadName2FileMap(fname, info);
+
+        run(nameToFileMap, info);
 
         // chinchilla();
     }

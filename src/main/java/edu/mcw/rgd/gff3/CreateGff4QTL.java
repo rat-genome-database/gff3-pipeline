@@ -117,20 +117,20 @@ public class CreateGff4QTL {
 
 
         if(qtlObject.getLod()!=null){
-            lod=String.valueOf(qtlObject.getLod());
+            lod = qtlObject.getLod().toString();
         }else{
-            lod = "null";
+            lod = null;
         }
         if(qtlObject.getPValue()!=null){
-            pValue=String.valueOf(qtlObject.getPValue());
+            pValue = qtlObject.getPValue().toString();
         }else{
-            pValue="null";
+            pValue = null;
         }
         if(qtlObject.getNotes()!=null){
-            notes=qtlObject.getNotes().replaceAll(";"," ");
+            notes = qtlObject.getNotes().replaceAll(";"," ");
             //notes = URLEncoder.encode(notes, "UTF-8");
         }else{
-            notes = "null";
+            notes = null;
         }
 
 
@@ -200,7 +200,7 @@ public class CreateGff4QTL {
                 Map<String, String> attributesHashMap = new HashMap<String, String>();
 
                 //get related strains
-                String relStrain="";
+                String relStrain = "";
                 if(speciesTypeKey==3){
                     List<Strain> relatedStrainsList = dao.getStrainAssociationsForQtl(rgdId);
 
@@ -216,14 +216,11 @@ public class CreateGff4QTL {
                     }else{
 
                         counters.increment("qtlsWithNoRelStrains");
-
-                        relStrain = "NA";
                     }
                     if(relStrain.endsWith(",")){
                         relStrain = relStrain.substring(0,relStrain.length()-1);
                     }
                 }
-
 
                 //get related genes.
                 String relGenes="";
@@ -236,10 +233,7 @@ public class CreateGff4QTL {
                         relGenes += g.getSymbol()+":"+g.getRgdId()+",";
                     }
                 }else{
-
                     counters.increment("qtlswithNoRelGenes");
-
-                    relGenes="NA";
                 }
                 if(relGenes.endsWith(",")){
                     relGenes = relGenes.substring(0,relGenes.length()-1);
@@ -262,30 +256,36 @@ public class CreateGff4QTL {
                     if(relatedQtlMap.size()==0){
 
                         counters.increment("qtlswithNoRelQtls");
-
-                        relQtls = "NA";
                     }
                     if(relQtls.endsWith(",")){
                         relQtls = relQtls.substring(0,relQtls.length()-1);
                     }
-                }else{
-                    relQtls = "NA";
                 }
 
                 attributesHashMap.put("ID", rgdId +"_"+start+"_"+stop);
                 attributesHashMap.put("Name", "QTL:"+symbol);
                 attributesHashMap.put("fullName", full_name);
                 attributesHashMap.put("Alias", "RGD:"+rgdId+", QTL:"+full_name+","+symbol);
-                attributesHashMap.put("lod",lod);
-                attributesHashMap.put("pValue",pValue);
-                attributesHashMap.put("description",notes);
+                if( lod!=null ) {
+                    attributesHashMap.put("lod", lod);
+                }
+                if( pValue!=null ) {
+                    attributesHashMap.put("pValue", pValue);
+                }
+                if( notes!=null ) {
+                    attributesHashMap.put("description", notes);
+                }
                 attributesHashMap.put("Dbxref","RGD:"+rgdId);
                 attributesHashMap.put("mappingMethod",mappingMethod);
-                attributesHashMap.put("relatedQTLs",relQtls);
-                if(speciesTypeKey==3){
+                if( relQtls.length()>0 ) {
+                    attributesHashMap.put("relatedQTLs", relQtls);
+                }
+                if(speciesTypeKey==3 && relStrain.length()>0 ){
                     attributesHashMap.put("relatedStrains", relStrain);
                 }
-                attributesHashMap.put("relatedGenes",relGenes);
+                if( relGenes.length()>0 ) {
+                    attributesHashMap.put("relatedGenes", relGenes);
+                }
 
                 gff3Writer.writeAttributes4Gff3(attributesHashMap);
             }

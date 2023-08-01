@@ -114,18 +114,16 @@ public class CreateGff4CongenicStrains {
 
 
             String note = strain.getOrigin();
-            if(note!=null){
+            if( note!=null ){
                 note = note.replace(';','-')
                            .replace(","," AND ")
                            .replace('\"','\'')  // per Aurash's request
                            .replace('\n',' ');
-            }else{
-                note = "NA";
             }
 
             String parentStr = Utils.NVL(strain.getStrain(), "NA");
             String subStr = Utils.NVL(strain.getSubstrain(), "NA");
-            String src = Utils.NVL(strain.getSource(), "NA");
+            String src = strain.getSource();
 
             Map<String,String> annotAttributes = processAnnotations(strain.getRgdId(), counters);
 
@@ -166,15 +164,17 @@ public class CreateGff4CongenicStrains {
                 attributesHashMap.put("Name", strain.getSymbol());
                 attributesHashMap.put("Alias", "RGD:"+strain.getRgdId()+","+strain.getRgdId()+","+
                         "Strain:"+parentStr+","+subStr+","+strain.getSymbol());
-                attributesHashMap.put("Note", note);
-                attributesHashMap.put("origin", src);
-                attributesHashMap.put("Index","1");
+                if( note!=null ) {
+                    attributesHashMap.put("note", note);
+                }
+                if( src!=null ) {
+                    attributesHashMap.put("origin", src);
+                }
 
                 for( Map.Entry<String,String> entry: annotAttributes.entrySet() ) {
                     attributesHashMap.put(entry.getKey(), entry.getValue());
                 }
 
-                //write attributes into gff3 file
                 gff3Writer.writeAttributes4Gff3(attributesHashMap);
             }
         }
@@ -228,7 +228,7 @@ public class CreateGff4CongenicStrains {
             //remove last "," from string
             disOntValues = disOntValues.substring(0,disOntValues.length()-1);
 
-            annotAttributes.put("DiseaseOntologyAssociation",disOntValues);
+            annotAttributes.put("diseaseOntologyAssociation",disOntValues);
         }else {
             counters.increment("strainsNoDisAnn");
         }
@@ -244,7 +244,7 @@ public class CreateGff4CongenicStrains {
             //remove last "," from this line
             pheOntValues = pheOntValues.substring(0,pheOntValues.length()-1);
 
-            annotAttributes.put("PhenotypeOntologyAssociation",pheOntValues);
+            annotAttributes.put("phenotypeOntologyAssociation",pheOntValues);
         }else {
             counters.increment("strainsNoPhenoAnn");
         }
