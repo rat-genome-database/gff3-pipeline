@@ -273,7 +273,7 @@ public class CreateGff4QTL {
                     attributesHashMap.put("pValue", pValue);
                 }
                 if( notes!=null ) {
-                    attributesHashMap.put("description", notes);
+                    attributesHashMap.put("info", notes);
                 }
                 attributesHashMap.put("Dbxref","RGD:"+rgdId);
                 attributesHashMap.put("mappingMethod",mappingMethod);

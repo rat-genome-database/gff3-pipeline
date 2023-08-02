@@ -150,7 +150,7 @@ public class CreateGff4Gene {
                 if( gene.getRefSeqStatus()!=null )
                     attributesHashMap.put("refSeqStatus",gene.getRefSeqStatus());
                 if( annotDesc!=null )
-                    attributesHashMap.put("description", annotDesc);
+                    attributesHashMap.put("info", annotDesc);
                 if( !Utils.isStringEmpty(gene.getNcbiAnnotStatus()) ) {
                     attributesHashMap.put("nomenclatureStatus", gene.getNcbiAnnotStatus());
                 }

@@ -131,7 +131,7 @@ public class CreateGff4Ontology {
 
                     counter += processAnnotations(mapAccAnnList, entry);
 
-                    if (!entry.anns.equals("NA")) {
+                    if( !Utils.isStringEmpty(entry.anns) ) {
                         createRGdInfo(entry, rgdInfoList);
                         writeGff3Line(gff3Writer, entry, termAcc);
                         sequenceRegionWatcher.emit(md.getChromosome());
@@ -168,7 +168,7 @@ public class CreateGff4Ontology {
 
                         counter += processAnnotations(mapAccAnnList, entry);
 
-                        if (!entry.anns.equals("NA")) {
+                        if( !Utils.isStringEmpty(entry.anns) ) {
                             createRGdInfo(entry, rgdInfoList);
                             writeGff3Line(gff3Writer, entry, termAcc);
                             sequenceRegionWatcher.emit(md.getChromosome());
@@ -213,16 +213,11 @@ public class CreateGff4Ontology {
         entry.symbol = geneObj.getSymbol();
 
 
-        if (Utils.isStringEmpty(geneObj.getDescription())) {
-            entry.note = "null";
-        } else {
+        if( !Utils.isStringEmpty(geneObj.getDescription()) ) {
             entry.note = geneObj.getDescription().replace(";", " AND ");
         }
 
-
-        if (geneObj.getType() == null) {
-            entry.gType = "null-null";
-        } else {
+        if( geneObj.getType() != null ) {
             entry.gType = geneObj.getType();
         }
     }
@@ -233,21 +228,15 @@ public class CreateGff4Ontology {
         entry.name = qtlObj.getName();
         entry.symbol = qtlObj.getSymbol();
 
-        if (qtlObj.getLod() != null) {
-            entry.lod = String.valueOf(qtlObj.getLod());
-        } else {
-            entry.lod = "null";
+        if( qtlObj.getLod() != null ) {
+            entry.lod = qtlObj.getLod().toString();
         }
         if (qtlObj.getPValue() != null) {
-            entry.pValue = String.valueOf(qtlObj.getPValue());
-        } else {
-            entry.pValue = "null";
+            entry.pValue = qtlObj.getPValue().toString();
         }
         if (qtlObj.getNotes() != null) {
             entry.note = qtlObj.getNotes().replaceAll(";", " ");
             entry.note = URLEncoder.encode(entry.note, "UTF-8");
-        } else {
-            entry.note = "null";
         }
 
 
@@ -260,26 +249,23 @@ public class CreateGff4Ontology {
                 for (Strain st : relatedStrainsList) {
                     entry.relStrain += st.getSymbol() + ":" + st.getRgdId() + ",";
                 }
-            } else {
-
-                entry.relStrain = "NA";
             }
             if (entry.relStrain.endsWith(",")) {
                 entry.relStrain = entry.relStrain.substring(0, entry.relStrain.length() - 1);
             }
         }
+
         //get related genes.
         List<Gene> relatedGenesList = assDao.getGeneAssociationsByQTL(entry.rgdId);
         if (relatedGenesList.size() > 0) {
             for (Gene g : relatedGenesList) {
                 entry.relGenes += g.getSymbol() + ":" + g.getRgdId() + ",";
             }
-        } else {
-            entry.relGenes = "NA";
         }
         if (entry.relGenes.endsWith(",")) {
             entry.relGenes = entry.relGenes.substring(0, entry.relGenes.length() - 1);
         }
+
         //get qtl - qtl associations.
         Map<Integer, String> relatedQtlMap = assDao.getQtlToQtlAssociations(qtlObj.getKey());
         if (relatedQtlMap != null) {
@@ -289,15 +275,10 @@ public class CreateGff4Ontology {
                 for (int keys : relQtlKeys) {
                     entry.relQtls += keys + ":" + relatedQtlMap.get(keys) + ",";
                 }
-
-            } else if (relatedQtlMap.size() == 0) {
-                entry.relQtls = "NA";
             }
             if (entry.relQtls.endsWith(",")) {
                 entry.relQtls = entry.relQtls.substring(0, entry.relQtls.length() - 1);
             }
-        } else {
-            entry.relQtls = "NA";
         }
     }
 
@@ -310,29 +291,21 @@ public class CreateGff4Ontology {
         entry.note = strObject.getOrigin();
         if (entry.note != null) {
             entry.note = URLEncoder.encode(entry.note, "UTF-8");
-        } else {
-            entry.note = "NA";
         }
 
         entry.parentStr = strObject.getStrain();
         if (entry.parentStr != null) {
             entry.parentStr = URLEncoder.encode(entry.parentStr, "UTF-8");
-        } else {
-            entry.parentStr = "NA";
         }
 
         entry.subStr = strObject.getSubstrain();
         if (entry.subStr != null) {
             entry.subStr = URLEncoder.encode(entry.subStr, "UTF-8");
-        } else {
-            entry.subStr = "NA";
         }
 
         entry.src = strObject.getSource();
         if (entry.src != null) {
             entry.src = URLEncoder.encode(entry.src, "UTF-8");
-        } else {
-            entry.src = "NA";
         }
     }
 
@@ -370,9 +343,7 @@ public class CreateGff4Ontology {
             }
         }
 
-        if( annotMap.isEmpty() ) {
-            entry.anns = "NA";
-        } else {
+        if( !annotMap.isEmpty() ) {
             entry.anns = Utils.concatenate(annotMap.keySet(), ",");
             entry.aliasTerm = Utils.concatenate(annotMap.values(), ",");
         }
@@ -410,30 +381,52 @@ public class CreateGff4Ontology {
         Map<String, String> attributesHashMap = new HashMap<>();
         attributesHashMap.put("Dbxref", "RGD:" + entry.rgdId);
         attributesHashMap.put("ID", "RGD" + entry.rgdId);
-        attributesHashMap.put("geneName", entry.name.replaceAll(",", "").replaceAll(";","|"));
+        if( !Utils.isStringEmpty(entry.name) ) {
+            attributesHashMap.put("geneName", entry.name.replaceAll(",", "").replaceAll(";", "|"));
+        }
         attributesHashMap.put("Name", entry.symbol);
-        attributesHashMap.put("description", entry.note.replaceAll(",", ""));
+        if( !Utils.isStringEmpty(entry.note) ) {
+            attributesHashMap.put("info", entry.note.replaceAll(",", ""));
+        }
         attributesHashMap.put("Alias", entry.aliasTerm);
         if (entry.objectKey == 1) {
-            attributesHashMap.put("geneType", entry.gType);
+            if( !Utils.isStringEmpty(entry.gType) ) {
+                attributesHashMap.put("geneType", entry.gType);
+            }
             attributesHashMap.put("objectTypeName", "Gene");
         } else if( speciesTypeKey == 3 && entry.objectKey == 5 ) {
-            attributesHashMap.put("parentStr", entry.parentStr);
-            attributesHashMap.put("subStr", entry.subStr);
-            attributesHashMap.put("src", entry.src);
+            if( !Utils.isStringEmpty(entry.parentStr) ) {
+                attributesHashMap.put("parentStrain", entry.parentStr);
+            }
+            if( !Utils.isStringEmpty(entry.subStr) ) {
+                attributesHashMap.put("subStrain", entry.subStr);
+            }
+            if( !Utils.isStringEmpty(entry.src) ) {
+                attributesHashMap.put("strainSource", entry.src);
+            }
             attributesHashMap.put("objectTypeName", "Strain");
         } else if( entry.objectKey == 6 ) {
-            attributesHashMap.put("lod", entry.lod);
-            attributesHashMap.put("pValue", entry.pValue);
-            attributesHashMap.put("relatedQTLs", entry.relQtls);
-            if (speciesTypeKey == 3) {
+            if( !Utils.isStringEmpty(entry.lod) ) {
+                attributesHashMap.put("lod", entry.lod);
+            }
+            if( !Utils.isStringEmpty(entry.pValue) ) {
+                attributesHashMap.put("pValue", entry.pValue);
+            }
+            if( !Utils.isStringEmpty(entry.relQtls) ) {
+                attributesHashMap.put("relatedQTLs", entry.relQtls);
+            }
+            if( !Utils.isStringEmpty(entry.relStrain) ) {
                 attributesHashMap.put("relatedStrains", entry.relStrain);
             }
-            attributesHashMap.put("relatedGenes", entry.relGenes);
+            if( !Utils.isStringEmpty(entry.relGenes) ) {
+                attributesHashMap.put("relatedGenes", entry.relGenes);
+            }
             attributesHashMap.put("objectTypeName", "QTL");
         }
 
-        attributesHashMap.put("Ontology_term", entry.anns);
+        if( !Utils.isStringEmpty(entry.anns) ) {
+            attributesHashMap.put("Ontology_term", entry.anns);
+        }
 
         buf.append(gff3Writer.prepAttributes4Gff3(attributesHashMap));
         return buf.toString();
@@ -460,7 +453,7 @@ public class CreateGff4Ontology {
 
                     annotCount.addAndGet(processAnnotations(mapAccAnnList, entry));
 
-                    if (!entry.anns.equals("NA")) {
+                    if( !Utils.isStringEmpty(entry.anns) ) {
                         createRGdInfo(entry, rgdInfoList);
                         gff3Lines.append(prepGff3Line(gff3Writer, entry, termAcc));
                     }
