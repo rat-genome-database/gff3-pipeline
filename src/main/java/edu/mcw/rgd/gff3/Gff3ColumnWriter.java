@@ -258,6 +258,15 @@ public class Gff3ColumnWriter {
     public void sortInMemory() throws IOException {
 
         String fname = getFileName();
+        sortInMemory(fname, compressMode);
+    }
+
+    /**
+     * sorts the given gff3 file by 1 column (chromosome) and then by start pos (4th col) and stop pos (5th col)
+     * goal: tabix-ready gff3 file
+     */
+    static public void sortInMemory( String fname, int compressMode ) throws IOException {
+
         if( compressMode!=Gff3ColumnWriter.COMPRESS_MODE_NONE ) {
             if( !fname.endsWith(".gz") ) {
                 fname += ".gz";

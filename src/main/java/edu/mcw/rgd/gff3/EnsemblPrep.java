@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -130,6 +129,9 @@ public class EnsemblPrep {
             log.info("data lines written to model file: " + modelFileLines);
             log.info("data lines written to feature file: " + featureFileLines);
             log.info("***********************\n\n");
+
+            Gff3ColumnWriter.sortInMemory(modelFileName, Gff3ColumnWriter.COMPRESS_MODE_BGZIP);
+            Gff3ColumnWriter.sortInMemory(featureFileName, Gff3ColumnWriter.COMPRESS_MODE_BGZIP);
         }
     }
 

@@ -148,7 +148,7 @@ public class CreateGff4SSLP {
                     HashMap<String, String> attributesHashMap = new HashMap<>();
 
                     attributesHashMap.put("ID", sslpRgdId+"_"+start+"_"+stop);
-                    attributesHashMap.put("Name", "SSLP:"+sslpSymbol);
+                    attributesHashMap.put("Name", sslpSymbol);
                     if( aliases!=null ) {
                         if( aliases.contains("\t") || aliases.contains("\n") ) {
                             aliases = aliases.replace("\\s+", " ");
