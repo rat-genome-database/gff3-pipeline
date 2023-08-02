@@ -60,6 +60,8 @@ public class EnsemblPrep {
             int notesLines = 0;
             int modelFileLines = 0;
             int featureFileLines = 0;
+            int skippedHashLines = 0;
+            int badChrLines = 0;
 
             Map<String, String> genbankToRefseqAccMap = parseSupercontigs(inputFile);
             Set<String> chromosomes = new HashSet<>();
@@ -68,6 +70,10 @@ public class EnsemblPrep {
             while ((line = in.readLine()) != null) {
                 // copy comment lines to both output files
                 if (line.startsWith("#")) {
+                    if( line.equals("###") ) {
+                        skippedHashLines++;
+                        continue;
+                    }
                     modelFile.write(line + "\n");
                     featureFile.write(line + "\n");
                     commentLines++;
@@ -98,6 +104,8 @@ public class EnsemblPrep {
                         String refseqAcc = genbankToRefseqAccMap.get(genbankAcc);
                         if (refseqAcc == null) {
                             log.debug("*** WARN: null scaffold acc "+genbankAcc);
+                            badChrLines++;
+                            continue;
                         }
                         else if (chromosomes.add(refseqAcc)) {
                             log.info(refseqAcc);
@@ -126,6 +134,8 @@ public class EnsemblPrep {
             log.info("");
             log.info("comment lines: " + commentLines);
             log.info("converted notes lines: " + notesLines);
+            log.info("skipped ### lines: " + skippedHashLines);
+            log.info("invalid chromosome lines: " + badChrLines);
             log.info("data lines written to model file: " + modelFileLines);
             log.info("data lines written to feature file: " + featureFileLines);
             log.info("***********************\n\n");
