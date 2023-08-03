@@ -121,8 +121,8 @@ public class CreateGff4CongenicStrains {
                            .replace('\n',' ');
             }
 
-            String parentStr = Utils.NVL(strain.getStrain(), "NA");
-            String subStr = Utils.NVL(strain.getSubstrain(), "NA");
+            String parentStr = Utils.NVL(strain.getStrain(), "");
+            String subStr = Utils.NVL(strain.getSubstrain(), "");
             String src = strain.getSource();
 
             Map<String,String> annotAttributes = processAnnotations(strain.getRgdId(), counters);
@@ -165,7 +165,7 @@ public class CreateGff4CongenicStrains {
                 attributesHashMap.put("Alias", "RGD:"+strain.getRgdId()+","+strain.getRgdId()+","+
                         "Strain:"+parentStr+","+subStr+","+strain.getSymbol());
                 if( note!=null ) {
-                    attributesHashMap.put("note", note);
+                    attributesHashMap.put("info", note);
                 }
                 if( src!=null ) {
                     attributesHashMap.put("origin", src);

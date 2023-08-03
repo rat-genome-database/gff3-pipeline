@@ -3,6 +3,7 @@ package edu.mcw.rgd.gff3;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 
 public class CreateGff4Ensembl {
@@ -25,7 +26,7 @@ public class CreateGff4Ensembl {
 
             File inFile = new File(srcFileName);
             File outFile = new File(outPath);
-            Files.copy( inFile.toPath(), outFile.toPath() );
+            Files.copy( inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
