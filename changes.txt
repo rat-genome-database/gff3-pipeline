@@ -1,3 +1,6 @@
+Aug 8, 2023
+  agr gff3: updated header
+
 Aug 3, 2023
   jbrowse2: reenabled generation of data for rn6, rn5 and rn3.4 assemblies
 

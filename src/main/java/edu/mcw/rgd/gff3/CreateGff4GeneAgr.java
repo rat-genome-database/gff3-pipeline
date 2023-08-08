@@ -48,17 +48,17 @@ public class CreateGff4GeneAgr {
         gff3Writer.print("#!data-source RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
         gff3Writer.print("#!assembly: "+ MapManager.getInstance().getMap(mapKey).getName()+"\n");
         if( mapKey==372 ) {
-            gff3Writer.print("#!annotationSource RefSeq RS_2023_05\n");     // https://www.ncbi.nlm.nih.gov/data-hub/genome/GCF_015227675.2/
-            gff3Writer.print("#!annotationSource ENSEMBL 109.72\n"); // https://m.ensembl.org/Rattus_norvegicus/Info/Annotation
+            gff3Writer.print("#!annotationSource RefSeq RS_2023_06\n");     // https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_015227675.2/
+            gff3Writer.print("#!annotationSource ENSEMBL 110.72\n"); // https://m.ensembl.org/Rattus_norvegicus/Info/Annotation
         } else if( mapKey==38 ) {
-            gff3Writer.print("#!annotationSource RefSeq RS_2023_03 (GRCh38.p14)\n");     // https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.40
-            gff3Writer.print("#!annotationSource ENSEMBL 109.38 (GRCh38.p13)\n"); // https://m.ensembl.org/Homo_sapiens/Info/Annotation
+            gff3Writer.print("#!annotationSource RefSeq RS_2023_03 (GRCh38.p14)\n");     // https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40
+            gff3Writer.print("#!annotationSource ENSEMBL 110.38 (GRCh38.p14)\n"); // https://m.ensembl.org/Homo_sapiens/Info/Annotation
         }
 
         gff3Writer.print("#!date-produced "+sdt.format(new Date())+"\n");
         gff3Writer.print("#!species "+ species+"\n");
         gff3Writer.print("#!primary-contact mtutaj@mcw.edu\n");
-        gff3Writer.print("#!tool AGR GFF3 extractor  v 2023-06-15\n");
+        gff3Writer.print("#!tool AGR GFF3 extractor  v 2023-08-08\n");
 
         List<Gene> activeGenes = dao.getActiveGenes(speciesTypeKey);
         Collections.sort(activeGenes, new Comparator<Gene>() {

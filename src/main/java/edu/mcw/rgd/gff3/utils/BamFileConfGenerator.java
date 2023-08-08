@@ -1,4 +1,4 @@
-package edu.mcw.rgd.gff3;
+package edu.mcw.rgd.gff3.utils;
 
 import edu.mcw.rgd.process.Utils;
 
@@ -18,14 +18,20 @@ public class BamFileConfGenerator {
     void run() throws IOException {
 
         Info info = new Info();
-        String fname = "data/shrspbam.conf";
-        HashMap<String,String> nameToFileMap = loadName2FileMap(fname, info);
+        String fname;
+        HashMap<String,String> nameToFileMap;
 
+        fname = "data/jbrowse1/rn7expr.txt";
+        nameToFileMap = loadName2FileMap(fname, info);
+        run(nameToFileMap, info);
+System.exit(0);
+
+        fname = "data/shrspbam.conf";
+        nameToFileMap = loadName2FileMap(fname, info);
         run(nameToFileMap, info);
 
         fname = "data/rn7bam.conf";
         nameToFileMap = loadName2FileMap(fname, info);
-
         run(nameToFileMap, info);
 
         // chinchilla();
@@ -44,7 +50,7 @@ public class BamFileConfGenerator {
         info.jbrowseCategory = "Chinchilla Expression Data/Otitis media - response to Streptococcus pneumoniae infection - PRJNA277957";
         info.useBai = true;
         info.trackIdBase = "PRJNA277957";
-        info.bamDir = "PRJNA277957/"; // must be '/'-terminated
+        info.dataDir = "PRJNA277957/"; // must be '/'-terminated
 
         run(nameToFileMap, info);
     }
@@ -54,7 +60,7 @@ public class BamFileConfGenerator {
         BufferedWriter out = Utils.openWriter(info.outFileName);
 
         int trackIndex = 0;
-        String outDir = info.bamDir;
+        String outDir = info.dataDir;
 
         for( Map.Entry<String, String> entry: nameToFileMap.entrySet() ) {
 
@@ -101,6 +107,29 @@ public class BamFileConfGenerator {
                 out.write("type = JBrowse/View/Track/CanvasVariants\n");
                 out.write("key = " + bamTrackName + "\n");
             }
+
+            else if( bamFileName.endsWith("bw") ) {
+
+                // BigWig XYPlot
+
+                out.write("\n");
+                out.write("[tracks." + trackId + "]\n");
+                out.write("storeClass = JBrowse/Store/SeqFeature/BigWig\n");
+                out.write("urlTemplate = " + outDir + bamFileName + "\n");
+                out.write("category = " + info.jbrowseCategory + "\n");
+                out.write("type = JBrowse/View/Track/Wiggle/XYPlot\n");
+                out.write("key = " + bamTrackName + " (XYPlot)\n");
+
+                // BigWig Density
+
+                out.write("\n");
+                out.write("[tracks." + trackId + "d]\n");
+                out.write("storeClass = JBrowse/Store/SeqFeature/BigWig\n");
+                out.write("urlTemplate = " + outDir + bamFileName + "\n");
+                out.write("category = " + info.jbrowseCategory + "\n");
+                out.write("type = JBrowse/View/Track/Wiggle/Density\n");
+                out.write("key = " + bamTrackName + " (Density)\n");
+            }
         }
 
         out.close();
@@ -125,10 +154,16 @@ public class BamFileConfGenerator {
                     info.useBai = i > 0;
                 } else if (line.startsWith("#TRACKIDBASE=")) {
                     info.trackIdBase = line.substring(13);
-                } else if (line.startsWith("#BAMDIR=")) {
-                    info.bamDir = line.substring(8);
-                    if( !info.bamDir.endsWith("/") ) {
-                        info.bamDir += "/";
+                    // legacy
+                } else if (line.startsWith("#BAMDIR=") ) {
+                    info.dataDir = line.substring(8);
+                    if( !info.dataDir.endsWith("/") ) {
+                        info.dataDir += "/";
+                    }
+                } else if (line.startsWith("#DATADIR=") ) {
+                    info.dataDir = line.substring(9);
+                    if( !info.dataDir.endsWith("/") ) {
+                        info.dataDir += "/";
                     }
                 }
                 continue;
@@ -163,6 +198,6 @@ public class BamFileConfGenerator {
         public String jbrowseCategory;
         public boolean useBai = true;
         public String trackIdBase;
-        public String bamDir;
+        public String dataDir;
     }
 }
