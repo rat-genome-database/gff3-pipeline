@@ -216,6 +216,10 @@ public class Manager {
                             CreateGff4Ensembl ensm = (CreateGff4Ensembl) (bf.getBean("ensemblManager"));
                             ensm.run();
                             return true;
+                        case "variants":
+                            CreateGff4Variants varm = (CreateGff4Variants) (bf.getBean("variantManager"));
+                            varm.run();
+                            return true;
                         case "qtls":
                             CreateGff4QTL qm = (CreateGff4QTL) (bf.getBean("qtlManager"));
                             qm.run();

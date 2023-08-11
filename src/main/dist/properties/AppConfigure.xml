@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Aug 8, 2023 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Aug 11, 2023 --" />
 
         <property name="assemblies"><!-- file system location for files for given assembly: must be the same as found in '/ref/fasta' directory -->
             <map>
@@ -324,6 +324,22 @@
         </property>
     </bean>
 
+    <bean id="variantManager" class="edu.mcw.rgd.gff3.CreateGff4Variants">
+        <property name="outDir1" value="Variants/Damaging Variants"/>
+        <property name="suffix1" value=".gff3_damaging.gz"/>
+
+        <property name="outDir2" value="Variants/Strain Specific Variants"/>
+        <property name="suffix2" value=".gff3.gz"/>
+
+        <property name="srcDataDir">
+            <map>
+                <entry key="372" value="data/strain_specific_variants/rat7"/>
+                <entry key="360" value="data/strain_specific_variants/rat6"/>
+                <entry key="70" value="data/strain_specific_variants/rat5"/>
+                <entry key="60" value="data/strain_specific_variants/rat3_4"/>
+            </map>
+        </property>
+    </bean>
 </beans>
 
 
