@@ -1,5 +1,8 @@
-Aug 11, 2023
+Aug 21, 2023
   jbrowse2: variants
+
+Aug 11, 2023
+  jbrowse2: variants tune up
 
 Aug 8, 2023
   agr gff3: updated header

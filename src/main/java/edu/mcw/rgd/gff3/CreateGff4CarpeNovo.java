@@ -23,9 +23,6 @@ public class CreateGff4CarpeNovo {
     List<String> chromosomes;
     String fileSource;
     int sampleID;
-    String varTable;
-    String varTransTable;
-    String polyTable;
     int varNumCount=0;
     int varGenic=0;
     int varInterGenic=0;
@@ -48,44 +45,6 @@ public class CreateGff4CarpeNovo {
     int varPPPossibly=0;
     int varPPProbably=0;
 
-    public String getVariantTable(int sampleId) {
-        /*
-        if( sampleId<100 ) {
-            return "variant_clinvar";
-        }
-        if( sampleId>=6000 && sampleId<=6999 ) {
-            return "variant_dog";
-        }
-
-        if( sampleId>=10000 && sampleId<=13999 ) {
-            return "variant_human";
-        }
-        */
-        return "variant";
-    }
-    public String getVariantTranscriptTable(int sampleId) {
-        /*
-        if( sampleId<100 ) {
-            return "variant_transcript_clinvar";
-        }
-        if( sampleId>=6000 && sampleId<=6999 ) {
-            return "variant_transcript_dog";
-        }
-        if( sampleId>=10000 && sampleId<=13999 ) {
-            return "variant_transcript_human";
-        }
-        */
-        return "variant_transcript";
-    }
-    public String getPolyphenTable(int sampleId) {
-
-        /*
-        if( sampleId>=6000 && sampleId<=6999 ) {
-            return "polyphen_dog";
-        }
-        */
-        return "polyphen";
-    }
 
     public void createGff3ForPatient(int patientId) throws Exception{
 
@@ -102,12 +61,9 @@ public class CreateGff4CarpeNovo {
         SampleDAO sampleDAO = new SampleDAO();
         sampleDAO.setDataSource(DataSourceFactory.getInstance().getCarpeNovoDataSource());
         Sample sample = sampleDAO.getSample(sampleId);
-        varTable = getVariantTable(sampleId);
-        varTransTable = getVariantTranscriptTable(sampleId);
-        polyTable = getPolyphenTable(sampleId);
         String sampleName = sample.getAnalysisName().replace('/','_');
         String gffFile = getToFile()+sampleName+".gff3";
-        String gffDamagingFile = getToFile()+sampleName+".gff3_damaging";
+        String gffDamagingFile = getToFile()+sampleName+"_damaging.gff3";
         Connection conn = getConnection();
         creategff4CarpeNovo(gffFile, gffDamagingFile, sample.getMapKey(), conn);
 
@@ -239,25 +195,24 @@ public class CreateGff4CarpeNovo {
         attributesHashMap.put("ID", String.valueOf(varOB.getVariantRgdId()));
         attributesHashMap.put("Name", String.valueOf(varOB.getVariantRgdId()));
         attributesHashMap.put("Alias", String.valueOf(varOB.getVariantRgdId()));
-        attributesHashMap.put("Reference", varOB.getRef());
-        attributesHashMap.put("Variant", varOB.getVar());
-        attributesHashMap.put("Depth", String.valueOf(varOB.getDepth()));
-        attributesHashMap.put("Frequency", String.valueOf(varOB.getFreq()));
+        attributesHashMap.put("reference", varOB.getRef());
+        attributesHashMap.put("variant", varOB.getVar());
+        attributesHashMap.put("depth", String.valueOf(varOB.getDepth()));
+        attributesHashMap.put("frequency", String.valueOf(varOB.getFreq()));
 
         for(int transcriptID : varTransHashObj.keySet() ){
             VarTranscript vt = varTransHashObj.get(transcriptID);
-            if(!vt.getLocName().equals("NA")){
+            if( vt.getLocName()!=null ){
                 transcriptRgdId+=vt.getTranscriptRgdId()+",";
                 refAA+=vt.getRefAA()+",";
                 varAA+=vt.getVarAA()+",";
-                associatedGene+=vt.getAssociatedGeneSym()+":"+
-                        vt.getAssociatedGeneRGD()+",";
-                varLoc+=vt.getTranscriptRgdId()+":"+
-                        vt.getLocName().replaceAll(",", "||")+",";
+                associatedGene+=vt.getAssociatedGeneSym()+":"+vt.getAssociatedGeneRGD()+",";
+                varLoc+=vt.getTranscriptRgdId()+":"+vt.getLocName().replaceAll(",", "||")+",";
                 synStatus+=vt.getSynStat()+",";
                 nearSpliceSite+=vt.getNearSpliceSite()+",";
 
                 if(vt.getPpObj()!=null){
+                    varWithPPPred++;
                     transcriptPolyPred+=vt.getTranscriptRgdId()+":"+
                             vt.getPpObj().getProteinID()+"||"+
                             vt.getPpObj().getPosition()+"||"+
@@ -293,11 +248,11 @@ public class CreateGff4CarpeNovo {
                     varIn3UTR++;
                 }
 
-                if(!(vt.getAssociatedGeneSym().equals("NA"))){
+                if( vt.getAssociatedGeneSym()!=null ){
                     varWithAssocGene++;
                 }
 
-                if(!(vt.getSynStat().equals("NA"))){
+                if( vt.getSynStat()!=null ){
                     varWithSynStat++;
                     if(vt.getSynStat().equalsIgnoreCase("synonymous")){
                         varSyn++;
@@ -307,12 +262,8 @@ public class CreateGff4CarpeNovo {
                     }
                 }
 
-                if(!(vt.getNearSpliceSite().equals("NA"))){
+                if( vt.getNearSpliceSite()!=null ){
                     varNearSpliceSite++;
-                }
-
-                if(vt.getPpObj()!=null){
-                    varWithPPPred++;
                 }
             }
         }
@@ -345,8 +296,8 @@ public class CreateGff4CarpeNovo {
         for(int transcriptID : varTransHashObj.keySet() ) {
             VarTranscript vt = varTransHashObj.get(transcriptID);
 
-            if (!vt.getLocName().equals("NA")) {
-            if (vt.getPpObj() != null && (vt.getPpObj().getPrediction().equalsIgnoreCase("possibly damaging") ||
+            if( vt.getLocName()!=null ) {
+                if (vt.getPpObj() != null && (vt.getPpObj().getPrediction().equalsIgnoreCase("possibly damaging") ||
                     vt.getPpObj().getPrediction().equalsIgnoreCase("probably damaging"))) {
                     damaging = true;
                     transcriptRgdId += vt.getTranscriptRgdId() + ",";
@@ -374,10 +325,10 @@ public class CreateGff4CarpeNovo {
             attributesHashMap.put("ID", String.valueOf(varOB.getVariantRgdId()));
             attributesHashMap.put("Name", String.valueOf(varOB.getVariantRgdId()));
             attributesHashMap.put("Alias", String.valueOf(varOB.getVariantRgdId()));
-            attributesHashMap.put("Reference", varOB.getRef());
-            attributesHashMap.put("Variant", varOB.getVar());
-            attributesHashMap.put("Depth", String.valueOf(varOB.getDepth()));
-            attributesHashMap.put("Frequency", String.valueOf(varOB.getFreq()));
+            attributesHashMap.put("reference", varOB.getRef());
+            attributesHashMap.put("variant", varOB.getVar());
+            attributesHashMap.put("depth", String.valueOf(varOB.getDepth()));
+            attributesHashMap.put("frequency", String.valueOf(varOB.getFreq()));
             attributesHashMap.put("transcriptRGDID", transcriptRgdId.substring(0, transcriptRgdId.length() - 1));
             attributesHashMap.put("refAA", refAA.substring(0, refAA.length() - 1));
             attributesHashMap.put("varAA", varAA.substring(0, varAA.length() - 1));
@@ -392,18 +343,15 @@ public class CreateGff4CarpeNovo {
         }
     }
     void printNonTranscriptGFF3(String chr, Gff3ColumnWriter gffWriter, Variant varOB) throws Exception {
-        Map<String, String> attributeHashMap = new HashMap<String, String>();
+        Map<String, String> attributeHashMap = new HashMap<>();
 
         attributeHashMap.put("ID", String.valueOf(varOB.getVariantRgdId()));
         attributeHashMap.put("Name", String.valueOf(varOB.getVariantRgdId()));
         attributeHashMap.put("Alias", String.valueOf(varOB.getVariantRgdId()));
-        attributeHashMap.put("Reference", varOB.getRef());
-        attributeHashMap.put("Variant", varOB.getVar());
-        attributeHashMap.put("Depth", String.valueOf(varOB.getDepth()));
-        attributeHashMap.put("Frequency", String.valueOf(varOB.getFreq()));
-        attributeHashMap.put("nearSpliceSite","NA");
-        attributeHashMap.put("synStatus", "NA");
-        attributeHashMap.put("Index","1");
+        attributeHashMap.put("reference", varOB.getRef());
+        attributeHashMap.put("variant", varOB.getVar());
+        attributeHashMap.put("depth", String.valueOf(varOB.getDepth()));
+        attributeHashMap.put("frequency", String.valueOf(varOB.getFreq()));
 
         gffWriter.writeGff3AllColumns(chr, getFileSource(), "SNV_" + this.sampleID, varOB.getStart(), varOB.getStart(), ".", ".", ".", attributeHashMap);
     }
@@ -414,15 +362,10 @@ public class CreateGff4CarpeNovo {
         HashMap<Integer, Variant> newvarHash = new HashMap<>();
 
         Connection connection = getConnection();
-        // old table structure
-        //String findAllVariants = "SELECT v.VARIANT_ID, v.CHROMOSOME, v.START_POS, v.END_POS, v.REF_NUC, v.VAR_NUC," +
-        //       "TOTAL_DEPTH, v.VAR_FREQ, v.ZYGOSITY_STATUS, v.GENIC_STATUS FROM "+varTable +" v " +
-        //       "WHERE v.SAMPLE_ID = ? and v.CHROMOSOME = ? ";
 
-        // new table structure
         String findAllVariants = "SELECT v.RGD_ID, m.CHROMOSOME, m.START_POS, m.END_POS, v.REF_NUC, v.VAR_NUC," +
             "s.TOTAL_DEPTH, s.VAR_FREQ, s.ZYGOSITY_STATUS, m.GENIC_STATUS "+
-            "FROM "+varTable+" v ,variant_sample_detail s,variant_map_data m "+
+            "FROM variant v ,variant_sample_detail s,variant_map_data m "+
             "WHERE v.rgd_id=s.rgd_id AND m.rgd_id=v.rgd_id AND s.SAMPLE_ID=? AND m.CHROMOSOME=?";
 
         PreparedStatement findVar = connection.prepareStatement(findAllVariants);
@@ -457,7 +400,7 @@ public class CreateGff4CarpeNovo {
 
         String getvarTranscript = "select vt.SYN_STATUS, vt.TRANSCRIPT_RGD_ID, vt.REF_AA, " +
                 "vt.VAR_AA, g.RGD_ID, vt.LOCATION_NAME, vt.NEAR_SPLICE_SITE, g.GENE_SYMBOL " +
-                "from ("+varTransTable+" vt " +
+                "from (variant_transcript vt " +
                 "inner join TRANSCRIPTS t on t.TRANSCRIPT_RGD_ID=vt.TRANSCRIPT_RGD_ID) " +
                 "inner join GENES g on g.RGD_ID=t.GENE_RGD_ID where vt.VARIANT_RGD_ID=?";
 
@@ -465,7 +408,7 @@ public class CreateGff4CarpeNovo {
 
 
         String getpph = "select p.UNIPROT_ACC, p.PREDICTION, p.PROTEIN_ID, p.POSITION, p.AA1, p.AA2 " +
-                "from "+polyTable +" p where p.VARIANT_RGD_ID=? and p.transcript_rgd_id=?";
+                "from polyphen p where p.VARIANT_RGD_ID=? and p.transcript_rgd_id=?";
 
         PreparedStatement findPph = conn.prepareStatement(getpph);
 
@@ -490,7 +433,7 @@ public class CreateGff4CarpeNovo {
                 if(!(rspph.getString(3)==null)){
                     protid= rspph.getString(3);
                 }else{
-                    protid = "NA";
+                    protid = null;
                 }
                 ppO.setProteinID(protid);
 
@@ -503,12 +446,7 @@ public class CreateGff4CarpeNovo {
                 String aa2 = rspph.getString(6);
                 ppO.setAA2(aa2);
 
-                String prediction;
-                if(rspph.getString(2)==null){
-                    prediction="null";
-                }else{
-                    prediction=rspph.getString(2);
-                }
+                String prediction = rspph.getString(2);
                 ppO.setPrediction(prediction);
 
                 String uprotAcc = rspph.getString(1);
@@ -521,13 +459,13 @@ public class CreateGff4CarpeNovo {
             if(refaa!=null){
                 refaa = refaa.trim();
             }else{
-                refaa = "NA";
+                refaa = null;
             }
             newvarTransObj.setRefAA(refaa);
 
             String varaa = rsvarTran.getString(4);
             if (null == varaa) {
-                varaa = "NA";
+                varaa = null;
             } else {
                 varaa = varaa.trim();
             }
@@ -537,7 +475,7 @@ public class CreateGff4CarpeNovo {
             if( locname!=null ){
                 locname = locname.trim().replaceAll("\'","");
             }else{
-                locname = "NA";
+                locname = null;
             }
             newvarTransObj.setLocName(locname);
 
@@ -545,7 +483,7 @@ public class CreateGff4CarpeNovo {
             if( nearss!=null ){
                 nearss = nearss.trim();
             }else{
-                nearss = "NA";
+                nearss = null;
             }
             newvarTransObj.setNearSpliceSite(nearss);
 
@@ -553,7 +491,7 @@ public class CreateGff4CarpeNovo {
             if( gsym!=null ){
                 gsym = gsym.trim();
             }else{
-                gsym = "NA";
+                gsym = null;
             }
             newvarTransObj.setAssociatedGeneSym(gsym);
 
@@ -561,7 +499,7 @@ public class CreateGff4CarpeNovo {
             if( grgd!=null ){
                 grgd = grgd.trim();
             }else{
-                grgd = "NA";
+                grgd = null;
             }
             newvarTransObj.setAssociatedGeneRGD(grgd);
 
@@ -570,7 +508,7 @@ public class CreateGff4CarpeNovo {
                 synStat = synStat.trim();
             }
             else{
-                synStat = "NA";
+                synStat = null;
             }
             newvarTransObj.setSynStat(synStat);
             newvarTransHash.put(trRgdId, newvarTransObj);

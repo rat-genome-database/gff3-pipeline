@@ -47,7 +47,8 @@ public class CreateGff4Variants {
                 if( f.getName().endsWith( getSuffix2() )) {
 
                     File inFile = f;
-                    File outFile = new File(outDir2Name+"/"+f.getName());
+                    String newName = f.getName().replace("_damaging","");
+                    File outFile = new File(outDir2Name+"/"+newName);
                     Files.copy( inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 }
             }
