@@ -76,14 +76,13 @@ public class Manager {
                 throw new ArgumentsException("This script requires '-source:' '-toFile:' as parameters");
             }
 
-            CreateGff4CarpeNovo2 createGffCarpe = new CreateGff4CarpeNovo2();
+            CreateGff4CarpeNovo createGffCarpe = new CreateGff4CarpeNovo();
             createGffCarpe.setFileSource(source);
             createGffCarpe.setToFile(toFile);
             //createGffCarpe.setChromosomes(getChromosomes());
             if( sampleID!=0 )
                 createGffCarpe.createGff3ForSample(sampleID);
             if( patientID!=0 ) {
-                //createGffCarpe.setUseMultithreading(true);
                 createGffCarpe.createGff3ForPatient(patientID);
             }
 
