@@ -2,6 +2,7 @@ package edu.mcw.rgd.gff3;
 
 import edu.mcw.rgd.process.mapping.MapManager;
 
+
 /**
  * configuration info used to run a gf3 create job
  */
@@ -11,6 +12,8 @@ public class CreateInfo {
     private int speciesTypeKey;
     private int compressMode;
     private String assemblySymbol;
+
+
 
     public void parseFromString(String s) throws Exception {
         // sample string:

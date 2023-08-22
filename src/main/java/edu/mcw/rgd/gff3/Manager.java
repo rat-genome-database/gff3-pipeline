@@ -82,8 +82,10 @@ public class Manager {
             createGffCarpe.setChromosomes(getChromosomes());
             if( sampleID!=0 )
                 createGffCarpe.createGff3ForSample(sampleID);
-            if( patientID!=0 )
+            if( patientID!=0 ) {
+                createGffCarpe.setUseMultithreading(true);
                 createGffCarpe.createGff3ForPatient(patientID);
+            }
 
         }
         else if( flavor.equals("ensembl_prep") ) {

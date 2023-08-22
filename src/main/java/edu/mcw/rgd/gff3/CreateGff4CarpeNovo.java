@@ -6,6 +6,7 @@ import edu.mcw.rgd.datamodel.Sample;
 import edu.mcw.rgd.gff3.dataModel.Polyphen;
 import edu.mcw.rgd.gff3.dataModel.VarTranscript;
 import edu.mcw.rgd.gff3.dataModel.Variant;
+import edu.mcw.rgd.process.CounterPool;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,42 +23,33 @@ public class CreateGff4CarpeNovo {
     String toFile;
     List<String> chromosomes;
     String fileSource;
-    int sampleID;
-    int varNumCount=0;
-    int varGenic=0;
-    int varInterGenic=0;
-    int varInTranscript=0;
-    int varNotInTranscript=0;
-    int varDepthMoreThan10=0;
-    int varDepthLessThan5=0;
-    int varTransWithLocName=0;
-    int varIn5UTR=0;
-    int varIn3UTR=0;
-    int varInINTRON=0;
-    int varInEXON=0;
-    int varWithAssocGene=0;
-    int varWithSynStat=0;
-    int varSyn=0;
-    int varNonSyn=0;
-    int varNearSpliceSite=0;
-    int varWithPPPred=0;
-    int varPPBenign=0;
-    int varPPPossibly=0;
-    int varPPProbably=0;
 
+    boolean useMultithreading;
 
     public void createGff3ForPatient(int patientId) throws Exception{
 
         SampleDAO sampleDAO = new SampleDAO();
         sampleDAO.setDataSource(DataSourceFactory.getInstance().getCarpeNovoDataSource());
         List<Sample> samples = sampleDAO.getSamples(patientId);
-        for( Sample sample: samples ) {
-            createGff3ForSample(sample.getId());
+
+        if( useMultithreading ) {
+            samples.parallelStream().forEach( sample -> {
+                try {
+                    createGff3ForSample(sample.getId());
+                } catch( Exception e ) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+        } else {
+            for (Sample sample : samples) {
+                createGff3ForSample(sample.getId());
+            }
         }
     }
 
     public void createGff3ForSample(int sampleId) throws Exception{
-        this.sampleID = sampleId;
+
         SampleDAO sampleDAO = new SampleDAO();
         sampleDAO.setDataSource(DataSourceFactory.getInstance().getCarpeNovoDataSource());
         Sample sample = sampleDAO.getSample(sampleId);
@@ -65,13 +57,12 @@ public class CreateGff4CarpeNovo {
         String gffFile = getToFile()+sampleName+".gff3";
         String gffDamagingFile = getToFile()+sampleName+"_damaging.gff3";
         Connection conn = getConnection();
-        creategff4CarpeNovo(gffFile, gffDamagingFile, sample.getMapKey(), conn);
+        creategff4CarpeNovo(gffFile, gffDamagingFile, sample.getMapKey(), conn, sampleId);
 
         conn.close();
     }
 
-    void creategff4CarpeNovo(String gffFile, String gffDamagingFile, int mapKey, Connection conn) throws Exception{
-
+    void creategff4CarpeNovo(String gffFile, String gffDamagingFile, int mapKey, Connection conn, int sampleId) throws Exception{
 
         Gff3ColumnWriter gffWriter = new Gff3ColumnWriter(gffFile, false, Gff3ColumnWriter.COMPRESS_MODE_ZIP);
         Gff3ColumnWriter gffDmgVariantWriter = new Gff3ColumnWriter(gffDamagingFile, false, Gff3ColumnWriter.COMPRESS_MODE_ZIP);
@@ -85,47 +76,26 @@ public class CreateGff4CarpeNovo {
             sequenceRegionWatcher1.emit(chr);
             sequenceRegionWatcher2.emit(chr);
 
-            varNumCount = 0;
-            varGenic = 0;
-            varInterGenic = 0;
-            varInTranscript = 0;
-            varNotInTranscript = 0;
-            varDepthMoreThan10 = 0;
-            varDepthLessThan5 = 0;
-            varTransWithLocName = 0;
-            varIn5UTR = 0;
-            varIn3UTR = 0;
-            varInINTRON = 0;
-            varInEXON = 0;
-            varWithAssocGene = 0;
-            varWithSynStat = 0;
-            varSyn = 0;
-            varNonSyn = 0;
-            varNearSpliceSite = 0;
-            varWithPPPred = 0;
-            varPPBenign = 0;
-            varPPPossibly = 0;
-            varPPProbably = 0;
-
+            CounterPool counters = new CounterPool();
 
             HashMap<Integer, VarTranscript> varTransHashObj;
-            HashMap<Integer, Variant> varhashOB = getVariants(chr);
+            HashMap<Integer, Variant> varhashOB = getVariants(chr, sampleId);
 
             for (int variantid : varhashOB.keySet()) {
-                varNumCount++;
+                counters.increment("varNumCount");
                 Variant v = varhashOB.get(variantid);
 
                 if (v.getDepth() > 10) {
-                    varDepthMoreThan10++;
+                    counters.increment("varDepthMoreThan10");
                 } else if (v.getDepth() < 5) {
-                    varDepthLessThan5++;
+                    counters.increment("varDepthLessThan5");
                 }
 
                 if (v.getGenicStat() != null) {
                     if (v.getGenicStat().equalsIgnoreCase("GENIC")) {
-                        varGenic++;
+                        counters.increment("varGenic");
                     } else if (v.getGenicStat().equalsIgnoreCase("INTERGENIC")) {
-                        varInterGenic++;
+                        counters.increment("varInterGenic");
                     }
                 }
 
@@ -133,40 +103,40 @@ public class CreateGff4CarpeNovo {
 
                 if (varTransHashObj.size() == 0) {
 
-                    varNotInTranscript++;
-                    printNonTranscriptGFF3(chr, gffWriter, v);
+                    counters.increment("varNotInTranscript");
+                    printNonTranscriptGFF3(chr, gffWriter, v, sampleId);
 
                 } else {
 
-                    varInTranscript++;
-                    printTranscriptGff3(chr, gffWriter, v, varTransHashObj);
-                    printDamagingTranscriptGff3(chr, gffDmgVariantWriter, v, varTransHashObj);
+                    counters.increment("varInTranscript");
+                    printTranscriptGff3(chr, gffWriter, v, varTransHashObj, counters, sampleId);
+                    printDamagingTranscriptGff3(chr, gffDmgVariantWriter, v, varTransHashObj, sampleId);
                 }
 
             }
 
             System.out.println("\nChromosome:" + chr + " stats-");
-            System.out.println("Variants processed:" + varNumCount);
-            System.out.println("Genic Variants processed:" + varGenic);
-            System.out.println("Intergenic Variants processed:" + varInterGenic);
-            System.out.println("Variants near Splice Sites:" + varNearSpliceSite);
-            System.out.println("Variants with depth > 10:" + varDepthMoreThan10);
-            System.out.println("Variants with depth < 5:" + varDepthLessThan5);
-            System.out.println("Variants NOT associated with ANY transcript:" + varNotInTranscript);
-            System.out.println("Variants associated with one or more Transcripts:" + varInTranscript);
-            System.out.println("Genic Variants with a defined LocationName:" + varTransWithLocName);
-            System.out.println("Genic Variants with an associated Gene Symbol:" + varWithAssocGene);
-            System.out.println("Variants in INTRON:" + varInINTRON);
-            System.out.println("Variants in 3UTRS:" + varIn3UTR);
-            System.out.println("Variants in 5UTRS:" + varIn5UTR);
-            System.out.println("Variants in EXON:" + varInEXON);
-            System.out.println("Genic Variants with a synonymous/nonsynonymous status:" + varWithSynStat);
-            System.out.println("Genic Variants that are synonymous:" + varSyn);
-            System.out.println("Genic Variants that are NONsynonymous:" + varNonSyn);
-            System.out.println("Genic Variants with PolyPhen Predictions:" + varWithPPPred);
-            System.out.println("BENIGN PolyPhen Predictions:" + varPPBenign);
-            System.out.println("POSSIBLY DAMAGING PolyPhen Predictions:" + varPPPossibly);
-            System.out.println("PROBABLY DAMAGING PolyPhen Predictions:" + varPPProbably);
+            System.out.println("Variants processed:" + counters.get("varNumCount"));
+            System.out.println("Genic Variants processed:" + counters.get("varGenic"));
+            System.out.println("Intergenic Variants processed:" + counters.get("varInterGenic"));
+            System.out.println("Variants near Splice Sites:" + counters.get("varNearSpliceSite"));
+            System.out.println("Variants with depth > 10:" + counters.get("varDepthMoreThan10"));
+            System.out.println("Variants with depth < 5:" + counters.get("varDepthLessThan5"));
+            System.out.println("Variants NOT associated with ANY transcript:" + counters.get("varNotInTranscript"));
+            System.out.println("Variants associated with one or more Transcripts:" + counters.get("varInTranscript"));
+            System.out.println("Genic Variants with a defined LocationName:" + counters.get("varTransWithLocName"));
+            System.out.println("Genic Variants with an associated Gene Symbol:" + counters.get("varWithAssocGene"));
+            System.out.println("Variants in INTRON:" + counters.get("varInINTRON"));
+            System.out.println("Variants in 3UTRS:" + counters.get("varIn3UTR"));
+            System.out.println("Variants in 5UTRS:" + counters.get("varIn5UTR"));
+            System.out.println("Variants in EXON:" + counters.get("varInEXON"));
+            System.out.println("Genic Variants with a synonymous/nonsynonymous status:" + counters.get("varWithSynStat"));
+            System.out.println("Genic Variants that are synonymous:" + counters.get("varSyn"));
+            System.out.println("Genic Variants that are NONsynonymous:" + counters.get("varNonSyn"));
+            System.out.println("Genic Variants with PolyPhen Predictions:" + counters.get("varWithPPPred"));
+            System.out.println("BENIGN PolyPhen Predictions:" + counters.get("varPPBenign"));
+            System.out.println("POSSIBLY DAMAGING PolyPhen Predictions:" + counters.get("varPPPossibly"));
+            System.out.println("PROBABLY DAMAGING PolyPhen Predictions:" + counters.get("varPPProbably"));
             System.out.println("DONE with Chromosome:" + chr);
             System.out.println("GFF3 File SUCCESSFUL!");
         }
@@ -180,7 +150,7 @@ public class CreateGff4CarpeNovo {
 
 
 
-    void printTranscriptGff3(String chr, Gff3ColumnWriter gffWriter, Variant varOB, HashMap<Integer, VarTranscript> varTransHashObj) throws Exception {
+    void printTranscriptGff3(String chr, Gff3ColumnWriter gffWriter, Variant varOB, HashMap<Integer, VarTranscript> varTransHashObj, CounterPool counters, int sampleID) throws Exception {
 
         String transcriptRgdId="";
         String refAA="";
@@ -212,7 +182,7 @@ public class CreateGff4CarpeNovo {
                 nearSpliceSite+=vt.getNearSpliceSite()+",";
 
                 if(vt.getPpObj()!=null){
-                    varWithPPPred++;
+                    counters.increment("varWithPPPred");
                     transcriptPolyPred+=vt.getTranscriptRgdId()+":"+
                             vt.getPpObj().getProteinID()+"||"+
                             vt.getPpObj().getPosition()+"||"+
@@ -223,47 +193,47 @@ public class CreateGff4CarpeNovo {
 
 
                     if(vt.getPpObj().getPrediction().equalsIgnoreCase("benign")){
-                        varPPBenign++;
+                        counters.increment("varPPBenign");
                     }else
                     if(vt.getPpObj().getPrediction().equalsIgnoreCase("possibly damaging")){
-                        varPPPossibly++;
+                        counters.increment("varPPPossibly");
                     }else
                     if(vt.getPpObj().getPrediction().equalsIgnoreCase("probably damaging")){
-                        varPPProbably++;
+                        counters.increment("varPPProbably");
                     }
                 }else{
                     transcriptPolyPred+="NA,";
                 }
 
                 if(vt.getLocName().contains("INTRON")){
-                    varInINTRON++;
+                    counters.increment("varInINTRON");
                 }
                 if(vt.getLocName().contains("EXON")){
-                    varInEXON++;
+                    counters.increment("varInEXON");
                 }
                 if(vt.getLocName().contains("5UTRS")){
-                    varIn5UTR++;
+                    counters.increment("varIn5UTR");
                 }
                 if(vt.getLocName().contains("3UTRS")){
-                    varIn3UTR++;
+                    counters.increment("varIn3UTR");
                 }
 
                 if( vt.getAssociatedGeneSym()!=null ){
-                    varWithAssocGene++;
+                    counters.increment("varWithAssocGene");
                 }
 
                 if( vt.getSynStat()!=null ){
-                    varWithSynStat++;
+                    counters.increment("varWithSynStat");
                     if(vt.getSynStat().equalsIgnoreCase("synonymous")){
-                        varSyn++;
+                        counters.increment("varSyn");
                     }else
                     if(vt.getSynStat().equalsIgnoreCase("nonsynonymous")){
-                        varNonSyn++;
+                        counters.increment("varNonSyn");
                     }
                 }
 
                 if( vt.getNearSpliceSite()!=null ){
-                    varNearSpliceSite++;
+                    counters.increment("varNearSpliceSite");
                 }
             }
         }
@@ -278,11 +248,11 @@ public class CreateGff4CarpeNovo {
         attributesHashMap.put("polyPred", transcriptPolyPred.substring(0, transcriptPolyPred.length()-1));
 
 
-        gffWriter.writeFirst8Columns(chr,getFileSource(),"SNV_"+this.sampleID,varOB.getStart(),varOB.getStart(),".",".",".");
+        gffWriter.writeFirst8Columns(chr,getFileSource(),"SNV_"+sampleID,varOB.getStart(),varOB.getStart(),".",".",".");
         gffWriter.writeAttributes4Gff3(attributesHashMap);
     }
 
-    void printDamagingTranscriptGff3(String chr, Gff3ColumnWriter gffDmgVariantWriter, Variant varOB, HashMap<Integer, VarTranscript> varTransHashObj) throws Exception {
+    void printDamagingTranscriptGff3(String chr, Gff3ColumnWriter gffDmgVariantWriter, Variant varOB, HashMap<Integer, VarTranscript> varTransHashObj, int sampleID) throws Exception {
 
         String transcriptRgdId="";
         String refAA="";
@@ -338,11 +308,11 @@ public class CreateGff4CarpeNovo {
             attributesHashMap.put("nearSpliceSite", nearSpliceSite.substring(0, nearSpliceSite.length() - 1));
             attributesHashMap.put("polyPred", transcriptPolyPred.substring(0, transcriptPolyPred.length() - 1));
 
-            gffDmgVariantWriter.writeFirst8Columns(chr, getFileSource(), "SNV_" + this.sampleID, varOB.getStart(), varOB.getStart(), ".", ".", ".");
+            gffDmgVariantWriter.writeFirst8Columns(chr, getFileSource(), "SNV_" + sampleID, varOB.getStart(), varOB.getStart(), ".", ".", ".");
             gffDmgVariantWriter.writeAttributes4Gff3(attributesHashMap);
         }
     }
-    void printNonTranscriptGFF3(String chr, Gff3ColumnWriter gffWriter, Variant varOB) throws Exception {
+    void printNonTranscriptGFF3(String chr, Gff3ColumnWriter gffWriter, Variant varOB, int sampleID) throws Exception {
         Map<String, String> attributeHashMap = new HashMap<>();
 
         attributeHashMap.put("ID", String.valueOf(varOB.getVariantRgdId()));
@@ -353,11 +323,11 @@ public class CreateGff4CarpeNovo {
         attributeHashMap.put("depth", String.valueOf(varOB.getDepth()));
         attributeHashMap.put("frequency", String.valueOf(varOB.getFreq()));
 
-        gffWriter.writeGff3AllColumns(chr, getFileSource(), "SNV_" + this.sampleID, varOB.getStart(), varOB.getStart(), ".", ".", ".", attributeHashMap);
+        gffWriter.writeGff3AllColumns(chr, getFileSource(), "SNV_" + sampleID, varOB.getStart(), varOB.getStart(), ".", ".", ".", attributeHashMap);
     }
 
 
-    HashMap<Integer, Variant> getVariants(String chrNum) throws Exception{
+    HashMap<Integer, Variant> getVariants(String chrNum, int sampleID) throws Exception{
 
         HashMap<Integer, Variant> newvarHash = new HashMap<>();
 
@@ -544,6 +514,14 @@ public class CreateGff4CarpeNovo {
 
     public void setChromosomes(List<String> chromosomes) {
         this.chromosomes = chromosomes;
+    }
+
+    public boolean isUseMultithreading() {
+        return useMultithreading;
+    }
+
+    public void setUseMultithreading(boolean useMultithreading) {
+        this.useMultithreading = useMultithreading;
     }
 
     Connection getConnection() throws Exception {
