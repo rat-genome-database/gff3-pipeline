@@ -150,6 +150,10 @@ public class CreateGff4CarpeNovo {
             }
         }
 
+        printStats(counters);
+    }
+
+    static void printStats( CounterPool counters ) {
         System.out.println("Variants processed:" + counters.get("varNumCount"));
         System.out.println("Genic Variants processed:" + counters.get("varGenic"));
         System.out.println("Intergenic Variants processed:" + counters.get("varInterGenic"));
@@ -172,10 +176,15 @@ public class CreateGff4CarpeNovo {
         System.out.println("POSSIBLY DAMAGING PolyPhen Predictions:" + counters.get("varPPPossibly"));
         System.out.println("PROBABLY DAMAGING PolyPhen Predictions:" + counters.get("varPPProbably"));
         System.out.println("GFF3 File SUCCESSFUL!");
-
     }
 
     void printTranscriptGff3(String chr, Gff3ColumnWriter gffWriter, Variant varOB, HashMap<Integer, VarTranscript> varTransHashObj, CounterPool counters, int sampleID) throws Exception {
+
+        printTranscriptGff3(chr, gffWriter, varOB, varTransHashObj, counters, sampleID, getFileSource());
+    }
+
+    static void printTranscriptGff3(String chr, Gff3ColumnWriter gffWriter, Variant varOB, HashMap<Integer, VarTranscript> varTransHashObj,
+                             CounterPool counters, int sampleID, String source) throws Exception {
 
         String transcriptRgdId="";
         String refAA="";
@@ -273,11 +282,17 @@ public class CreateGff4CarpeNovo {
         attributesHashMap.put("polyPred", transcriptPolyPred.substring(0, transcriptPolyPred.length()-1));
 
 
-        gffWriter.writeFirst8Columns(chr,getFileSource(),"SNV_"+sampleID,varOB.getStart(),varOB.getStart(),".",".",".");
+        gffWriter.writeFirst8Columns(chr, source,"SNV_"+sampleID,varOB.getStart(),varOB.getStart(),".",".",".");
         gffWriter.writeAttributes4Gff3(attributesHashMap);
     }
 
     void printDamagingTranscriptGff3(String chr, Gff3ColumnWriter gffDmgVariantWriter, Variant varOB, HashMap<Integer, VarTranscript> varTransHashObj, int sampleID) throws Exception {
+
+        printDamagingTranscriptGff3(chr, gffDmgVariantWriter, varOB, varTransHashObj, sampleID, getFileSource());
+    }
+
+    static void printDamagingTranscriptGff3(String chr, Gff3ColumnWriter gffDmgVariantWriter, Variant varOB,
+                                            HashMap<Integer, VarTranscript> varTransHashObj, int sampleID, String source) throws Exception {
 
         String transcriptRgdId="";
         String refAA="";
@@ -293,7 +308,7 @@ public class CreateGff4CarpeNovo {
 
             if( vt.getLocName()!=null ) {
                 if (vt.getPpObj() != null && (vt.getPpObj().getPrediction().equalsIgnoreCase("possibly damaging") ||
-                    vt.getPpObj().getPrediction().equalsIgnoreCase("probably damaging"))) {
+                        vt.getPpObj().getPrediction().equalsIgnoreCase("probably damaging"))) {
                     damaging = true;
                     transcriptRgdId += vt.getTranscriptRgdId() + ",";
                     refAA += vt.getRefAA() + ",";
@@ -305,12 +320,12 @@ public class CreateGff4CarpeNovo {
                     synStatus += vt.getSynStat() + ",";
                     nearSpliceSite += vt.getNearSpliceSite() + ",";
                     transcriptPolyPred += vt.getTranscriptRgdId() + ":" +
-                                vt.getPpObj().getProteinID() + "||" +
-                                vt.getPpObj().getPosition() + "||" +
-                                vt.getPpObj().getAA1() + "||" +
-                                vt.getPpObj().getAA2() + "||" +
-                                vt.getPpObj().getPrediction() + "||" +
-                                vt.getPpObj().getUniprotACC() + ",";
+                            vt.getPpObj().getProteinID() + "||" +
+                            vt.getPpObj().getPosition() + "||" +
+                            vt.getPpObj().getAA1() + "||" +
+                            vt.getPpObj().getAA2() + "||" +
+                            vt.getPpObj().getPrediction() + "||" +
+                            vt.getPpObj().getUniprotACC() + ",";
                 }
             }
         }
@@ -333,11 +348,16 @@ public class CreateGff4CarpeNovo {
             attributesHashMap.put("nearSpliceSite", nearSpliceSite.substring(0, nearSpliceSite.length() - 1));
             attributesHashMap.put("polyPred", transcriptPolyPred.substring(0, transcriptPolyPred.length() - 1));
 
-            gffDmgVariantWriter.writeFirst8Columns(chr, getFileSource(), "SNV_" + sampleID, varOB.getStart(), varOB.getStart(), ".", ".", ".");
+            gffDmgVariantWriter.writeFirst8Columns(chr, source, "SNV_" + sampleID, varOB.getStart(), varOB.getStart(), ".", ".", ".");
             gffDmgVariantWriter.writeAttributes4Gff3(attributesHashMap);
         }
     }
+
     void printNonTranscriptGFF3(String chr, Gff3ColumnWriter gffWriter, Variant varOB, int sampleID) throws Exception {
+        printNonTranscriptGFF3(chr, gffWriter, varOB, sampleID, getFileSource());
+    }
+
+    static void printNonTranscriptGFF3(String chr, Gff3ColumnWriter gffWriter, Variant varOB, int sampleID, String source) throws Exception {
         Map<String, String> attributeHashMap = new HashMap<>();
 
         attributeHashMap.put("ID", String.valueOf(varOB.getVariantRgdId()));
@@ -348,7 +368,7 @@ public class CreateGff4CarpeNovo {
         attributeHashMap.put("depth", String.valueOf(varOB.getDepth()));
         attributeHashMap.put("frequency", String.valueOf(varOB.getFreq()));
 
-        gffWriter.writeGff3AllColumns(chr, getFileSource(), "SNV_" + sampleID, varOB.getStart(), varOB.getStart(), ".", ".", ".", attributeHashMap);
+        gffWriter.writeGff3AllColumns(chr, source, "SNV_" + sampleID, varOB.getStart(), varOB.getStart(), ".", ".", ".", attributeHashMap);
     }
 
 
@@ -401,7 +421,7 @@ public class CreateGff4CarpeNovo {
 
         connection.close();
 
-        System.out.println("-- variants loaded: sample_id="+sampleID+", count="+ Utils.formatThousands(newvarHash.size()));
+        System.out.println("-- variants loaded: sample_id="+sampleID+", chr="+chrNum+", count="+ Utils.formatThousands(newvarHash.size()));
         return newvarHash;
     }
 
