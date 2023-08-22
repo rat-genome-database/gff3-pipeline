@@ -72,8 +72,8 @@ public class Manager {
             handleObjects();
         }
         else if(sampleID!=0 || patientID!=0){
-            if( source==null || toFile==null || getChromosomes()==null ){
-                throw new ArgumentsException("This script requires '-source:' '-toFile:' '-chr:' as parameters");
+            if( source==null || toFile==null  ){
+                throw new ArgumentsException("This script requires '-source:' '-toFile:' as parameters");
             }
 
             CreateGff4CarpeNovo createGffCarpe = new CreateGff4CarpeNovo();

@@ -117,7 +117,7 @@ public class CreateGff4CarpeNovo {
             if( cnt%100000 == 0 ) {
                 System.out.println("  -- processing "+Utils.formatThousands(cnt)+" sampleId="+sampleId);
             }
-            
+
             Variant v = varhashOB.get(variantid);
             String chr = v.getChr();
 
