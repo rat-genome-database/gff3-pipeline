@@ -72,7 +72,7 @@ public class CreateGff4CarpeNovo {
         SequenceRegionWatcher sequenceRegionWatcher1 = new SequenceRegionWatcher(mapKey, gffWriter, dao);
         SequenceRegionWatcher sequenceRegionWatcher2 = new SequenceRegionWatcher(mapKey, gffDmgVariantWriter, dao);
 
-        if( getChromosomes().isEmpty() ) {
+        if( getChromosomes()==null || getChromosomes().isEmpty() ) {
 
             // all chromosomes
             String[] chromosomes = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
