@@ -7,6 +7,7 @@ import edu.mcw.rgd.gff3.dataModel.Polyphen;
 import edu.mcw.rgd.gff3.dataModel.VarTranscript;
 import edu.mcw.rgd.gff3.dataModel.Variant;
 import edu.mcw.rgd.process.CounterPool;
+import edu.mcw.rgd.process.Utils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -71,74 +72,34 @@ public class CreateGff4CarpeNovo {
         SequenceRegionWatcher sequenceRegionWatcher1 = new SequenceRegionWatcher(mapKey, gffWriter, dao);
         SequenceRegionWatcher sequenceRegionWatcher2 = new SequenceRegionWatcher(mapKey, gffDmgVariantWriter, dao);
 
-        for (String chr : getChromosomes()) {
+        if( getChromosomes().isEmpty() ) {
 
-            sequenceRegionWatcher1.emit(chr);
-            sequenceRegionWatcher2.emit(chr);
+            // all chromosomes
+            String[] chromosomes = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+                    "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "X", "Y", "MT"};
+            for( String c: chromosomes ) {
+                sequenceRegionWatcher1.emit(c);
+                sequenceRegionWatcher2.emit(c);
+            }
 
             CounterPool counters = new CounterPool();
 
-            HashMap<Integer, VarTranscript> varTransHashObj;
-            HashMap<Integer, Variant> varhashOB = getVariants(chr, sampleId);
+            HashMap<Integer, Variant> varhashOB = getVariants(null, sampleId);
 
-            for (int variantid : varhashOB.keySet()) {
-                counters.increment("varNumCount");
-                Variant v = varhashOB.get(variantid);
+            process(varhashOB, counters, sampleId, gffWriter, gffDmgVariantWriter, conn);
 
-                if (v.getDepth() > 10) {
-                    counters.increment("varDepthMoreThan10");
-                } else if (v.getDepth() < 5) {
-                    counters.increment("varDepthLessThan5");
-                }
+        } else {
+            for (String chr : getChromosomes()) {
 
-                if (v.getGenicStat() != null) {
-                    if (v.getGenicStat().equalsIgnoreCase("GENIC")) {
-                        counters.increment("varGenic");
-                    } else if (v.getGenicStat().equalsIgnoreCase("INTERGENIC")) {
-                        counters.increment("varInterGenic");
-                    }
-                }
+                sequenceRegionWatcher1.emit(chr);
+                sequenceRegionWatcher2.emit(chr);
 
-                varTransHashObj = getVarGeneTransInfo(variantid, conn);
+                CounterPool counters = new CounterPool();
 
-                if (varTransHashObj.size() == 0) {
+                HashMap<Integer, Variant> varhashOB = getVariants(chr, sampleId);
 
-                    counters.increment("varNotInTranscript");
-                    printNonTranscriptGFF3(chr, gffWriter, v, sampleId);
-
-                } else {
-
-                    counters.increment("varInTranscript");
-                    printTranscriptGff3(chr, gffWriter, v, varTransHashObj, counters, sampleId);
-                    printDamagingTranscriptGff3(chr, gffDmgVariantWriter, v, varTransHashObj, sampleId);
-                }
-
+                process(varhashOB, counters, sampleId, gffWriter, gffDmgVariantWriter, conn);
             }
-
-            System.out.println("\nChromosome:" + chr + " stats-");
-            System.out.println("Variants processed:" + counters.get("varNumCount"));
-            System.out.println("Genic Variants processed:" + counters.get("varGenic"));
-            System.out.println("Intergenic Variants processed:" + counters.get("varInterGenic"));
-            System.out.println("Variants near Splice Sites:" + counters.get("varNearSpliceSite"));
-            System.out.println("Variants with depth > 10:" + counters.get("varDepthMoreThan10"));
-            System.out.println("Variants with depth < 5:" + counters.get("varDepthLessThan5"));
-            System.out.println("Variants NOT associated with ANY transcript:" + counters.get("varNotInTranscript"));
-            System.out.println("Variants associated with one or more Transcripts:" + counters.get("varInTranscript"));
-            System.out.println("Genic Variants with a defined LocationName:" + counters.get("varTransWithLocName"));
-            System.out.println("Genic Variants with an associated Gene Symbol:" + counters.get("varWithAssocGene"));
-            System.out.println("Variants in INTRON:" + counters.get("varInINTRON"));
-            System.out.println("Variants in 3UTRS:" + counters.get("varIn3UTR"));
-            System.out.println("Variants in 5UTRS:" + counters.get("varIn5UTR"));
-            System.out.println("Variants in EXON:" + counters.get("varInEXON"));
-            System.out.println("Genic Variants with a synonymous/nonsynonymous status:" + counters.get("varWithSynStat"));
-            System.out.println("Genic Variants that are synonymous:" + counters.get("varSyn"));
-            System.out.println("Genic Variants that are NONsynonymous:" + counters.get("varNonSyn"));
-            System.out.println("Genic Variants with PolyPhen Predictions:" + counters.get("varWithPPPred"));
-            System.out.println("BENIGN PolyPhen Predictions:" + counters.get("varPPBenign"));
-            System.out.println("POSSIBLY DAMAGING PolyPhen Predictions:" + counters.get("varPPPossibly"));
-            System.out.println("PROBABLY DAMAGING PolyPhen Predictions:" + counters.get("varPPProbably"));
-            System.out.println("DONE with Chromosome:" + chr);
-            System.out.println("GFF3 File SUCCESSFUL!");
         }
 
         gffWriter.close();
@@ -148,7 +109,71 @@ public class CreateGff4CarpeNovo {
         gffDmgVariantWriter.sortInMemory();
     }
 
+    void process( HashMap<Integer, Variant> varhashOB, CounterPool counters, int sampleId,
+                  Gff3ColumnWriter gffWriter, Gff3ColumnWriter gffDmgVariantWriter, Connection conn) throws Exception {
 
+        for (int variantid : varhashOB.keySet()) {
+            int cnt = counters.increment("varNumCount");
+            if( cnt%100000 == 0 ) {
+                System.out.println("  -- processing "+Utils.formatThousands(cnt)+" sampleId="+sampleId);
+            }
+            
+            Variant v = varhashOB.get(variantid);
+            String chr = v.getChr();
+
+            if (v.getDepth() > 10) {
+                counters.increment("varDepthMoreThan10");
+            } else if (v.getDepth() < 5) {
+                counters.increment("varDepthLessThan5");
+            }
+
+            if (v.getGenicStat() != null) {
+                if (v.getGenicStat().equalsIgnoreCase("GENIC")) {
+                    counters.increment("varGenic");
+                } else if (v.getGenicStat().equalsIgnoreCase("INTERGENIC")) {
+                    counters.increment("varInterGenic");
+                }
+            }
+
+            HashMap<Integer, VarTranscript> varTransHashObj = getVarGeneTransInfo(variantid, conn);
+
+            if (varTransHashObj.size() == 0) {
+
+                counters.increment("varNotInTranscript");
+                printNonTranscriptGFF3(chr, gffWriter, v, sampleId);
+
+            } else {
+
+                counters.increment("varInTranscript");
+                printTranscriptGff3(chr, gffWriter, v, varTransHashObj, counters, sampleId);
+                printDamagingTranscriptGff3(chr, gffDmgVariantWriter, v, varTransHashObj, sampleId);
+            }
+        }
+
+        System.out.println("Variants processed:" + counters.get("varNumCount"));
+        System.out.println("Genic Variants processed:" + counters.get("varGenic"));
+        System.out.println("Intergenic Variants processed:" + counters.get("varInterGenic"));
+        System.out.println("Variants near Splice Sites:" + counters.get("varNearSpliceSite"));
+        System.out.println("Variants with depth > 10:" + counters.get("varDepthMoreThan10"));
+        System.out.println("Variants with depth < 5:" + counters.get("varDepthLessThan5"));
+        System.out.println("Variants NOT associated with ANY transcript:" + counters.get("varNotInTranscript"));
+        System.out.println("Variants associated with one or more Transcripts:" + counters.get("varInTranscript"));
+        System.out.println("Genic Variants with a defined LocationName:" + counters.get("varTransWithLocName"));
+        System.out.println("Genic Variants with an associated Gene Symbol:" + counters.get("varWithAssocGene"));
+        System.out.println("Variants in INTRON:" + counters.get("varInINTRON"));
+        System.out.println("Variants in 3UTRS:" + counters.get("varIn3UTR"));
+        System.out.println("Variants in 5UTRS:" + counters.get("varIn5UTR"));
+        System.out.println("Variants in EXON:" + counters.get("varInEXON"));
+        System.out.println("Genic Variants with a synonymous/nonsynonymous status:" + counters.get("varWithSynStat"));
+        System.out.println("Genic Variants that are synonymous:" + counters.get("varSyn"));
+        System.out.println("Genic Variants that are NONsynonymous:" + counters.get("varNonSyn"));
+        System.out.println("Genic Variants with PolyPhen Predictions:" + counters.get("varWithPPPred"));
+        System.out.println("BENIGN PolyPhen Predictions:" + counters.get("varPPBenign"));
+        System.out.println("POSSIBLY DAMAGING PolyPhen Predictions:" + counters.get("varPPPossibly"));
+        System.out.println("PROBABLY DAMAGING PolyPhen Predictions:" + counters.get("varPPProbably"));
+        System.out.println("GFF3 File SUCCESSFUL!");
+
+    }
 
     void printTranscriptGff3(String chr, Gff3ColumnWriter gffWriter, Variant varOB, HashMap<Integer, VarTranscript> varTransHashObj, CounterPool counters, int sampleID) throws Exception {
 
@@ -333,14 +358,28 @@ public class CreateGff4CarpeNovo {
 
         Connection connection = getConnection();
 
-        String findAllVariants = "SELECT v.RGD_ID, m.CHROMOSOME, m.START_POS, m.END_POS, v.REF_NUC, v.VAR_NUC," +
-            "s.TOTAL_DEPTH, s.VAR_FREQ, s.ZYGOSITY_STATUS, m.GENIC_STATUS "+
-            "FROM variant v ,variant_sample_detail s,variant_map_data m "+
-            "WHERE v.rgd_id=s.rgd_id AND m.rgd_id=v.rgd_id AND s.SAMPLE_ID=? AND m.CHROMOSOME=?";
+        PreparedStatement findVar;
 
-        PreparedStatement findVar = connection.prepareStatement(findAllVariants);
-        findVar.setInt(1, sampleID);
-        findVar.setString(2, chrNum);
+        if( chrNum==null ) {
+
+            String sql = "SELECT v.RGD_ID, m.CHROMOSOME, m.START_POS, m.END_POS, v.REF_NUC, v.VAR_NUC," +
+                    "s.TOTAL_DEPTH, s.VAR_FREQ, s.ZYGOSITY_STATUS, m.GENIC_STATUS " +
+                    "FROM variant v ,variant_sample_detail s,variant_map_data m " +
+                    "WHERE v.rgd_id=s.rgd_id AND m.rgd_id=v.rgd_id AND s.SAMPLE_ID=?";
+
+            findVar = connection.prepareStatement(sql);
+            findVar.setInt(1, sampleID);
+
+        } else {
+            String sql = "SELECT v.RGD_ID, m.CHROMOSOME, m.START_POS, m.END_POS, v.REF_NUC, v.VAR_NUC," +
+                    "s.TOTAL_DEPTH, s.VAR_FREQ, s.ZYGOSITY_STATUS, m.GENIC_STATUS " +
+                    "FROM variant v ,variant_sample_detail s,variant_map_data m " +
+                    "WHERE v.rgd_id=s.rgd_id AND m.rgd_id=v.rgd_id AND s.SAMPLE_ID=? AND m.CHROMOSOME=?";
+
+            findVar = connection.prepareStatement(sql);
+            findVar.setInt(1, sampleID);
+            findVar.setString(2, chrNum);
+        }
 
         ResultSet rsvar= findVar.executeQuery();
         while (rsvar.next()) {
@@ -361,6 +400,8 @@ public class CreateGff4CarpeNovo {
         }
 
         connection.close();
+
+        System.out.println("-- variants loaded: sample_id="+sampleID+", count="+ Utils.formatThousands(newvarHash.size()));
         return newvarHash;
     }
 
