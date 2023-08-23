@@ -44,7 +44,7 @@ public class CreateGff4Variants {
 
                     File inFile = f;
                     File outFile = new File(outDir1Name+"/"+fname);
-                    Files.copy( inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    Files.copy( inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
                 }
 
                 // 2: strain specific variants
@@ -54,7 +54,7 @@ public class CreateGff4Variants {
                     //String newName = f.getName().replace("_damaging","");
                     //File outFile = new File(outDir2Name+"/"+newName);
                     File outFile = new File(outDir2Name+"/"+fname);
-                    Files.copy( inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    Files.copy( inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
                 }
             }
         }
