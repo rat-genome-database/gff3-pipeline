@@ -37,19 +37,20 @@ public class CreateGff4Variants {
                 if( !f.isFile() ) {
                     continue;
                 }
-                if( f.getName().endsWith( getSuffix1() )) {
+                String fname = f.getName();
+                if( fname.endsWith( getSuffix1() ) && !fname.contains("damaging") ) {
 
                     File inFile = f;
-                    File outFile = new File(outDir1Name+"/"+f.getName());
+                    File outFile = new File(outDir1Name+"/"+fname);
                     Files.copy( inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 }
 
-                if( f.getName().endsWith( getSuffix2() )) {
+                if( fname.endsWith( getSuffix2() )) {
 
                     File inFile = f;
                     //String newName = f.getName().replace("_damaging","");
                     //File outFile = new File(outDir2Name+"/"+newName);
-                    File outFile = new File(outDir2Name+"/"+f.getName());
+                    File outFile = new File(outDir2Name+"/"+fname);
                     Files.copy( inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 }
             }
