@@ -326,8 +326,7 @@
 
     <bean id="variantManager" class="edu.mcw.rgd.gff3.CreateGff4Variants">
         <property name="outDir1" value="Variants/Damaging Variants"/>
-        <property name="suffix1" value=".gff3_damaging.gz"/>
-<!--        <property name="suffix1" value="_damaging.gff3.gz"/>-->
+        <property name="suffix1" value="_damaging.gff3.gz"/>
 
         <property name="outDir2" value="Variants/Strain Specific Variants"/>
         <property name="suffix2" value=".gff3.gz"/>
@@ -341,6 +340,19 @@
             </map>
         </property>
     </bean>
+
+    <bean id="jbrowse2PrepEva" class="edu.mcw.rgd.gff3.JBrowse2PrepEva">
+        <property name="outDir" value="DbSNPs"/><!-- JBrowse2 category -->
+        <property name="outPrefix" value="EVA Release 4"/>
+        <property name="srcFiles">
+            <map>
+                <entry key="372" value="data/Eva/EVA_mRatBN7.2.gff3.gz"></entry>
+                <entry key="360" value="data/Eva/EVA_Rnor_6.0.gff3.gz"></entry>
+                <entry key="70" value="data/Eva/EVA_Rnor_5.0.gff3.gz"></entry>
+            </map>
+        </property>
+    </bean>
+
 </beans>
 
 

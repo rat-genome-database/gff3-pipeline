@@ -217,6 +217,10 @@ public class Manager {
                             CreateGff4Ensembl ensm = (CreateGff4Ensembl) (bf.getBean("ensemblManager"));
                             ensm.run();
                             return true;
+                        case "jb2_eva":
+                            JBrowse2PrepEva ee = (JBrowse2PrepEva) (bf.getBean("jbrowse2PrepEva"));
+                            ee.run();
+                            return true;
                         case "variants":
                             CreateGff4Variants varm = (CreateGff4Variants) (bf.getBean("variantManager"));
                             varm.run();
