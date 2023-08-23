@@ -38,14 +38,17 @@ public class CreateGff4Variants {
                     continue;
                 }
                 String fname = f.getName();
-                if( fname.endsWith( getSuffix1() ) && !fname.contains("damaging") ) {
+
+                // 1: damaging variants
+                if( fname.endsWith( getSuffix1() ) ) {
 
                     File inFile = f;
                     File outFile = new File(outDir1Name+"/"+fname);
                     Files.copy( inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 }
 
-                if( fname.endsWith( getSuffix2() )) {
+                // 2: strain specific variants
+                if( fname.endsWith( getSuffix2() )  && !fname.contains("damaging") ) {
 
                     File inFile = f;
                     //String newName = f.getName().replace("_damaging","");
