@@ -27,7 +27,7 @@ public class CreateGff4Variants {
 
             String assemblyDir = Manager.getInstance().getAssemblies().get(mapKey);
             // out dir for variants must be 'data/jbrowse2_variants', not 'data/jbrowse2'
-            assemblyDir.replace(getOldOutDirPrefix(), getNewOutDirPrefix());
+            assemblyDir = assemblyDir.replace(getOldOutDirPrefix(), getNewOutDirPrefix());
 
             String outDir1Name = assemblyDir+"/"+getOutDir1();
             new File(outDir1Name).mkdirs();
