@@ -246,7 +246,7 @@
     </bean>
 
     <bean id="proteinDomainManager" class="edu.mcw.rgd.gff3.CreateGff4ProteinDomains">
-        <property name="outDir" value="Gene Models/RGD Gene Features"/>
+        <property name="outDir" value="Gene Models/NCBI Gene Features"/>
         <property name="trackName" value="Protein Domains"/>
         <property name="processedMapKeys">
             <list>
