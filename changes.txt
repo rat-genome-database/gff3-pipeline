@@ -1,3 +1,6 @@
+Aug 28, 2023
+  jbrowse2: config tune ups
+
 Aug 21, 2023
   jbrowse2: variants
 

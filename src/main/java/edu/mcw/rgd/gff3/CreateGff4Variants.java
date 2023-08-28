@@ -8,6 +8,8 @@ import java.util.Map;
 
 public class CreateGff4Variants {
 
+    private String oldOutDirPrefix;
+    private String newOutDirPrefix;
     private String outDir1;
     private String outDir2;
     private String suffix1;
@@ -24,6 +26,8 @@ public class CreateGff4Variants {
             String srcDir = entry.getValue();
 
             String assemblyDir = Manager.getInstance().getAssemblies().get(mapKey);
+            // out dir for variants must be 'data/jbrowse2_variants', not 'data/jbrowse2'
+            assemblyDir.replace(getOldOutDirPrefix(), getNewOutDirPrefix());
 
             String outDir1Name = assemblyDir+"/"+getOutDir1();
             new File(outDir1Name).mkdirs();
@@ -58,6 +62,22 @@ public class CreateGff4Variants {
                 }
             }
         }
+    }
+
+    public String getOldOutDirPrefix() {
+        return oldOutDirPrefix;
+    }
+
+    public void setOldOutDirPrefix(String oldOutDirPrefix) {
+        this.oldOutDirPrefix = oldOutDirPrefix;
+    }
+
+    public String getNewOutDirPrefix() {
+        return newOutDirPrefix;
+    }
+
+    public void setNewOutDirPrefix(String newOutDirPrefix) {
+        this.newOutDirPrefix = newOutDirPrefix;
     }
 
     public String getOutDir1() {

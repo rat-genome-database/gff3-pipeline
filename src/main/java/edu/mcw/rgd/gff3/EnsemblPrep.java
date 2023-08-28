@@ -23,7 +23,6 @@ import java.util.*;
  */
 public class EnsemblPrep {
     private Map<Integer, String> ensemblGff;
-    private Map<Integer, String> ensemblJBrowseDataDirs;
     private String outDir;
     Logger log = LogManager.getLogger("ensembl");
     //SimpleDateFormat sdt = new SimpleDateFormat("yyyyMMdd");
@@ -221,13 +220,5 @@ public class EnsemblPrep {
 
     public void setOutDir(String outDir) {
         this.outDir = outDir;
-    }
-
-    public Map<Integer, String> getEnsemblJBrowseDataDirs() {
-        return ensemblJBrowseDataDirs;
-    }
-
-    public void setEnsemblJBrowseDataDirs(Map<Integer, String> ensemblJBrowseDataDirs) {
-        this.ensemblJBrowseDataDirs = ensemblJBrowseDataDirs;
     }
 }
