@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Aug 28, 2023 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Aug 29, 2023 --" />
 
         <property name="assemblies"><!-- file system location for files for given assembly: must be the same as found in '/ref/fasta' directory -->
             <map>
@@ -10,7 +10,7 @@
                 <entry key="360" value="data/jbrowse2/Rat/rn6" />
                 <entry key= "70" value="data/jbrowse2/Rat/rn5" />
                 <entry key= "60" value="data/jbrowse2/Rat/rn3.4" />
-<!--
+
                 <entry key="239" value="data/jbrowse2/Mouse/mm39" />
                 <entry key= "35" value="data/jbrowse2/Mouse/mm38" />
                 <entry key= "18" value="data/jbrowse2/Mouse/mm37" />
@@ -18,7 +18,7 @@
                 <entry key= "38" value="data/jbrowse2/Human/hg38" />
                 <entry key= "17" value="data/jbrowse2/Human/hg19" />
                 <entry key= "13" value="data/jbrowse2/Human/hg18" />
-
+<!--
                 <entry key="911" value="data/jbrowse2/Pig/susScr11" />
                 <entry key="910" value="data/jbrowse2/Pig/susScr3" />
 
@@ -183,12 +183,20 @@
             <map>
                 <entry key="Rattus_norvegicus.mRatBN7.2.110-feature.gff3.gz" value="Ensembl (mRatBN7.2.110) Features.gff3.gz"/>
                 <entry key="Rattus_norvegicus.mRatBN7.2.110-model.gff3.gz" value="Ensembl (mRatBN7.2.110) Model.gff3.gz"/>
+                <entry key="Mus_musculus.GRCm39.110-feature.gff3.gz" value="Ensembl (GRCm39.110) Features.gff3.gz"/>
+                <entry key="Mus_musculus.GRCm39.110-model.gff3.gz" value="Ensembl (GRCm39.110) Model.gff3.gz"/>
+                <entry key="Homo_sapiens.GRCh38.110-feature.gff3.gz" value="Ensembl (GRCh38.110) Features.gff3.gz"/>
+                <entry key="Homo_sapiens.GRCh38.110-model.gff3.gz" value="Ensembl (GRCh38.110) Model.gff3.gz"/>
             </map>
         </property>
         <property name="mappings2">
             <map>
                 <entry key="Rattus_norvegicus.mRatBN7.2.110-feature.gff3.gz" value="372"/>
                 <entry key="Rattus_norvegicus.mRatBN7.2.110-model.gff3.gz" value="372"/>
+                <entry key="Mus_musculus.GRCm39.110-feature.gff3.gz" value="239"/>
+                <entry key="Mus_musculus.GRCm39.110-model.gff3.gz" value="239"/>
+                <entry key="Homo_sapiens.GRCh38.110-feature.gff3.gz" value="38"/>
+                <entry key="Homo_sapiens.GRCh38.110-model.gff3.gz" value="38"/>
             </map>
         </property>
     </bean>
@@ -335,7 +343,10 @@
             <map>
                 <entry key="372" value="data/Eva/EVA_mRatBN7.2.gff3.gz"></entry>
                 <entry key="360" value="data/Eva/EVA_Rnor_6.0.gff3.gz"></entry>
-                <entry key="70" value="data/Eva/EVA_Rnor_5.0.gff3.gz"></entry>
+                <entry key="70"  value="data/Eva/EVA_Rnor_5.0.gff3.gz"></entry>
+
+                <entry key="239" value="data/Eva/EVA_GRCm39.gff3.gz"></entry>
+                <entry key="35"  value="data/Eva/EVA_GRCm38.gff3.gz"></entry>
             </map>
         </property>
     </bean>

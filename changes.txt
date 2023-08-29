@@ -1,3 +1,6 @@
+Aug 29, 2023
+  jbrowse2: updated config for mouse and human
+
 Aug 28, 2023
   jbrowse2: config tune ups
 
