@@ -1,3 +1,6 @@
+Sep 05, 2023
+  jbrowse2: added generation of phenotypic variants file
+
 Aug 29, 2023
   jbrowse2: updated config for mouse and human
 

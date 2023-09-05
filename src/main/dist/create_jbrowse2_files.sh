@@ -8,6 +8,7 @@ cd $APP_HOME
 SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
 RUNLOAD="$APP_HOME/run.sh"
 
+$RUNLOAD -object:phenotypic_variants > phenotypic_variants.log
 $RUNLOAD -object:diseases > diseases.log
 $RUNLOAD -object:chebi > chebi.log
 $RUNLOAD -object:genes > genes.log

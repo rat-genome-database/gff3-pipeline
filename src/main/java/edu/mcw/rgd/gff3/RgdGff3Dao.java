@@ -15,7 +15,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author mtutaj
@@ -28,12 +27,12 @@ public class RgdGff3Dao {
     private AnnotationDAO annotationDAO = new AnnotationDAO();
     private AssociationDAO assocDao = new AssociationDAO();
     private EvaDAO evaDAO = new EvaDAO();
-    private GeneDAO geneDAO = new GeneDAO();
+    private GeneDAO geneDAO = assocDao.getGeneDAO();
     private MapDAO mapDAO = new MapDAO();
     private OntologyXDAO ontologyXDAO = new OntologyXDAO();
     private QTLDAO qtlDAO = new QTLDAO();
     private SSLPDAO sslpDAO = new SSLPDAO();
-    private StrainDAO strainDAO = new StrainDAO();
+    private StrainDAO strainDAO = assocDao.getStrainDAO();
     private TranscriptDAO trDao = new TranscriptDAO();
     private VariantInfoDAO variantInfoDAO = new VariantInfoDAO();
     private XdbIdDAO xdbDao = new XdbIdDAO();
@@ -70,8 +69,8 @@ public class RgdGff3Dao {
     }
     static private Map<Integer, Gene> _cacheGenes = new ConcurrentHashMap<>();
 
-    public List<Gene> getActiveGenes(String chr, long startPos, long stopPos, int mapKey) throws Exception {
-        return geneDAO.getActiveGenes(chr, startPos, stopPos, mapKey);
+    public List<Gene> getAssociatedGenes(int rgdId) throws Exception {
+        return geneDAO.getAssociatedGenes(rgdId);
     }
 
     public List<Gene> getActiveGenes(int speciesTypeKey) throws Exception {
@@ -185,6 +184,10 @@ public class RgdGff3Dao {
 
     public List<Strain> getMappedStrains(int mapKey) throws Exception {
         return strainDAO.getMappedStrains(mapKey);
+    }
+
+    public List<Strain> getAssociatedStrains(int rgdId) throws Exception {
+        return strainDAO.isMarkerFor(rgdId);
     }
 
     public List<QTL> getActiveQTLs(int speciesTypeKey) throws Exception {

@@ -225,6 +225,10 @@ public class Manager {
                             CreateGff4Variants varm = (CreateGff4Variants) (bf.getBean("variantManager"));
                             varm.run();
                             return true;
+                        case "phenotypic_variants":
+                            CreateGff4PhenotypicVariants pvarm = (CreateGff4PhenotypicVariants) (bf.getBean("phenotypicVariantManager"));
+                            pvarm.run();
+                            return true;
                         case "qtls":
                             CreateGff4QTL qm = (CreateGff4QTL) (bf.getBean("qtlManager"));
                             qm.run();
