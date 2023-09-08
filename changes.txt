@@ -1,3 +1,6 @@
+Sep 08, 2023
+  jbrowse2: added support for species other than rat/mouse/human
+
 Sep 05, 2023
   jbrowse2: added generation of phenotypic variants file
 
