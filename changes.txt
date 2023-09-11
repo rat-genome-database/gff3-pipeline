@@ -1,3 +1,6 @@
+Sep 11, 2023
+  jbrowse2: added generation of file with aliases for every assembly
+
 Sep 08, 2023
   jbrowse2: added support for species other than rat/mouse/human
 

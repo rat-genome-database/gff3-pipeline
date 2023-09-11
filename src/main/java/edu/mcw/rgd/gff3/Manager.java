@@ -257,6 +257,10 @@ public class Manager {
                             CreateGff4Ontology pdw = (CreateGff4Ontology) (bf.getBean("ontologyManager"));
                             pdw.runChebiOntology();
                             return true;
+                        case "aliases":
+                            JBrowse2Aliases jba = new JBrowse2Aliases();
+                            jba.run();
+                            return true;
                         case "gene":
                             objectTypeKey = RgdId.OBJECT_KEY_GENES;
                             break;
