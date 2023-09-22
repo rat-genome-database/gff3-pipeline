@@ -24,18 +24,18 @@ public class NcbiPrep {
 
     public static void main(String[] args) throws Exception {
 
-        String fname = "/chi/GCF_000276665.1_ChiLan1.0_genomic.fna.gz";
+        String fname = "/git/GCF_013052645.1_Mhudiblu_PPA_v0_genomic.fna.gz";
         String outDir = "/data/ref/fasta";
-        prepScaffolds(fname, outDir);
+        //prepScaffolds(fname, outDir);
 
         //prepUthGff3Files();
         //loadUthPositions();
 
-        int mapKey = 634;
+        int mapKey = 513;
         boolean isScaffoldAssembly = false;
 
         // for scaffold assemblies, prefix must be an empty string; for chromosome assemblies it must be 'Chr'
-        final String chrPrefix = isScaffoldAssembly ? "" : "Chr";
+        final String chrPrefix = isScaffoldAssembly ? "" : "chr";
 
         MapDAO dao = new MapDAO();
         List<Chromosome> chromosomes = dao.getChromosomes(mapKey);
@@ -60,7 +60,7 @@ public class NcbiPrep {
                 if( chr==null ) {
                     System.out.println("cannot match chromosome for line: "+line);
                 }
-                chrFileName = outDir+"/"+chr+".fna";
+                chrFileName = outDir+"/"+chr+".fna.gz";
                 System.out.println(chrFileName);
                 out = Utils.openWriter(chrFileName);
                 out.write(">"+chr+"\n");
@@ -76,19 +76,6 @@ public class NcbiPrep {
         System.out.println("OK");
     }
 
-    static void prepScaffolds(String fname, String outDir) throws IOException {
-
-        BufferedReader in = Utils.openReader(fname);
-        String outName = outDir +"/out.fa.gz";
-        BufferedWriter out = Utils.openWriter(outName);
-
-        String line;
-        while( (line = in.readLine())!=null ) {
-
-        }
-        in.close();
-        out.close();
-    }
 
     static String getChrName(String acc, List<Chromosome> chromosomes, String chrPrefix) {
         for( Chromosome ch: chromosomes ) {

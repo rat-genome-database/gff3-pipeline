@@ -1,3 +1,6 @@
+Sep 22, 2023
+  jbrowse2: fixed generation of aliases file
+
 Sep 11, 2023
   jbrowse2: added generation of file with aliases for every assembly
 

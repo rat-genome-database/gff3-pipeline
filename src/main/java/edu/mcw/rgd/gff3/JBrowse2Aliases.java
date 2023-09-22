@@ -4,6 +4,7 @@ import edu.mcw.rgd.datamodel.Chromosome;
 import edu.mcw.rgd.process.Utils;
 
 import java.io.BufferedWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,24 +32,27 @@ public class JBrowse2Aliases {
             List<Chromosome> chromosomes = dao.getChromosomes(mapKey);
             for( Chromosome c: chromosomes ) {
 
-                out.write(c.getChromosome());
+                ArrayList<String> aliases = new ArrayList<>();
 
                 // chromosome specific: add prefix 'chr' and 'Chr'
                 if( !c.getChromosome().startsWith("N") ) { // if not a scaffold
 
-                    out.write("\tchr"+c.getChromosome());
-                    out.write("\tChr"+c.getChromosome());
+                    aliases.add("Chr"+c.getChromosome());
+                    aliases.add("chr"+c.getChromosome());
                 }
+
+                aliases.add(c.getChromosome());
 
                 String refSeqAcc = c.getRefseqId();
                 if( !Utils.isStringEmpty(refSeqAcc) ) {
-                    out.write("\t"+refSeqAcc);
+                    aliases.add(refSeqAcc);
                 }
                 String genbankAcc = c.getGenbankId();
                 if( !Utils.isStringEmpty(genbankAcc) ) {
-                    out.write("\t"+genbankAcc);
+                    aliases.add(genbankAcc);
                 }
 
+                out.write( Utils.concatenate(aliases, "\t") );
                 out.write("\n");
             }
 
