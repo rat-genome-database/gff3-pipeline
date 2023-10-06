@@ -58,7 +58,7 @@ public class CreateGff4GeneAgr {
         gff3Writer.print("#!date-produced "+sdt.format(new Date())+"\n");
         gff3Writer.print("#!species "+ species+"\n");
         gff3Writer.print("#!primary-contact mtutaj@mcw.edu\n");
-        gff3Writer.print("#!tool AGR GFF3 extractor  v 2023-08-08\n");
+        gff3Writer.print("#!tool AGR GFF3 extractor  v 2023-10-06\n");
 
         List<Gene> activeGenes = dao.getActiveGenes(speciesTypeKey);
         Collections.sort(activeGenes, new Comparator<Gene>() {
@@ -281,6 +281,7 @@ public class CreateGff4GeneAgr {
         }
 
         gff3Writer.close();
+        gff3Writer.sortInMemory();
 
         dumpCounters(counters);
     }
