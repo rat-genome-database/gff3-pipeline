@@ -13,7 +13,7 @@ import java.util.zip.GZIPOutputStream;
 /**
  * @author pjayaraman
  * @since 9/9/11
- * convenience class to handle writing of gff or gff3 files
+ * convenience class to handle writing of gff3 files
  */
 public class Gff3ColumnWriter {
 
@@ -29,20 +29,15 @@ public class Gff3ColumnWriter {
 
     // init gff writer in gff3 format; do not compress output
     public Gff3ColumnWriter(String fileName) throws IOException {
-        init(fileName, false, COMPRESS_MODE_NONE);
+        init(fileName, COMPRESS_MODE_NONE);
     }
 
-    // init gff writer in gff or gff3 format; do not compress output
-    public Gff3ColumnWriter(String fileName, boolean useGffFormat) throws IOException {
-        init(fileName, useGffFormat, COMPRESS_MODE_NONE);
+    // init gff writer in gff3 format; do not compress output
+    public Gff3ColumnWriter(String fileName, int compressMode) throws IOException {
+        init(fileName, compressMode);
     }
 
-    // init gff writer in gff or gff3 format; do not compress output
-    public Gff3ColumnWriter(String fileName, boolean useGffFormat, int compressMode) throws IOException {
-        init(fileName, useGffFormat, compressMode);
-    }
-
-    private void init(String fileName, boolean useGffFormat, int compressMode) throws IOException {
+    private void init(String fileName, int compressMode) throws IOException {
         // ensure the directory is created
         int lastSlashPos = fileName.lastIndexOf('/');
         if( lastSlashPos < 0 )
@@ -69,8 +64,7 @@ public class Gff3ColumnWriter {
         }
         gff3FileName = fileName;
 
-        if( !useGffFormat )
-            gff3Writer.println("##gff-version 3");
+        gff3Writer.println("##gff-version 3");
     }
 
     public String getFileName() {
@@ -91,7 +85,7 @@ public class Gff3ColumnWriter {
     //write Gff3 file for each line.
     // This is a combined method that can be called for each line.
     public void writeGff3AllColumns(String chrNum, String source, String type, Integer start, Integer stop, String score,
-                                   String strand, String phase, Map<String, String> attributesMap) throws Exception{
+                                   String strand, String phase, Map<String, String> attributesMap) {
         writeFirst8Columns(chrNum,source, type,start,stop,score,strand,phase);
         writeAttributesForGff3(attributesMap);
     }
@@ -99,7 +93,6 @@ public class Gff3ColumnWriter {
     /**
      * write the first 8 columns for each file; has to be called for each line that gets printed into the gff3 file
      * @return the contents written
-     * @throws Exception
      */
     public String writeFirst8Columns(String chrNum, String source, String type, Integer start, Integer stop, String score, String strand, String phase) {
 
@@ -136,12 +129,6 @@ public class Gff3ColumnWriter {
         return text;
     }
 
-    public void writeAttributes4Gff(Map<String, String> attributesMap) throws Exception{
-        for (Map.Entry<String, String> entry: attributesMap.entrySet()) {
-            gff3Writer.print(entry.getKey() + " \"" + entry.getValue() + "\"; ");
-        }
-    }
-
     //add new line.
     public void addnewLineInGff3(){
         gff3Writer.print("\n");
@@ -151,10 +138,10 @@ public class Gff3ColumnWriter {
      * writes the attributes, then writes the new line; in the end drops all attributes from attr map
      * @param attributesMap map of attributes to be written
      * @return return count of attributes written
-     * @throws Exception
      * @deprecated
      */
-    public int writeAttributesForGff3(Map<String, String> attributesMap) throws Exception{
+    @Deprecated
+    public int writeAttributesForGff3(Map<String, String> attributesMap) {
         int attrCount = 0;
         for( Map.Entry<String, String> entry: attributesMap.entrySet() ) {
             if( attrCount>0 )
@@ -194,10 +181,9 @@ public class Gff3ColumnWriter {
      * note: this method automatically percent-encodes TAB,CR,NL,'%',';','=', per GFF3 spec
      * @param attributesMap map of attributes to be written
      * @return gff3 content
-     * @throws Exception
      */
     static public String prepAttributes4Gff3(Map<String, String> attributesMap) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         int attrCount = 0;
         for( Map.Entry<String, String> entry: attributesMap.entrySet() ) {
             if( attrCount>0 )
@@ -281,7 +267,7 @@ public class Gff3ColumnWriter {
         }
         in.close();
 
-        Collections.sort(lines, new Comparator<String>() {
+        lines.sort(new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
                 String[] cols1 = o1.split("[\\t]", -1);

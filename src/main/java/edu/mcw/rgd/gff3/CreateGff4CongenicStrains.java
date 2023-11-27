@@ -69,7 +69,7 @@ public class CreateGff4CongenicStrains {
 
         String gffFile = fileName + (processCongenicStrains ? getCongenicStrains() : getMutantStrains()) + ".gff3";
 
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, info.getCompressMode());
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, info.getCompressMode());
 
         SequenceRegionWatcher sequenceRegionWatcher = new SequenceRegionWatcher(info.getMapKey(), gff3Writer, dao);
 

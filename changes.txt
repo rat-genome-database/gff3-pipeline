@@ -1,3 +1,7 @@
+Nov 27, 2023
+  jbrowse2: added handling of squirrel HiC_Itri_2 assembly
+  Gff3ColumnWriter: simplified code
+
 Oct 06, 2023
   agr: generated files are sorted abd bgzipped
 

@@ -230,7 +230,7 @@ public class CreatePromoters4Gene {
             int speciesTypeKey = map.getSpeciesTypeKey();
             String species = SpeciesType.getCommonName(speciesTypeKey);
 
-            gff3Writer = new Gff3ColumnWriter(getToDir()+species+"/"+map.getName()+"_promoters.gff3", false, compressMode);
+            gff3Writer = new Gff3ColumnWriter(getToDir()+species+"/"+map.getName()+"_promoters.gff3", compressMode);
             gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
             gff3Writer.print("# Species: "+ species+"\n");
             gff3Writer.print("# Assembly: "+ map.getName()+"\n");

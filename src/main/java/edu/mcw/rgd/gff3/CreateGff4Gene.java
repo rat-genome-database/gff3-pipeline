@@ -83,9 +83,9 @@ public class CreateGff4Gene {
 
         String fileName = info.getToDir() + "/" + speciesName + " " + refseqId+" ("+ucscId+")";
 
-        Gff3ColumnWriter gff3GenesOnly = new Gff3ColumnWriter(fileName+" Genes Only.gff3", false, info.getCompressMode());
+        Gff3ColumnWriter gff3GenesOnly = new Gff3ColumnWriter(fileName+" Genes Only.gff3", info.getCompressMode());
         gff3GenesOnly.print(headerInfo);
-        Gff3ColumnWriter gff3GenesAndTranscripts = new Gff3ColumnWriter(fileName+" Genes and Transcripts.gff3", false, info.getCompressMode());
+        Gff3ColumnWriter gff3GenesAndTranscripts = new Gff3ColumnWriter(fileName+" Genes and Transcripts.gff3", info.getCompressMode());
         gff3GenesAndTranscripts.print(headerInfo);
 
         SequenceRegionWatcher sequenceRegionWatcher1 = new SequenceRegionWatcher(info.getMapKey(), gff3GenesOnly, dao);

@@ -55,8 +55,8 @@ public class CreateGff4CarpeNovo {
 
     void creategff4CarpeNovo(String gffFile, String gffDamagingFile, int mapKey, Connection conn, int sampleId) throws Exception{
 
-        Gff3ColumnWriter gffWriter = new Gff3ColumnWriter(gffFile, false, Gff3ColumnWriter.COMPRESS_MODE_ZIP);
-        Gff3ColumnWriter gffDmgVariantWriter = new Gff3ColumnWriter(gffDamagingFile, false, Gff3ColumnWriter.COMPRESS_MODE_ZIP);
+        Gff3ColumnWriter gffWriter = new Gff3ColumnWriter(gffFile, Gff3ColumnWriter.COMPRESS_MODE_ZIP);
+        Gff3ColumnWriter gffDmgVariantWriter = new Gff3ColumnWriter(gffDamagingFile, Gff3ColumnWriter.COMPRESS_MODE_ZIP);
 
         RgdGff3Dao dao = new RgdGff3Dao();
         SequenceRegionWatcher sequenceRegionWatcher1 = new SequenceRegionWatcher(mapKey, gffWriter, dao);

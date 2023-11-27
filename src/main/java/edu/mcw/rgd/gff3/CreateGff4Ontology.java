@@ -95,7 +95,7 @@ public class CreateGff4Ontology {
             Map<String, Term> mapAccAnnList = getAnnotatedChildTerms(termAcc);
 
             String gffFile = outDir + "/" + trackName + " Related Genes.gff3";
-            Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, compressMode);
+            Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, compressMode);
             gff3Writer.print(gffHeader);
             sequenceRegionWatcher.init(getMapKey(), gff3Writer, dao);
 
@@ -119,7 +119,7 @@ public class CreateGff4Ontology {
             counter = 0;
 
             gffFile = outDir + "/" + trackName + " Related QTLs.gff3";
-            gff3Writer = new Gff3ColumnWriter(gffFile, false, compressMode);
+            gff3Writer = new Gff3ColumnWriter(gffFile, compressMode);
             gff3Writer.print(gffHeader);
             sequenceRegionWatcher.init(getMapKey(), gff3Writer, dao);
 
@@ -156,7 +156,7 @@ public class CreateGff4Ontology {
                 counter = 0;
 
                 gffFile = outDir + "/" + trackName + " Related Strains.gff3";
-                gff3Writer = new Gff3ColumnWriter(gffFile, false, compressMode);
+                gff3Writer = new Gff3ColumnWriter(gffFile, compressMode);
                 gff3Writer.print(gffHeader);
                 sequenceRegionWatcher.init(getMapKey(), gff3Writer, dao);
 

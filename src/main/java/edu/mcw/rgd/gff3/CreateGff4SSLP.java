@@ -57,7 +57,7 @@ public class CreateGff4SSLP {
         System.out.println("========================");
 
 
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(fileName + " Markers.gff3", false, info.getCompressMode());
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(fileName + " Markers.gff3", info.getCompressMode());
         gff3Writer.print("# RAT GENOME DATABASE (https://rgd.mcw.edu/)\n");
         gff3Writer.print("# Species: "+ speciesName+"\n");
         gff3Writer.print("# Assembly: "+ MapManager.getInstance().getMap(info.getMapKey()).getName()+"\n");

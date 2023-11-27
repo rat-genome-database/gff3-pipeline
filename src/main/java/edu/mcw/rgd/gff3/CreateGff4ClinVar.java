@@ -37,7 +37,7 @@ public class CreateGff4ClinVar {
         this.compressMode = compressMode;
 
         String gffFile = getToFile();
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, compressMode);
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, compressMode);
 
         int variantsBadType = 0;
         int variantsWithPos = 0;

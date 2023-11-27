@@ -14,8 +14,11 @@ public class Gff3Utils {
 
         // first, return UCSC assembly symbol, if available
         Map map = MapManager.getInstance().getMap(mapKey);
+        if( map == null ) {
+            return Integer.toString(mapKey);
+        }
         String symbol = map.getUcscAssemblyId();
-        if( symbol!=null ) {
+        if( symbol != null ) {
             return symbol;
         }
 
@@ -23,7 +26,9 @@ public class Gff3Utils {
         // making lowercase the first letter and getting rid of version
         // f.e. 'ChiLan1.0' becomes 'chiLan1'
         int dotPos = map.getName().indexOf('.');
-        symbol = Character.toLowerCase(map.getName().charAt(0)) + map.getName().substring(1, dotPos);
+        if( dotPos > 0 ) {
+            symbol = Character.toLowerCase(map.getName().charAt(0)) + map.getName().substring(1, dotPos);
+        }
         return symbol;
     }
 }

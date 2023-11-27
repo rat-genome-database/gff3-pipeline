@@ -39,7 +39,7 @@ public class CreateGff4GeneAgr {
 
         Counters counters = new Counters();
 
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gff3Path+species+"_RGD_AGR.gff3", false, compressMode);
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gff3Path+species+"_RGD_AGR.gff3", compressMode);
         gff3Writer.setAgrCompatibleFormat(true);
 
         // date format as agreed on DQM meeting on May 18, 2021

@@ -26,13 +26,13 @@ public class CreateGff4DbSnp {
 
     /**
      * generate gff3 file for DB_SNP
-     * @param compress
+     * @param compressMode
      */
     public void run(int compressMode) throws Exception {
         this.compressMode = compressMode;
 
         String gffFile = getToFile();
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, compressMode);
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, compressMode);
 
         int snpsBadType = 0;
 

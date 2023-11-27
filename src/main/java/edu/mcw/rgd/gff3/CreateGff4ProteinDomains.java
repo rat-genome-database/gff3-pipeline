@@ -79,7 +79,7 @@ public class CreateGff4ProteinDomains {
         String fileName = info.getToDir() + "/" + speciesName + " " + refseqId+" ("+ucscId+") ";
 
         String gffFile = fileName + getTrackName() + ".gff3";
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, false, info.getCompressMode());
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, info.getCompressMode());
 
         SequenceRegionWatcher sequenceRegionWatcher = new SequenceRegionWatcher(info.getMapKey(), gff3Writer, dao);
 
