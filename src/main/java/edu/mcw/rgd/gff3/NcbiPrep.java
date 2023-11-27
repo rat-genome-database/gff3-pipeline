@@ -24,15 +24,14 @@ public class NcbiPrep {
 
     public static void main(String[] args) throws Exception {
 
-        String fname = "/git/GCF_013052645.1_Mhudiblu_PPA_v0_genomic.fna.gz";
-        String outDir = "/data/ref/fasta";
-        //prepScaffolds(fname, outDir);
+        String fname = "/Users/mtutaj/Downloads/GCF_000236235.1_SpeTri2.0_genomic.fna.gz";
+        String outDir = "/tmp/d";
 
         //prepUthGff3Files();
         //loadUthPositions();
 
-        int mapKey = 513;
-        boolean isScaffoldAssembly = false;
+        int mapKey = 720;
+        boolean isScaffoldAssembly = true;
 
         // for scaffold assemblies, prefix must be an empty string; for chromosome assemblies it must be 'Chr'
         final String chrPrefix = isScaffoldAssembly ? "" : "chr";

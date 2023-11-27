@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Oct 06, 2023 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Nov 27, 2023 --" />
 
         <property name="assemblies"><!-- file system location for files for given assembly: must be the same as found in '/ref/fasta' directory -->
             <map>
@@ -33,6 +33,7 @@
                 <entry key="44" value="data/jbrowse2/Chinchilla/chiLan1" />
 
                 <entry key="720" value="data/jbrowse2/Squirrel/speTri2" />
+                <entry key="722" value="data/jbrowse2/Squirrel/hicItri2" />
 
                 <entry key="511" value="data/jbrowse2/Bonobo/panPan2" />
                 <entry key="513" value="data/jbrowse2/Bonobo/panPan3" />
@@ -76,6 +77,7 @@
                 <value>44</value>  <!-- Chinchilla/chiLan1 -->
 
                 <value>720</value>  <!-- Squirrel/speTri2 -->
+                <value>722</value>  <!-- Squirrel/hicItri2 -->
 
                 <value>511</value>  <!-- Bonobo/panPan2 -->
                 <value>513</value>  <!-- Bonobo/panPan3 -->
@@ -180,6 +182,7 @@
                 <value>44</value>  <!-- Chinchilla/chiLan1 -->
 
                 <value>720</value>  <!-- Squirrel/speTri2 -->
+                <value>722</value>  <!-- Squirrel/hicItri2 -->
 
                 <value>511</value>  <!-- Bonobo/panPan2 -->
                 <value>513</value>  <!-- Bonobo/panPan3 -->
@@ -270,6 +273,7 @@
                 <value>44</value>  <!-- Chinchilla/chiLan1 -->
 
                 <value>720</value>  <!-- Squirrel/speTri2 -->
+                <value>722</value>  <!-- Squirrel/hicItri2 -->
 
                 <value>511</value>  <!-- Bonobo/panPan2 -->
                 <value>513</value>  <!-- Bonobo/panPan3 -->
