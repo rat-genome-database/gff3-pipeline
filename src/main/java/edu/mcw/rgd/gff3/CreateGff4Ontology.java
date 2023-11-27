@@ -312,7 +312,7 @@ public class CreateGff4Ontology {
     int processAnnotations(Map<String, Term> mapAccAnnList, Gff3Entry entry) throws Exception {
 
         Map<String,String> annotMap = new TreeMap<>();
-        for( Annotation ann: dao.getAnnotationsByAspect(entry.rgdId, getOntAspect()) ) {
+        for( Annotation ann: dao.getAnnotationsByAspect(entry.rgdId, getOntAspect(), getSpeciesTypeKey()) ) {
 
             if (mapAccAnnList.containsKey(ann.getTermAcc())) {
 

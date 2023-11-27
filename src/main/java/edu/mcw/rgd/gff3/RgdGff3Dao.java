@@ -93,9 +93,32 @@ public class RgdGff3Dao {
         return annotationDAO.getAnnotations(rgdId);
     }
 
-    List<Annotation> getAnnotationsByAspect(int rgdId, String aspect) throws Exception {
-        return annotationDAO.getAnnotationsByAspect(rgdId, aspect);
+    List<Annotation> getAnnotationsByAspect(int rgdId, String aspect, int speciesTypeKey) throws Exception {
+
+        // ORIG code
+        // return annotationDAO.getAnnotationsByAspect(rgdId, aspect);
+
+        // NEW code
+        if( speciesTypeKey != oldSpeciesTypeKey ) {
+            synchronized(_annotAspectCache) {
+                _annotAspectCache.clear();
+                oldSpeciesTypeKey = speciesTypeKey;
+            }
+        }
+
+        String key = rgdId+aspect;
+        List<Annotation> list = _annotAspectCache.get(key);
+        if( list != null ) {
+            return list;
+        }
+
+        list = annotationDAO.getAnnotationsByAspect(rgdId, aspect);
+        _annotAspectCache.put(key, list);
+        return list;
     }
+
+    static int oldSpeciesTypeKey;
+    static Map<String, List<Annotation>> _annotAspectCache = new ConcurrentHashMap<>();
 
     /**
      * get all direct descendant (child) terms of given term
