@@ -55,7 +55,6 @@ public class Manager {
 
         System.out.println(creator.getVersion());
 
-        String ucsc = Gff3Utils.getAssemblySymbol(722);
         try{
             creator.doMain(args, bf);
         }catch (Exception e){

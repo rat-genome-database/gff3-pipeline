@@ -81,7 +81,10 @@ public class CreateGff4Gene {
             "# Primary Contact: mtutaj@mcw.edu\n"+
             "# Generated: "+new Date()+"\n";
 
-        String fileName = info.getToDir() + "/" + speciesName + " " + refseqId+" ("+ucscId+")";
+        String fileName = info.getToDir() + "/" + speciesName + " " + refseqId;
+        if( !ucscId.equalsIgnoreCase(refseqId) ) {
+            fileName += " ("+ucscId+")";
+        }
 
         Gff3ColumnWriter gff3GenesOnly = new Gff3ColumnWriter(fileName+" Genes Only.gff3", info.getCompressMode());
         gff3GenesOnly.print(headerInfo);
