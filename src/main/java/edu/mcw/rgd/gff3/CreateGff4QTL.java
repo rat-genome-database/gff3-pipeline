@@ -25,6 +25,7 @@ public class CreateGff4QTL {
             if( assemblyDir==null ) {
                 break;
             }
+            assemblyDir += "/" + MapManager.getInstance().getMap(mapKey).getRefSeqAssemblyName();
 
             CreateInfo info = new CreateInfo();
 

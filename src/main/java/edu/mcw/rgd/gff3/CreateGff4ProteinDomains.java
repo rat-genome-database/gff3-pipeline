@@ -41,6 +41,7 @@ public class CreateGff4ProteinDomains {
                     if( assemblyDir==null ) {
                         return;
                     }
+                    assemblyDir += "/" + MapManager.getInstance().getMap(mapKey).getRefSeqAssemblyName();
 
                     CreateInfo info = new CreateInfo();
 

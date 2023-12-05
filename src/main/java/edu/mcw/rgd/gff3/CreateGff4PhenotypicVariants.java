@@ -3,11 +3,9 @@ package edu.mcw.rgd.gff3;
 import edu.mcw.rgd.dao.impl.RgdVariantDAO;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.datamodel.ontologyx.TermWithStats;
-import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
 
-import java.net.URLEncoder;
 import java.util.Map;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,6 +27,7 @@ public class CreateGff4PhenotypicVariants {
             if( assemblyDir==null ) {
                 break;
             }
+            assemblyDir += "/" + MapManager.getInstance().getMap(mapKey).getRefSeqAssemblyName();
 
             CreateInfo info = new CreateInfo();
 
