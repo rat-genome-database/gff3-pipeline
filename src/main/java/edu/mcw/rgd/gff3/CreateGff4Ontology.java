@@ -289,7 +289,7 @@ public class CreateGff4Ontology {
         entry.name = strObject.getStrain();
         entry.symbol = strObject.getSymbol();
 
-        entry.note = strObject.getOrigin();
+        entry.note = strObject.getOrigination();
         if (entry.note != null) {
             entry.note = URLEncoder.encode(entry.note, "UTF-8");
         }

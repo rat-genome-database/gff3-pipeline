@@ -113,7 +113,7 @@ public class CreateGff4CongenicStrains {
                 counters.increment("mutantStrains");
 
 
-            String note = strain.getOrigin();
+            String note = strain.getOrigination();
             if( note!=null ){
                 note = note.replace(';','-')
                            .replace(","," AND ")
