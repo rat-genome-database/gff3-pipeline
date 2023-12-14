@@ -36,10 +36,19 @@ public class CreateGff4CongenicStrains {
                 return;
             }
 
+            int speciesTypeKey = 0;
+            try {
+                assemblyDir += "/" + Gff3Utils.getAssemblyDirStandardized(mapKey);
+                speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
+            } catch( Exception e ) {
+            }
+            if( speciesTypeKey==0 ) {
+                return;
+            }
+
+
             try {
                 CreateInfo info = new CreateInfo();
-                int speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
-
                 info.setMapKey(mapKey);
                 info.setToDir(assemblyDir + "/" + getOutDir());
                 info.setSpeciesTypeKey(speciesTypeKey);

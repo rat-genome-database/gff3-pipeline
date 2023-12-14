@@ -30,7 +30,7 @@ public class CreateGff4SSLP {
             if( assemblyDir==null ) {
                 break;
             }
-            assemblyDir += "/" + MapManager.getInstance().getMap(mapKey).getRefSeqAssemblyName();
+            assemblyDir += "/" + Gff3Utils.getAssemblyDirStandardized(mapKey);
 
             CreateInfo info = new CreateInfo();
 

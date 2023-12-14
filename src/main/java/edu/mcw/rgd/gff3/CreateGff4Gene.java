@@ -34,7 +34,7 @@ public class CreateGff4Gene {
 
             int speciesTypeKey = 0;
             try {
-                assemblyDir += "/" + MapManager.getInstance().getMap(mapKey).getRefSeqAssemblyName();
+                assemblyDir += "/" + Gff3Utils.getAssemblyDirStandardized(mapKey);
                 speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
             } catch( Exception e ) {
             }

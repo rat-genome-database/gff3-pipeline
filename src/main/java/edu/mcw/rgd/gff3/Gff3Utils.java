@@ -31,4 +31,10 @@ public class Gff3Utils {
         }
         return symbol;
     }
+
+    synchronized static public String getAssemblyDirStandardized( int mapKey ) throws Exception {
+        String assemblyName = MapManager.getInstance().getMap(mapKey).getRefSeqAssemblyName();
+        String stdAssemblyName = assemblyName.replace(" ", "");
+        return stdAssemblyName;
+    }
 }
