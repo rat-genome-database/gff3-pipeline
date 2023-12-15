@@ -67,7 +67,7 @@ public class CreateGff4Ontology {
         if( assemblyDir==null ) {
             return;
         }
-        assemblyDir += "/" + MapManager.getInstance().getMap(mapKey).getRefSeqAssemblyName();
+        assemblyDir += "/" + Gff3Utils.getAssemblyDirStandardized(mapKey);
 
         String mainDir = assemblyDir + "/" + outDirName;
 
