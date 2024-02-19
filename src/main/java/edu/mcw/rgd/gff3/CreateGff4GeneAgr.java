@@ -766,7 +766,7 @@ public class CreateGff4GeneAgr {
         return results;
     }
 
-    boolean positionsOverlapOld(MapData md1, MapData md2) {
+    boolean positionsOverlap(MapData md1, MapData md2) {
         // chromosomes must match
         if( !Utils.stringsAreEqualIgnoreCase(md1.getChromosome(), md2.getChromosome()) )
             return false;
@@ -778,14 +778,13 @@ public class CreateGff4GeneAgr {
         return true;
     }
 
-    boolean positionsOverlap(MapData md1, MapData md2) {
+    boolean positionsOverlap(MapData md1, MapData md2, int marginSize) {
         // chromosomes must match
         if( !Utils.stringsAreEqualIgnoreCase(md1.getChromosome(), md2.getChromosome()) )
             return false;
         // positions must overlap but some margin is allowed
         // since median gene size in humans is 24,000, minimum margin is 24,000
         //  the maximum margin is the current size of the locus
-        int marginSize = 24000;
         if( md1.getStopPos() - md1.getStartPos() > marginSize ) {
             marginSize = md1.getStopPos() - md1.getStartPos();
         }
@@ -804,13 +803,18 @@ public class CreateGff4GeneAgr {
 
         MapData result = (MapData) md.clone();
 
+        List<MapData> mdsOutOfMargin = new ArrayList<>();
+
         for( Transcript tr: trs ) {
             List<MapData> mds = tr.getGenomicPositions();
             for( MapData pos: mds ) {
                 if( !(pos.getMapKey() == mapKey || pos.getMapKey() == mapKeyEnsembl) ) {
                     continue;
                 }
-                if( !positionsOverlap(pos, md) ) {
+                if( !positionsOverlap(pos, result, 24000) ) {
+                    if( pos.getChromosome().equals(md.getChromosome()) ) {
+                        mdsOutOfMargin.add(pos);
+                    }
                     continue;
                 }
 
@@ -829,6 +833,36 @@ public class CreateGff4GeneAgr {
                 }
             }
         }
+/*
+        int posAdjustedCount;
+        do {
+            posAdjustedCount = 0;
+
+            for (MapData pos : mdsOutOfMargin) {
+                if (!(pos.getMapKey() == mapKey || pos.getMapKey() == mapKeyEnsembl)) {
+                    continue;
+                }
+                if (!positionsOverlap(pos, result)) {
+                    continue;
+                }
+
+                boolean posAdjusted = false;
+                if (pos.getStartPos() < result.getStartPos()) {
+                    result.setStartPos(pos.getStartPos());
+                    posAdjusted = true;
+                }
+                if (pos.getStopPos() > result.getStopPos()) {
+                    result.setStopPos(pos.getStopPos());
+                    posAdjusted = true;
+                }
+                if (posAdjusted) {
+                    counters.genesWithAdjustedPos++;
+                    System.out.println("*** adjusted gene pos2 for RGD:" + md.getRgdId());
+                    posAdjustedCount++;
+                }
+            }
+        } while( posAdjustedCount>0 );
+*/
         return result;
     }
 
