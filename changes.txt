@@ -1,3 +1,6 @@
+Feb 19 2024
+  agr gff3: fixed export of merged gene positions
+
 Dec 15 2023
 Dec 14 2023
   jbrowse2: gff3 dir name must not have spaces in the name -- it causes problems with some tools

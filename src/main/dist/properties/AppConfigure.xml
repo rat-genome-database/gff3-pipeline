@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Dec 15, 2023 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Feb 19, 2024 --" />
 
         <property name="assemblies"><!-- file system location for files for given assembly: must be the same as found in '/ref/fasta' directory -->
             <map>
@@ -417,6 +417,92 @@
                 <value>70</value>  <!-- rn5 -->
                 <value>60</value>  <!-- rn4 -->
             </list>
+        </property>
+    </bean>
+
+    <bean id="vepManager" class="edu.mcw.rgd.gff3.CreateGff4Vep">
+        <property name="outDir" value="."/>
+        <property name="processedMapKeys">
+            <list>
+                <value>372</value>  <!-- rn7 -->
+            </list>
+        </property>
+        <property name="allowedEntityTypes"><!-- as of Ensembl build 111: https://useast.ensembl.org/info/docs/tools/vep/script/vep_cache.html#gfftypes -->
+            <set>
+                <value>aberrant_processed_transcript</value>
+                <value>CDS</value>
+                <value>C_gene_segment</value>
+                <value>D_gene_segment</value>
+                <value>exon</value>
+                <value>gene</value>
+                <value>J_gene_segment</value>
+                <value>lincRNA</value>
+                <value>lincRNA_gene</value>
+                <value>miRNA</value>
+                <value>miRNA_gene</value>
+                <value>mRNA</value>
+                <value>mt_gene</value>
+                <value>ncRNA</value>
+                <value>NMD_transcript_variant</value>
+                <value>primary_transcript</value>
+                <value>processed_pseudogene</value>
+                <value>processed_transcript</value>
+                <value>pseudogene</value>
+                <value>pseudogenic_transcript</value>
+                <value>RNA</value>
+                <value>rRNA</value>
+                <value>rRNA_gene</value>
+                <value>snoRNA</value>
+                <value>snoRNA_gene</value>
+                <value>snRNA</value>
+                <value>snRNA_gene</value>
+                <value>supercontig</value>
+                <value>transcript</value>
+                <value>tRNA</value>
+                <value>VD_gene_segment</value>
+                <value>V_gene_segment</value>
+            </set>
+        </property>
+    </bean>
+
+    <bean id="clinvarManager" class="edu.mcw.rgd.gff3.CreateGff4ClinVar">
+        <property name="tracks">
+            <map>
+                <entry key="ClinVar - SNPs and Indels">
+                    <map>
+                        <entry key="single nucleotide variant" value="SNV"/>
+                        <entry key="deletion" value="deletion"/>
+                        <entry key="duplication" value="duplication"/>
+                        <entry key="insertion" value="insertion"/>
+                        <entry key="indel" value="delins"/>
+                        <entry key="variation" value="sequence alteration"/>
+                    </map>
+                </entry>
+
+                <entry key="ClinVar - Copy Number Variations">
+                    <map>
+                        <entry key="copy number loss" value="copy number loss"/>
+                        <entry key="copy number gain" value="copy number gain"/>
+                    </map>
+                </entry>
+
+                <entry key="ClinVar - Microsatellites">
+                    <map>
+                        <entry key="microsatellite" value="microsatellite"/>
+                    </map>
+                </entry>
+
+                <entry key="ClinVar - Structural Variations">
+                    <map>
+                        <entry key="inversion" value="inversion"/>
+                        <entry key="translocation" value="translocation"/>
+                        <entry key="complex" value="complex structural alteration"/>
+                        <entry key="fusion" value="fusion"/>
+                        <entry key="tandem duplication" value="tandem duplication"/>
+                    </map>
+                </entry>
+            </map>
+
         </property>
     </bean>
 </beans>

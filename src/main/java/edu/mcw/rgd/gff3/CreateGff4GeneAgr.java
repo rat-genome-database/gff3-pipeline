@@ -49,16 +49,16 @@ public class CreateGff4GeneAgr {
         gff3Writer.print("#!assembly: "+ MapManager.getInstance().getMap(mapKey).getName()+"\n");
         if( mapKey==372 ) {
             gff3Writer.print("#!annotationSource RefSeq RS_2023_06\n");     // https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_015227675.2/
-            gff3Writer.print("#!annotationSource ENSEMBL 110.72\n"); // https://m.ensembl.org/Rattus_norvegicus/Info/Annotation
+            gff3Writer.print("#!annotationSource ENSEMBL 111.72\n"); // https://m.ensembl.org/Rattus_norvegicus/Info/Annotation
         } else if( mapKey==38 ) {
-            gff3Writer.print("#!annotationSource RefSeq RS_2023_03 (GRCh38.p14)\n");     // https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40
-            gff3Writer.print("#!annotationSource ENSEMBL 110.38 (GRCh38.p14)\n"); // https://m.ensembl.org/Homo_sapiens/Info/Annotation
+            gff3Writer.print("#!annotationSource RefSeq RS_2023_10 (GRCh38.p14)\n");     // https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40
+            gff3Writer.print("#!annotationSource ENSEMBL 111.38 (GRCh38.p14)\n"); // https://m.ensembl.org/Homo_sapiens/Info/Annotation
         }
 
         gff3Writer.print("#!date-produced "+sdt.format(new Date())+"\n");
         gff3Writer.print("#!species "+ species+"\n");
         gff3Writer.print("#!primary-contact mtutaj@mcw.edu\n");
-        gff3Writer.print("#!tool AGR GFF3 extractor  v 2023-10-06\n");
+        gff3Writer.print("#!tool AGR GFF3 extractor  v 2024-02-19\n");
 
         List<Gene> activeGenes = dao.getActiveGenes(speciesTypeKey);
         Collections.sort(activeGenes, new Comparator<Gene>() {
@@ -69,7 +69,8 @@ public class CreateGff4GeneAgr {
         });
 
         System.out.println("active genes: "+activeGenes.size());
-//Collections.shuffle(activeGenes);
+        Collections.shuffle(activeGenes);
+
         int i = 0;
         for( Gene gene: activeGenes ){
             i++;
@@ -90,8 +91,14 @@ public class CreateGff4GeneAgr {
                 continue;
             }
 
-            for( MapData map: geneMap ) {
+            for( MapData md: geneMap ) {
                 counters.genesInEachChromosomeCount++;
+
+                List<Transcript> geneTrs = dao.getTranscriptsForGene(geneRgdId);
+                if (geneTrs.size() > 1) {
+                    counters.genesMoreThanOneMappedTrans++;
+                }
+                MapData map = merge(md, geneTrs, counters);
 
                 String nameOfgene = getNameOfGene(gene, counters);
 
@@ -140,11 +147,6 @@ public class CreateGff4GeneAgr {
                 gff3Writer.writeFirst8Columns(map.getChromosome(), "RGD", "gene", map.getStartPos(), map.getStopPos(), ".", map.getStrand(), ".");
                 gff3Writer.writeAttributes4Gff3(attributes);
 
-
-                List<Transcript> geneTrs = dao.getTranscriptsForGene(geneRgdId);
-                if (geneTrs.size() > 1) {
-                    counters.genesMoreThanOneMappedTrans++;
-                }
 
                 if (geneTrs.size() > 0) {
                     counters.transcriptsCount++;
@@ -202,6 +204,10 @@ public class CreateGff4GeneAgr {
                                 attributes.put("Dbxref", trDbXrefs);
                             }
 
+                            if( trMd.getStartPos()<map.getStartPos() || trMd.getStopPos()> map.getStopPos() ) {
+                                System.out.println("*** pos problem");
+                            }
+
                             String trBiotype = getTrBiotype(gType, tr);
                             gff3Writer.writeFirst8Columns(trMd.getChromosome(), dbName, trBiotype, trMd.getStartPos(), trMd.getStopPos(), ".", trMd.getStrand(), ".");
                             gff3Writer.writeAttributes4Gff3(attributes);
@@ -242,6 +248,10 @@ public class CreateGff4GeneAgr {
                                     } else {
                                         featureId = getUniqueId("f");
                                     }
+                                }
+
+                                if( cf.getStartPos()<map.getStartPos() || cf.getStopPos()> map.getStopPos() ) {
+                                    System.out.println("*** pos problem cf");
                                 }
 
                                 gff3Writer.writeFirst8Columns(cf.getChromosome(), dbName, cf.getCanonicalName(), cf.getStartPos(), cf.getStopPos(), ".", cf.getStrand(), cf.getCodingPhaseStr());
@@ -437,6 +447,8 @@ public class CreateGff4GeneAgr {
         System.out.println(" Genes with NCBI geneIds:" + counters.genesWithNcbiGeneIds);
         if( counters.genesWithNOXdbIds>0 )
             System.out.println(" Genes with NO XDB Ids:" + counters.genesWithNOXdbIds);
+        if( counters.genesWithAdjustedPos>0 )
+            System.out.println(" Genes with Adjusted pos:" + counters.genesWithAdjustedPos);
         System.out.println("GFF3 File SUCCESSFUL!");
         System.out.println("=============================");
     }
@@ -754,7 +766,7 @@ public class CreateGff4GeneAgr {
         return results;
     }
 
-    boolean positionsOverlap(MapData md1, MapData md2) {
+    boolean positionsOverlapOld(MapData md1, MapData md2) {
         // chromosomes must match
         if( !Utils.stringsAreEqualIgnoreCase(md1.getChromosome(), md2.getChromosome()) )
             return false;
@@ -764,6 +776,60 @@ public class CreateGff4GeneAgr {
         if( md2.getStopPos() < md1.getStartPos() )
             return false;
         return true;
+    }
+
+    boolean positionsOverlap(MapData md1, MapData md2) {
+        // chromosomes must match
+        if( !Utils.stringsAreEqualIgnoreCase(md1.getChromosome(), md2.getChromosome()) )
+            return false;
+        // positions must overlap but some margin is allowed
+        // since median gene size in humans is 24,000, minimum margin is 24,000
+        //  the maximum margin is the current size of the locus
+        int marginSize = 24000;
+        if( md1.getStopPos() - md1.getStartPos() > marginSize ) {
+            marginSize = md1.getStopPos() - md1.getStartPos();
+        }
+        if( md2.getStopPos() - md2.getStartPos() > marginSize ) {
+            marginSize = md2.getStopPos() - md2.getStartPos();
+        }
+
+        if( md1.getStopPos() + marginSize < md2.getStartPos() - marginSize )
+            return false;
+        if( md2.getStopPos() + marginSize < md1.getStartPos() - marginSize )
+            return false;
+        return true;
+    }
+
+    MapData merge( MapData md, List<Transcript> trs, Counters counters ) throws CloneNotSupportedException {
+
+        MapData result = (MapData) md.clone();
+
+        for( Transcript tr: trs ) {
+            List<MapData> mds = tr.getGenomicPositions();
+            for( MapData pos: mds ) {
+                if( !(pos.getMapKey() == mapKey || pos.getMapKey() == mapKeyEnsembl) ) {
+                    continue;
+                }
+                if( !positionsOverlap(pos, md) ) {
+                    continue;
+                }
+
+                boolean posAdjusted = false;
+                if( pos.getStartPos() < result.getStartPos() ) {
+                    result.setStartPos( pos.getStartPos() );
+                    posAdjusted = true;
+                }
+                if( pos.getStopPos() > result.getStopPos() ) {
+                    result.setStopPos( pos.getStopPos() );
+                    posAdjusted = true;
+                }
+                if( posAdjusted ) {
+                    counters.genesWithAdjustedPos++;
+                    System.out.println("*** adjusted gene pos for RGD:"+md.getRgdId());
+                }
+            }
+        }
+        return result;
     }
 
     public void setSpeciesTypeKey(int speciesTypeKey) {
@@ -801,6 +867,7 @@ public class CreateGff4GeneAgr {
         int genesGeneNameNull=0;
         int genesWithNcbiGeneIds=0;
         int genesWithNOXdbIds=0;
+        int genesWithAdjustedPos=0;
 
         int transcriptsCount=0;
         int exonCount=0;
