@@ -170,18 +170,6 @@ public class Manager {
                 }
                 break;
 
-            case RgdId.OBJECT_KEY_VARIANTS:
-                CreateGff4ClinVar creator = new CreateGff4ClinVar();
-                if( mapKey>0 && toFile!=null && speciesTypekey!=0 ){
-                    creator.setMapKey(mapKey);
-                    creator.setToFile(toFile);
-                    creator.setSpeciesTypeKey(speciesTypekey);
-                    creator.run(compressMode);
-                }else{
-                    throw new ArgumentsException("This Script requires '-mapKey: -species: -toFile:' as parameters");
-                }
-                break;
-
             case OBJECT_KEY_DB_SNP:
                 CreateGff4DbSnp createGff4DbSnp = new CreateGff4DbSnp();
                 if( mapKey>0 && toFile!=null && speciesTypekey!=0 ){
@@ -261,6 +249,17 @@ public class Manager {
                             JBrowse2Aliases jba = new JBrowse2Aliases();
                             jba.run();
                             return true;
+                        case "vep":
+                            CreateGff4Vep vep = (CreateGff4Vep) (bf.getBean("vepManager"));
+                            vep.run();
+                            return true;
+                        case "clinvar": {
+                            CreateGff4ClinVar clinvar = (CreateGff4ClinVar) (bf.getBean("clinvarManager"));
+                            clinvar.run( 17, "data/Variants/ClinVar/GRCh37.p13", Gff3ColumnWriter.COMPRESS_MODE_BGZIP);
+                            clinvar.run( 38, "data/Variants/ClinVar/GRCh38.p14", Gff3ColumnWriter.COMPRESS_MODE_BGZIP);
+                            return true;
+                        }
+
                         case "gene":
                             objectTypeKey = RgdId.OBJECT_KEY_GENES;
                             break;

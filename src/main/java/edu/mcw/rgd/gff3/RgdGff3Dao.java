@@ -75,6 +75,9 @@ public class RgdGff3Dao {
 
     public List<Gene> getActiveGenes(int speciesTypeKey) throws Exception {
         return geneDAO.getActiveGenes(speciesTypeKey);
+        //String query = "SELECT g.*, r.species_type_key FROM genes g, rgd_ids r WHERE r.object_status='ACTIVE'  AND r.species_type_key=?
+        // AND NVL(gene_type_lc,'*') NOT IN ('splice','allele')  AND r.rgd_id=g.rgd_id AND g.rgd_id=1352628 ORDER BY g.gene_symbol_lc";
+        //return GeneQuery.execute(geneDAO, query, new Object[]{speciesTypeKey});
     }
 
     /**

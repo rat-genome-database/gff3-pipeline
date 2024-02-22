@@ -12,32 +12,25 @@ import java.util.Map;
  */
 public class CreateGff4ClinVar {
 
-    private int mapKey;
-    private int speciesTypeKey;
-    private String toFile;
-    private int compressMode;
-    private Map<String,String> allowedVarTypes;
+    private Map<String, Map<String,String>> tracks;
     private RgdGff3Dao dao = new RgdGff3Dao();
 
-    public CreateGff4ClinVar() {
-
-        allowedVarTypes = new HashMap<>();
-        allowedVarTypes.put("single nucleotide variant","SNV");
-        allowedVarTypes.put("deletion","deletion");
-        allowedVarTypes.put("duplication","duplication");
-        allowedVarTypes.put("insertion","insertion");
-        allowedVarTypes.put("indel","indel");
-        allowedVarTypes.put("variation","sequence alteration");
-    }
-
     /**
-     * generate gff3 file for ClinVar
+     * generate gff3 file for ClinVar  Variants/ClinVar/GRCh37.p13
+     *                                 Variants/ClinVar/GRCh38.p14
      */
-    public void run(int compressMode) throws Exception {
-        this.compressMode = compressMode;
+    public void run(int mapKey, String outDir, int compressMode) throws Exception {
 
-        String gffFile = getToFile();
-        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, compressMode);
+        String gffDir = outDir;
+        System.out.println("  "+outDir);
+
+        // create all gff3 writers
+        Map<String, Gff3ColumnWriter> gffWriters = new HashMap<>();
+        for( String trackName: tracks.keySet() ) {
+            String gffName = gffDir + "/" + trackName + ".gff3";
+            Gff3ColumnWriter gffWriter = new Gff3ColumnWriter(gffName, compressMode);
+            gffWriters.put(trackName, gffWriter);
+        }
 
         int variantsBadType = 0;
         int variantsWithPos = 0;
@@ -53,19 +46,32 @@ public class CreateGff4ClinVar {
         int variantsWithTraitName = 0;
 
         List<VariantInfo> variants = dao.getClinVarVariants();
+        System.out.println("  variants retrieved: "+variants.size());
+
         for( VariantInfo var: variants ) {
 
-            // only small variants are exported
-            String varType = allowedVarTypes.get(var.getObjectType());
-            if( varType==null ) {
+            String trackName = null;
+            String soType = null;
+            Gff3ColumnWriter gff3Writer = null;
+            for( Map.Entry<String, Map<String,String>> entry: tracks.entrySet() ) {
+                Map<String,String> typeMap = entry.getValue();
+                soType = typeMap.get(var.getObjectType());
+                if( soType!=null ) {
+                    trackName = entry.getKey();
+                    gff3Writer = gffWriters.get(trackName);
+                    break;
+                }
+            }
+
+            if( soType==null ) {
                 variantsBadType++;
                 continue;
             }
 
             // these variants must have a position on given assembly
-            List<MapData> mds = dao.getMapData(var.getRgdId(), getMapKey());
+            List<MapData> mds = dao.getMapData(var.getRgdId(), mapKey);
             for( MapData md: mds ) {
-                gff3Writer.writeFirst8Columns(md.getChromosome(), "ClinVar", varType, md.getStartPos(), md.getStopPos(), ".", ".", ".");
+                gff3Writer.writeFirst8Columns(md.getChromosome(), "ClinVar", soType, md.getStartPos(), md.getStopPos(), ".", ".", ".");
                 HashMap<String, String> attributes = new HashMap<>();
 
                 attributes.put("ID", var.getSymbol());
@@ -115,14 +121,19 @@ public class CreateGff4ClinVar {
             }
         }
 
-        gff3Writer.close();
+
+        // close all writers
+        for( Gff3ColumnWriter writer: gffWriters.values() ) {
+            writer.close();
+            writer.sortInMemory();
+        }
 
 
-        System.out.println("ClinVar variants processed:" + variants.size());
-        System.out.println(" variants skipped: type not in(snv,del,dup,ins):" + variantsBadType);
-        System.out.println(" variants with Map position:" + variantsWithPos);
-        System.out.println(" variants with NO map position:" + variantsWithoutPos);
-        System.out.println(" variants with more than one map position:" + variantsWithMultiPos);
+        System.out.println("ClinVar variants processed: " + variants.size());
+        System.out.println(" variants skipped: unsupported type: " + variantsBadType);
+        System.out.println(" variants with a map position: " + variantsWithPos);
+        System.out.println(" variants with nO map position: " + variantsWithoutPos);
+        System.out.println(" variants with more than one map position: " + variantsWithMultiPos);
 
         System.out.println(" variants with clinical significance :" + variantsWithClinicalSignificance);
         System.out.println(" variants with method type           :" + variantsWithMethodType);
@@ -132,37 +143,15 @@ public class CreateGff4ClinVar {
         System.out.println(" variants with submitter             :" + variantsWithSubmitter);
         System.out.println(" variants with trait name            :" + variantsWithTraitName);
 
-        //System.out.println("ClinVar variants having aliases:" + sslpsAliasCount);
-        //System.out.println("ClinVar variants having an associated gene RGDID:" + sslpsAssocGeneRgd);
-
         System.out.print("\nGFF3 File SUCCESSFUL!");
     }
 
-    public int getMapKey() {
-        return mapKey;
+    public Map<String, Map<String,String>> getTracks() {
+        return tracks;
     }
 
-    public void setMapKey(int mapKey) {
-        this.mapKey = mapKey;
-    }
-
-    public int getSpeciesTypeKey() {
-        return speciesTypeKey;
-    }
-
-    public void setSpeciesTypeKey(int speciesTypeKey) {
-        this.speciesTypeKey = speciesTypeKey;
-    }
-
-    public String getToFile() {
-        return toFile;
-    }
-
-    public void setToFile(String toFile) {
-        this.toFile = toFile;
-    }
-
-    public int getCompressMode() {
-        return compressMode;
+    public void setTracks( Map<String, Map<String,String>> tracks ) {
+        this.tracks = tracks;
     }
 }
+
