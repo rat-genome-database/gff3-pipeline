@@ -26,7 +26,7 @@ public class CreateGff4Ensembl {
 
             File inFile = new File(srcFileName);
             File outFile = new File(outPath);
-            Files.copy( inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            //Files.copy( inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
