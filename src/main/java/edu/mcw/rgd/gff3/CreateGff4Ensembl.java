@@ -1,7 +1,6 @@
 package edu.mcw.rgd.gff3;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
@@ -12,7 +11,7 @@ public class CreateGff4Ensembl {
     private Map<String,String> mappings;
     private Map<String,Integer> mappings2;
 
-    public void run() throws IOException {
+    public void run() throws Exception {
 
         for( Map.Entry<String, String> entry: getMappings().entrySet() ) {
 
@@ -20,13 +19,13 @@ public class CreateGff4Ensembl {
 
             int mapKey = getMappings2().get(entry.getKey());
             String assemblyDir = Manager.getInstance().getAssemblies().get(mapKey);
-            String outDir2 = assemblyDir+"/"+getOutDir();
+            String outDir2 = assemblyDir+"/"+getOutDir()+"/"+Gff3Utils.getAssemblyDirStandardized(mapKey);
             new File(outDir2).mkdirs();
             String outPath = outDir2+"/"+entry.getValue();
 
             File inFile = new File(srcFileName);
             File outFile = new File(outPath);
-            //Files.copy( inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy( inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
