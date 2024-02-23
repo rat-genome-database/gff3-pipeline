@@ -467,6 +467,10 @@
     <bean id="clinvarManager" class="edu.mcw.rgd.gff3.CreateGff4ClinVar">
         <property name="tracks">
             <map>
+                <entry key="ClinVar - SNPs and Indels (Pathogenic)">
+                    <map>
+                    </map>
+                </entry>
                 <entry key="ClinVar - SNPs and Indels">
                     <map>
                         <entry key="single nucleotide variant" value="SNV"/>

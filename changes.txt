@@ -1,7 +1,8 @@
 Feb 23 2024
   ensembl-prep: fixed code to handle scaffold-only assemblies
   ensembl: fixed output dir for tracks
-  
+  clinvar: added generation of pathogenic track
+
 Feb 22 2024
   ensembl: updated source to build 111
 

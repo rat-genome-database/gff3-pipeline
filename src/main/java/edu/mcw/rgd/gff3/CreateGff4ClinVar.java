@@ -24,12 +24,22 @@ public class CreateGff4ClinVar {
         String gffDir = outDir;
         System.out.println("  "+outDir);
 
+        Gff3ColumnWriter pathogenicWriter = null;
+        Gff3ColumnWriter snpsIndelsWriter = null;
+
         // create all gff3 writers
         Map<String, Gff3ColumnWriter> gffWriters = new HashMap<>();
         for( String trackName: tracks.keySet() ) {
             String gffName = gffDir + "/" + trackName + ".gff3";
             Gff3ColumnWriter gffWriter = new Gff3ColumnWriter(gffName, compressMode);
             gffWriters.put(trackName, gffWriter);
+
+            if( trackName.equals("ClinVar - SNPs and Indels") ) {
+                snpsIndelsWriter = gffWriter;
+            }
+            if( trackName.equals("ClinVar - SNPs and Indels (Pathogenic)") ) {
+                pathogenicWriter = gffWriter;
+            }
         }
 
         int variantsBadType = 0;
@@ -108,6 +118,12 @@ public class CreateGff4ClinVar {
                     variantsWithTraitName++;
                 }
                 gff3Writer.writeAttributes4Gff3(attributes);
+
+                if( gff3Writer == snpsIndelsWriter && var.getClinicalSignificance().contains("pathogenic") ) {
+
+                    pathogenicWriter.writeFirst8Columns(md.getChromosome(), "ClinVar", soType, md.getStartPos(), md.getStopPos(), ".", ".", ".");
+                    pathogenicWriter.writeAttributes4Gff3(attributes);
+                }
             }
 
             if( mds.isEmpty() ) {
