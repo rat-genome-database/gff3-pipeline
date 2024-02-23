@@ -331,7 +331,7 @@
                 <entry key="512" value="https://ftp.ensembl.org/pub/current_gff3/pan_paniscus/Pan_paniscus.panpan1.1.111.gff3.gz"></entry>
                 <entry key="638" value="https://ftp.ensembl.org/pub/current_gff3/canis_lupus_familiaris/Canis_lupus_familiaris.ROS_Cfam_1.0.111.gff3.gz"></entry>
                 <entry key="45"  value="https://ftp.ensembl.org/pub/current_gff3/chinchilla_lanigera/Chinchilla_lanigera.ChiLan1.0.111.gff3.gz"></entry>
-                <entry key="1312" value="https://ftp.ensembl.org/pub/release-110/gff3/chlorocebus_sabaeus/Chlorocebus_sabaeus.ChlSab1.1.111.chr.gff3.gz"></entry>
+                <entry key="1312" value="https://ftp.ensembl.org/pub/current_gff3/chlorocebus_sabaeus/Chlorocebus_sabaeus.ChlSab1.1.111.chr.gff3.gz"></entry>
                 <entry key="1411" value="https://ftp.ensembl.org/pub/current_gff3/heterocephalus_glaber_female/Heterocephalus_glaber_female.Naked_mole-rat_maternal.111.gff3.gz"></entry>
             </map>
         </property>
