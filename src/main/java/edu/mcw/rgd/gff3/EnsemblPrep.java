@@ -73,6 +73,14 @@ public class EnsemblPrep {
                         skippedHashLines++;
                         continue;
                     }
+
+                    if (line.startsWith("##sequence-region")) {
+                        String[] words = line.split("[\\s]+");
+                        String refSeqAcc = genbankToRefseqAccMap.get(words[1]);
+                        if( refSeqAcc!=null ) {
+                            line = line.replace(words[1], refSeqAcc);
+                        }
+                    }
                     modelFile.write(line + "\n");
                     featureFile.write(line + "\n");
                     commentLines++;
@@ -82,8 +90,8 @@ public class EnsemblPrep {
                 if (line.contains("ID=chromosome:") || line.contains("ID=region:") ) {
                     continue;
                 }
-                // process supercontig lines
-                if (line.contains("ID=supercontig:")) {
+                // skip supercontig/scaffold lines
+                if (line.contains("ID=supercontig:") || line.contains("ID=scaffold:")) {
                     continue;
                 }
                 // convert description attr into notes
@@ -164,45 +172,15 @@ public class EnsemblPrep {
                 continue;
             }
             // process supercontig lines
-            if( line.contains("ID=supercontig:") ) {
+            if( processScaffoldEntry( line, "ID=supercontig:", genbankToRefseqAccMap) ) {
                 //AGCD01080321.1	Ensembl	supercontig	1	2322	.	.	.	ID=supercontig:AGCD01080321.1;Alias=NW_004956926.1
-                int pos2 = line.indexOf("ID=supercontig:") + "ID=supercontig:".length();
-                int pos3 = line.indexOf(";Alias=", pos2);
-                int pos4 = line.indexOf(".", pos3);
-                String genbankAcc = line.substring(pos2, pos3);
-                String refseqAcc;
-                if( pos4>pos3 ) {
-                    refseqAcc = line.substring(pos3 + ";Alias=".length(), pos4);
-                } else {
-                    refseqAcc = line.substring(pos3 + ";Alias=".length()).trim();
-                }
-                int pos5 = refseqAcc.indexOf(",");
-                if( pos5>0 ) {
-                    refseqAcc = refseqAcc.substring(pos5+1);
-                }
-                genbankToRefseqAccMap.put(genbankAcc, refseqAcc);
                 skippedChrLines++;
                 continue;
             }
 
             // process scaffold lines
-            if( line.contains("ID=scaffold:") ) {
+            if( processScaffoldEntry( line, "ID=scaffold:", genbankToRefseqAccMap) ) {
                 //AGCD01078334.1	ChiLan1.0	scaffold	1	21759	.	.	.	ID=scaffold:AGCD01078334.1;Alias=NW_004955781.1
-                int pos2 = line.indexOf("ID=scaffold:") + "ID=scaffold:".length();
-                int pos3 = line.indexOf(";Alias=", pos2);
-                int pos4 = line.indexOf(".", pos3);
-                String genbankAcc = line.substring(pos2, pos3);
-                String refseqAcc;
-                if( pos4>pos3 ) {
-                    refseqAcc = line.substring(pos3 + ";Alias=".length(), pos4);
-                } else {
-                    refseqAcc = line.substring(pos3 + ";Alias=".length()).trim();
-                }
-                int pos5 = refseqAcc.indexOf(",");
-                if( pos5>0 ) {
-                    refseqAcc = refseqAcc.substring(pos5+1);
-                }
-                genbankToRefseqAccMap.put(genbankAcc, refseqAcc);
                 skippedChrLines++;
                 continue;
             }
@@ -215,6 +193,33 @@ public class EnsemblPrep {
         System.out.println("skipped chromosome lines: "+skippedChrLines);
 
         return genbankToRefseqAccMap;
+    }
+
+    static boolean processScaffoldEntry(String line, String pattern, Map<String,String> genbankToRefseqAccMap) {
+
+        // process scaffold lines
+        if( line.contains(pattern) ) {
+            //AGCD01078334.1	ChiLan1.0	scaffold	1	21759	.	.	.	ID=scaffold:AGCD01078334.1;Alias=NW_004955781.1
+            int pos2 = line.indexOf(pattern) + pattern.length();
+            int pos3 = line.indexOf(";Alias=", pos2);
+            int pos4 = line.indexOf(".", pos3);
+            String genbankAcc = line.substring(pos2, pos3);
+            String refseqAcc;
+            String refSeqAccFull = line.substring(pos3 + ";Alias=".length()).trim();
+            if( pos4>pos3 ) {
+                refseqAcc = line.substring(pos3 + ";Alias=".length(), pos4);
+            } else {
+                refseqAcc = refSeqAccFull;
+            }
+            int pos5 = refseqAcc.indexOf(",");
+            if( pos5>0 ) {
+                refseqAcc = refseqAcc.substring(pos5+1);
+            }
+
+            genbankToRefseqAccMap.put(genbankAcc, refseqAcc);
+            return true;
+        }
+        return false;
     }
 
     String downloadEnsemblGffFile(String file) throws Exception{
