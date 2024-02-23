@@ -184,6 +184,28 @@ public class EnsemblPrep {
                 skippedChrLines++;
                 continue;
             }
+
+            // process scaffold lines
+            if( line.contains("ID=scaffold:") ) {
+                //AGCD01078334.1	ChiLan1.0	scaffold	1	21759	.	.	.	ID=scaffold:AGCD01078334.1;Alias=NW_004955781.1
+                int pos2 = line.indexOf("ID=scaffold:") + "ID=scaffold:".length();
+                int pos3 = line.indexOf(";Alias=", pos2);
+                int pos4 = line.indexOf(".", pos3);
+                String genbankAcc = line.substring(pos2, pos3);
+                String refseqAcc;
+                if( pos4>pos3 ) {
+                    refseqAcc = line.substring(pos3 + ";Alias=".length(), pos4);
+                } else {
+                    refseqAcc = line.substring(pos3 + ";Alias=".length()).trim();
+                }
+                int pos5 = refseqAcc.indexOf(",");
+                if( pos5>0 ) {
+                    refseqAcc = refseqAcc.substring(pos5+1);
+                }
+                genbankToRefseqAccMap.put(genbankAcc, refseqAcc);
+                skippedChrLines++;
+                continue;
+            }
         }
 
         // close the files
