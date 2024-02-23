@@ -355,8 +355,8 @@
                 <entry key="Canis_lupus_familiaris.ROS_Cfam_1.0.111-model.gff3.gz" value="Ensembl (ROS_Cfam_1.0.111) Model.gff3.gz"/>
                 <entry key="Chinchilla_lanigera.ChiLan1.0.111-feature.gff3.gz" value="Ensembl (ChiLan1.0.111) Features.gff3.gz"/>
                 <entry key="Chinchilla_lanigera.ChiLan1.0.111-model.gff3.gz" value="Ensembl (ChiLan1.0.111) Model.gff3.gz"/>
-                <entry key="Chlorocebus_sabaeus.ChlSab1.1.111-feature.gff3.gz" value="Ensembl (ChlSab1.1.111) Features.gff3.gz"/>
-                <entry key="Chlorocebus_sabaeus.ChlSab1.1.111-model.gff3.gz" value="Ensembl (ChlSab1.1.111) Model.gff3.gz"/>
+                <entry key="Chlorocebus_sabaeus.ChlSab1.1.111.chr-feature.gff3.gz" value="Ensembl (ChlSab1.1.111) Features.gff3.gz"/>
+                <entry key="Chlorocebus_sabaeus.ChlSab1.1.111.chr-model.gff3.gz" value="Ensembl (ChlSab1.1.111) Model.gff3.gz"/>
                 <entry key="Heterocephalus_glaber_female.Naked_mole-rat_maternal.111-feature.gff3.gz" value="Ensembl (Naked_mole-rat_maternal.111) Features.gff3.gz"/>
                 <entry key="Heterocephalus_glaber_female.Naked_mole-rat_maternal.111-model.gff3.gz" value="Ensembl (Naked_mole-rat_maternal.111) Model.gff3.gz"/>
             </map>
