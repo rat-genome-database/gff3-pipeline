@@ -16,6 +16,8 @@ public class Variant {
     private String genicStat;
     private String zygosity;
 
+    private String varType;
+
     public int getVariantRgdId() {
         return variantRgdId;
     }
@@ -94,6 +96,14 @@ public class Variant {
 
     public void setFreq(int freq) {
         this.freq = freq;
+    }
+
+    public String getVarType() {
+        return varType;
+    }
+
+    public void setVarType(String varType) {
+        this.varType = varType;
     }
 }
 

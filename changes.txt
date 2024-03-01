@@ -1,3 +1,7 @@
+Mar 01 2024
+  carpe-variants: fixes of positions for non-snvs,
+                  export variant type in column 3 of gff3 file
+
 Feb 23 2024
   ensembl-prep: fixed code to handle scaffold-only assemblies
   ensembl: fixed output dir for tracks

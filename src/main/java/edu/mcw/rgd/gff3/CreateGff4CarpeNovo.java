@@ -8,6 +8,7 @@ import edu.mcw.rgd.gff3.dataModel.VarTranscript;
 import edu.mcw.rgd.gff3.dataModel.Variant;
 import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
+import edu.mcw.rgd.process.mapping.MapManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -58,6 +59,16 @@ public class CreateGff4CarpeNovo {
         Gff3ColumnWriter gffWriter = new Gff3ColumnWriter(gffFile, Gff3ColumnWriter.COMPRESS_MODE_ZIP);
         Gff3ColumnWriter gffDmgVariantWriter = new Gff3ColumnWriter(gffDamagingFile, Gff3ColumnWriter.COMPRESS_MODE_ZIP);
 
+        String msg = "#RGD SAMPLE ID: "+sampleId+"\n";
+        gffWriter.print(msg);
+        gffDmgVariantWriter.print(msg);
+
+        String assemblyName = MapManager.getInstance().getMap(mapKey).getRefSeqAssemblyName();
+        msg = "#ASSEMBLY: "+assemblyName+"\n";
+        gffWriter.print(msg);
+        gffDmgVariantWriter.print(msg);
+
+
         RgdGff3Dao dao = new RgdGff3Dao();
         SequenceRegionWatcher sequenceRegionWatcher1 = new SequenceRegionWatcher(mapKey, gffWriter, dao);
         SequenceRegionWatcher sequenceRegionWatcher2 = new SequenceRegionWatcher(mapKey, gffDmgVariantWriter, dao);
@@ -99,7 +110,7 @@ public class CreateGff4CarpeNovo {
 
 
         String sql = "SELECT v.RGD_ID, m.CHROMOSOME, m.START_POS, m.END_POS, v.REF_NUC, v.VAR_NUC," +
-                "s.TOTAL_DEPTH, s.VAR_FREQ, s.ZYGOSITY_STATUS, m.GENIC_STATUS " +
+                "s.TOTAL_DEPTH, s.VAR_FREQ, s.ZYGOSITY_STATUS, m.GENIC_STATUS, v.variant_type " +
                 "FROM variant v ,variant_sample_detail s,variant_map_data m " +
                 "WHERE v.rgd_id=s.rgd_id AND m.rgd_id=v.rgd_id AND s.SAMPLE_ID=?";
 
@@ -120,6 +131,19 @@ public class CreateGff4CarpeNovo {
             v.setFreq(rsvar.getInt(8));
             v.setZygosity(rsvar.getString(9));
             v.setGenicStat(rsvar.getString(10));
+            v.setVarType(rsvar.getString(11));
+
+            // positions for SNVs: END_POS must be always the same as START_POS
+            if( v.getVarType().equals("snv") ) {
+                v.setStop( v.getStart() );
+            }
+            // MNVs: subtract 1 from stop pos
+            if( v.getVarType().equals("mnv") ) {
+                int newStopPos = v.getStop()-1;
+                if( newStopPos >= v.getStart() ) {
+                    v.setStop(newStopPos);
+                }
+            }
 
             int cnt = counters.increment("varNumCount");
             if( cnt%100000 == 0 ) {
@@ -147,13 +171,13 @@ public class CreateGff4CarpeNovo {
             if (varTransHashObj.size() == 0) {
 
                 counters.increment("varNotInTranscript");
-                printNonTranscriptGFF3(chr, gffWriter, v, sampleId, getFileSource());
+                printNonTranscriptGFF3(chr, gffWriter, v, getFileSource());
 
             } else {
 
                 counters.increment("varInTranscript");
-                printTranscriptGff3(chr, gffWriter, v, varTransHashObj, counters, sampleId, getFileSource());
-                printDamagingTranscriptGff3(chr, gffDmgVariantWriter, v, varTransHashObj, sampleId, getFileSource());
+                printTranscriptGff3(chr, gffWriter, v, varTransHashObj, counters, getFileSource());
+                printDamagingTranscriptGff3(chr, gffDmgVariantWriter, v, varTransHashObj, getFileSource());
             }
         }
         findVarTran.close();
@@ -303,7 +327,7 @@ public class CreateGff4CarpeNovo {
     }
 
     static void printTranscriptGff3(String chr, Gff3ColumnWriter gffWriter, Variant varOB, HashMap<Integer, VarTranscript> varTransHashObj,
-                                    CounterPool counters, int sampleID, String source) throws Exception {
+                                    CounterPool counters, String source) throws Exception {
 
         String transcriptRgdId="";
         String refAA="";
@@ -318,8 +342,8 @@ public class CreateGff4CarpeNovo {
         attributesHashMap.put("ID", String.valueOf(varOB.getVariantRgdId()));
         attributesHashMap.put("Name", String.valueOf(varOB.getVariantRgdId()));
         attributesHashMap.put("Alias", String.valueOf(varOB.getVariantRgdId()));
-        attributesHashMap.put("reference", varOB.getRef());
-        attributesHashMap.put("variant", varOB.getVar());
+        attributesHashMap.put("reference", Utils.NVL(varOB.getRef(), "-"));
+        attributesHashMap.put("variant", Utils.NVL(varOB.getVar(), "-"));
         attributesHashMap.put("depth", String.valueOf(varOB.getDepth()));
         attributesHashMap.put("frequency", String.valueOf(varOB.getFreq()));
 
@@ -401,12 +425,12 @@ public class CreateGff4CarpeNovo {
         attributesHashMap.put("polyPred", transcriptPolyPred.substring(0, transcriptPolyPred.length()-1));
 
 
-        gffWriter.writeFirst8Columns(chr, source,"SNV_"+sampleID,varOB.getStart(),varOB.getStart(),".",".",".");
+        gffWriter.writeFirst8Columns(chr, source,getSoVarType(varOB.getVarType()), varOB.getStart(), varOB.getStop(),".",".",".");
         gffWriter.writeAttributes4Gff3(attributesHashMap);
     }
 
     static void printDamagingTranscriptGff3(String chr, Gff3ColumnWriter gffDmgVariantWriter, Variant varOB,
-                                            HashMap<Integer, VarTranscript> varTransHashObj, int sampleID, String source) throws Exception {
+                                            HashMap<Integer, VarTranscript> varTransHashObj, String source) throws Exception {
 
         String transcriptRgdId="";
         String refAA="";
@@ -449,8 +473,8 @@ public class CreateGff4CarpeNovo {
             attributesHashMap.put("ID", String.valueOf(varOB.getVariantRgdId()));
             attributesHashMap.put("Name", String.valueOf(varOB.getVariantRgdId()));
             attributesHashMap.put("Alias", String.valueOf(varOB.getVariantRgdId()));
-            attributesHashMap.put("reference", varOB.getRef());
-            attributesHashMap.put("variant", varOB.getVar());
+            attributesHashMap.put("reference", Utils.NVL(varOB.getRef(), "-"));
+            attributesHashMap.put("variant", Utils.NVL(varOB.getVar(), "-"));
             attributesHashMap.put("depth", String.valueOf(varOB.getDepth()));
             attributesHashMap.put("frequency", String.valueOf(varOB.getFreq()));
             attributesHashMap.put("transcriptRGDID", transcriptRgdId.substring(0, transcriptRgdId.length() - 1));
@@ -462,23 +486,37 @@ public class CreateGff4CarpeNovo {
             attributesHashMap.put("nearSpliceSite", nearSpliceSite.substring(0, nearSpliceSite.length() - 1));
             attributesHashMap.put("polyPred", transcriptPolyPred.substring(0, transcriptPolyPred.length() - 1));
 
-            gffDmgVariantWriter.writeFirst8Columns(chr, source, "SNV_" + sampleID, varOB.getStart(), varOB.getStart(), ".", ".", ".");
+            gffDmgVariantWriter.writeFirst8Columns(chr, source, getSoVarType(varOB.getVarType()), varOB.getStart(), varOB.getStop(), ".", ".", ".");
             gffDmgVariantWriter.writeAttributes4Gff3(attributesHashMap);
         }
     }
 
-    static void printNonTranscriptGFF3(String chr, Gff3ColumnWriter gffWriter, Variant varOB, int sampleID, String source) throws Exception {
+    static void printNonTranscriptGFF3(String chr, Gff3ColumnWriter gffWriter, Variant varOB, String source) throws Exception {
         Map<String, String> attributeHashMap = new HashMap<>();
 
         attributeHashMap.put("ID", String.valueOf(varOB.getVariantRgdId()));
         attributeHashMap.put("Name", String.valueOf(varOB.getVariantRgdId()));
         attributeHashMap.put("Alias", String.valueOf(varOB.getVariantRgdId()));
-        attributeHashMap.put("reference", varOB.getRef());
-        attributeHashMap.put("variant", varOB.getVar());
+        attributeHashMap.put("reference", Utils.NVL(varOB.getRef(), "-"));
+        attributeHashMap.put("variant", Utils.NVL(varOB.getVar(), "-"));
         attributeHashMap.put("depth", String.valueOf(varOB.getDepth()));
         attributeHashMap.put("frequency", String.valueOf(varOB.getFreq()));
 
-        gffWriter.writeGff3AllColumns(chr, source, "SNV_" + sampleID, varOB.getStart(), varOB.getStart(), ".", ".", ".", attributeHashMap);
+        gffWriter.writeGff3AllColumns(chr, source, getSoVarType(varOB.getVarType()), varOB.getStart(), varOB.getStop(), ".", ".", ".", attributeHashMap);
+    }
+
+    static String getSoVarType( String varTypeInRgd ) {
+
+        return switch (varTypeInRgd) {
+            case "snv" -> "SNV";
+            case "ins", "insertion" -> "insertion";
+            case "del", "deletion" -> "deletion";
+            case "delins" -> "delins";
+            case "mnv" -> "MNV";
+            case "tandem_repeat" -> "tandem_repeat";
+            case "sequence_alteration" -> "sequence_alteration";
+            default -> varTypeInRgd;
+        };
     }
 
     public void setFileSource(String fileSource) {
