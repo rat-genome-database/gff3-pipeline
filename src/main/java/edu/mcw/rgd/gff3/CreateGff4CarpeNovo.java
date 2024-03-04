@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
+import java.util.concurrent.ForkJoinPool;
 
 /**
  * @author pjayaraman
@@ -31,12 +32,17 @@ public class CreateGff4CarpeNovo {
         sampleDAO.setDataSource(DataSourceFactory.getInstance().getCarpeNovoDataSource());
         List<Sample> samples = sampleDAO.getSamples(patientId);
 
-        int sampleNr = 0;
-        for (Sample sample : samples) {
-            sampleNr++;
-            System.out.println("SAMPLE "+sample.getId()+";   "+sampleNr+"/"+samples.size());
-
-            createGff3ForSample(sample.getId());
+        int maxThreadCount = 10;
+        {
+            ForkJoinPool customThreadPool = new ForkJoinPool(maxThreadCount);
+            customThreadPool.submit(() -> samples.parallelStream().forEach(sample -> {
+                try {
+                    createGff3ForSample(sample.getId());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            })).get();
+            customThreadPool.shutdown();
         }
     }
 

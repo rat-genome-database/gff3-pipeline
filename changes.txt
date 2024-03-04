@@ -1,3 +1,6 @@
+Mar 04 2024
+  carpe-variants: fixes of positions for deletions; processing in 10 simultaneous threads
+
 Mar 01 2024
   carpe-variants: fixes of positions for non-snvs,
                   export variant type in column 3 of gff3 file
