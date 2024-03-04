@@ -134,13 +134,20 @@ public class CreateGff4CarpeNovo {
             v.setVarType(rsvar.getString(11));
 
             // positions for SNVs: END_POS must be always the same as START_POS
-            if( v.getVarType().equals("snv") ) {
+            if( v.getVarType().equalsIgnoreCase("snv") ) {
                 v.setStop( v.getStart() );
             }
             // MNVs: subtract 1 from stop pos
-            if( v.getVarType().equals("mnv") ) {
+            if( v.getVarType().equalsIgnoreCase("mnv") ) {
                 int newStopPos = v.getStop()-1;
                 if( newStopPos >= v.getStart() ) {
+                    v.setStop(newStopPos);
+                }
+            }
+            // deletions
+            if( v.getVarType().equalsIgnoreCase("del") || v.getVarType().equalsIgnoreCase("deletion") ) {
+                int newStopPos = v.getStart() + v.getRef().length() - 1;
+                if( newStopPos != v.getStop() ) {
                     v.setStop(newStopPos);
                 }
             }
@@ -341,7 +348,6 @@ public class CreateGff4CarpeNovo {
 
         attributesHashMap.put("ID", String.valueOf(varOB.getVariantRgdId()));
         attributesHashMap.put("Name", String.valueOf(varOB.getVariantRgdId()));
-        attributesHashMap.put("Alias", String.valueOf(varOB.getVariantRgdId()));
         attributesHashMap.put("reference", Utils.NVL(varOB.getRef(), "-"));
         attributesHashMap.put("variant", Utils.NVL(varOB.getVar(), "-"));
         attributesHashMap.put("depth", String.valueOf(varOB.getDepth()));
@@ -472,7 +478,6 @@ public class CreateGff4CarpeNovo {
 
             attributesHashMap.put("ID", String.valueOf(varOB.getVariantRgdId()));
             attributesHashMap.put("Name", String.valueOf(varOB.getVariantRgdId()));
-            attributesHashMap.put("Alias", String.valueOf(varOB.getVariantRgdId()));
             attributesHashMap.put("reference", Utils.NVL(varOB.getRef(), "-"));
             attributesHashMap.put("variant", Utils.NVL(varOB.getVar(), "-"));
             attributesHashMap.put("depth", String.valueOf(varOB.getDepth()));
@@ -496,7 +501,6 @@ public class CreateGff4CarpeNovo {
 
         attributeHashMap.put("ID", String.valueOf(varOB.getVariantRgdId()));
         attributeHashMap.put("Name", String.valueOf(varOB.getVariantRgdId()));
-        attributeHashMap.put("Alias", String.valueOf(varOB.getVariantRgdId()));
         attributeHashMap.put("reference", Utils.NVL(varOB.getRef(), "-"));
         attributeHashMap.put("variant", Utils.NVL(varOB.getVar(), "-"));
         attributeHashMap.put("depth", String.valueOf(varOB.getDepth()));
