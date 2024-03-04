@@ -15,6 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author pjayaraman
@@ -33,6 +34,7 @@ public class CreateGff4CarpeNovo {
         List<Sample> samples = sampleDAO.getSamples(patientId);
 
         int maxThreadCount = 10;
+        AtomicInteger samplesToProcess = new AtomicInteger(samples.size());
         {
             ForkJoinPool customThreadPool = new ForkJoinPool(maxThreadCount);
             customThreadPool.submit(() -> samples.parallelStream().forEach(sample -> {
@@ -41,6 +43,10 @@ public class CreateGff4CarpeNovo {
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
+
+                int count = samplesToProcess.decrementAndGet();
+                System.out.println("### SAMPLES left to process  "+count +"/"+samples.size());
+
             })).get();
             customThreadPool.shutdown();
         }
