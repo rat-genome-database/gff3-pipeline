@@ -48,6 +48,8 @@ public class CreateGff4CarpeNovo {
 
     public void createGff3ForSample(int sampleId) throws Exception{
 
+        long time0 = System.currentTimeMillis();
+
         SampleDAO sampleDAO = new SampleDAO();
         sampleDAO.setDataSource(DataSourceFactory.getInstance().getCarpeNovoDataSource());
         Sample sample = sampleDAO.getSample(sampleId);
@@ -58,6 +60,8 @@ public class CreateGff4CarpeNovo {
         creategff4CarpeNovo(gffFile, gffDamagingFile, sample.getMapKey(), conn, sampleId);
 
         conn.close();
+
+        System.out.println("### SAMPLE "+sampleId+" OK!    elapsed: "+Utils.formatElapsedTime(time0, System.currentTimeMillis()));
     }
 
     void creategff4CarpeNovo(String gffFile, String gffDamagingFile, int mapKey, Connection conn, int sampleId) throws Exception{
@@ -197,7 +201,7 @@ public class CreateGff4CarpeNovo {
         findPph.close();
         findVar.close();
 
-        printStats(counters);
+        printStats(counters, sampleId);
     }
 
 
@@ -314,29 +318,29 @@ public class CreateGff4CarpeNovo {
         return newvarTransHash;
     }
 
-    static void printStats( CounterPool counters ) {
-        System.out.println("Variants processed:" + counters.get("varNumCount"));
-        System.out.println("Genic Variants processed:" + counters.get("varGenic"));
-        System.out.println("Intergenic Variants processed:" + counters.get("varInterGenic"));
-        System.out.println("Variants near Splice Sites:" + counters.get("varNearSpliceSite"));
-        System.out.println("Variants with depth > 10:" + counters.get("varDepthMoreThan10"));
-        System.out.println("Variants with depth < 5:" + counters.get("varDepthLessThan5"));
-        System.out.println("Variants NOT associated with ANY transcript:" + counters.get("varNotInTranscript"));
-        System.out.println("Variants associated with one or more Transcripts:" + counters.get("varInTranscript"));
-        System.out.println("Genic Variants with a defined LocationName:" + counters.get("varTransWithLocName"));
-        System.out.println("Genic Variants with an associated Gene Symbol:" + counters.get("varWithAssocGene"));
-        System.out.println("Variants in INTRON:" + counters.get("varInINTRON"));
-        System.out.println("Variants in 3UTRS:" + counters.get("varIn3UTR"));
-        System.out.println("Variants in 5UTRS:" + counters.get("varIn5UTR"));
-        System.out.println("Variants in EXON:" + counters.get("varInEXON"));
-        System.out.println("Genic Variants with a synonymous/nonsynonymous status:" + counters.get("varWithSynStat"));
-        System.out.println("Genic Variants that are synonymous:" + counters.get("varSyn"));
-        System.out.println("Genic Variants that are NONsynonymous:" + counters.get("varNonSyn"));
-        System.out.println("Genic Variants with PolyPhen Predictions:" + counters.get("varWithPPPred"));
-        System.out.println("BENIGN PolyPhen Predictions:" + counters.get("varPPBenign"));
-        System.out.println("POSSIBLY DAMAGING PolyPhen Predictions:" + counters.get("varPPPossibly"));
-        System.out.println("PROBABLY DAMAGING PolyPhen Predictions:" + counters.get("varPPProbably"));
-        System.out.println("=====");
+    synchronized static void printStats( CounterPool counters, int sampleId ) {
+        System.out.println("SAMPLE "+sampleId+": Variants processed:" + counters.get("varNumCount"));
+        System.out.println("SAMPLE "+sampleId+": Genic Variants processed:" + counters.get("varGenic"));
+        System.out.println("SAMPLE "+sampleId+": Intergenic Variants processed:" + counters.get("varInterGenic"));
+        System.out.println("SAMPLE "+sampleId+": Variants near Splice Sites:" + counters.get("varNearSpliceSite"));
+        System.out.println("SAMPLE "+sampleId+": Variants with depth > 10:" + counters.get("varDepthMoreThan10"));
+        System.out.println("SAMPLE "+sampleId+": Variants with depth < 5:" + counters.get("varDepthLessThan5"));
+        System.out.println("SAMPLE "+sampleId+": Variants NOT associated with ANY transcript:" + counters.get("varNotInTranscript"));
+        System.out.println("SAMPLE "+sampleId+": Variants associated with one or more Transcripts:" + counters.get("varInTranscript"));
+        System.out.println("SAMPLE "+sampleId+": Genic Variants with a defined LocationName:" + counters.get("varTransWithLocName"));
+        System.out.println("SAMPLE "+sampleId+": Genic Variants with an associated Gene Symbol:" + counters.get("varWithAssocGene"));
+        System.out.println("SAMPLE "+sampleId+": Variants in INTRON:" + counters.get("varInINTRON"));
+        System.out.println("SAMPLE "+sampleId+": Variants in 3UTRS:" + counters.get("varIn3UTR"));
+        System.out.println("SAMPLE "+sampleId+": Variants in 5UTRS:" + counters.get("varIn5UTR"));
+        System.out.println("SAMPLE "+sampleId+": Variants in EXON:" + counters.get("varInEXON"));
+        System.out.println("SAMPLE "+sampleId+": Genic Variants with a synonymous/nonsynonymous status:" + counters.get("varWithSynStat"));
+        System.out.println("SAMPLE "+sampleId+": Genic Variants that are synonymous:" + counters.get("varSyn"));
+        System.out.println("SAMPLE "+sampleId+": Genic Variants that are NONsynonymous:" + counters.get("varNonSyn"));
+        System.out.println("SAMPLE "+sampleId+": Genic Variants with PolyPhen Predictions:" + counters.get("varWithPPPred"));
+        System.out.println("SAMPLE "+sampleId+": BENIGN PolyPhen Predictions:" + counters.get("varPPBenign"));
+        System.out.println("SAMPLE "+sampleId+": POSSIBLY DAMAGING PolyPhen Predictions:" + counters.get("varPPPossibly"));
+        System.out.println("SAMPLE "+sampleId+": PROBABLY DAMAGING PolyPhen Predictions:" + counters.get("varPPProbably"));
+        System.out.println("SAMPLE "+sampleId+": =====");
     }
 
     static void printTranscriptGff3(String chr, Gff3ColumnWriter gffWriter, Variant varOB, HashMap<Integer, VarTranscript> varTransHashObj,
