@@ -38,6 +38,7 @@
 
                 <entry key="511" value="data/jbrowse2/Bonobo" />
                 <entry key="513" value="data/jbrowse2/Bonobo" />
+                <entry key="515" value="data/jbrowse2/Bonobo" />
             </map>
         </property>
     </bean>
@@ -83,6 +84,7 @@
 
                 <value>511</value>  <!-- Bonobo/panPan2 -->
                 <value>513</value>  <!-- Bonobo/panPan3 -->
+                <value>515</value>  <!-- Bonobo/NHGRI_mPanPan1-v2.0_pri -->
             </list>
         </property>
         <property name="termTrackNames">
@@ -189,6 +191,7 @@
 
                 <value>511</value>  <!-- Bonobo/panPan2 -->
                 <value>513</value>  <!-- Bonobo/panPan3 -->
+                <value>515</value>  <!-- Bonobo/NHGRI_mPanPan1-v2.0_pri -->
             </list>
         </property>
     </bean>
@@ -281,7 +284,7 @@
 
                 <value>511</value>  <!-- Bonobo/panPan2 -->
                 <value>513</value>  <!-- Bonobo/panPan3 -->
-
+                <value>515</value>  <!-- Bonobo/NHGRI_mPanPan1-v2.0_pri -->
             </list>
         </property>
     </bean>

@@ -16,12 +16,9 @@ public class JBrowse2Aliases {
 
         Map<Integer, String> assemblies = Manager.getInstance().getAssemblies();
 
-        for( Map.Entry<Integer,String> entry: assemblies.entrySet() ) {
+        for( int mapKey: assemblies.keySet() ) {
 
-            int mapKey = entry.getKey();
-            String assemblyPath = entry.getValue();
-            int slashPos = assemblyPath.lastIndexOf("/");
-            String assemblyName = assemblyPath.substring(slashPos+1);
+            String assemblyName = Gff3Utils.getAssemblyDirStandardized(mapKey);
 
             String fileName = "aliases_"+assemblyName+".txt";
 

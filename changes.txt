@@ -1,3 +1,7 @@
+Mar 18 2024
+  jbrowse2: added bonobo assembly NHGRI_mPanPan1_v2.0_pri
+  jbrowse2: fixed aliases generation
+
 Mar 08 2024
   jbrowse2: added rn8
 
