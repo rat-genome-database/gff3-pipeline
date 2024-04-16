@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Mar 08, 2024 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Apr 16, 2024 --" />
 
         <property name="assemblies"><!-- file system location for files for given assembly: must be the same as found in '/ref/fasta' directory -->
             <map>
@@ -39,6 +39,8 @@
                 <entry key="511" value="data/jbrowse2/Bonobo" />
                 <entry key="513" value="data/jbrowse2/Bonobo" />
                 <entry key="515" value="data/jbrowse2/Bonobo" />
+
+                <entry key="1701" value="data/jbrowse2/Black Rat" />
             </map>
         </property>
     </bean>
@@ -85,6 +87,8 @@
                 <value>511</value>  <!-- Bonobo/panPan2 -->
                 <value>513</value>  <!-- Bonobo/panPan3 -->
                 <value>515</value>  <!-- Bonobo/NHGRI_mPanPan1-v2.0_pri -->
+
+                <value>1701</value>  <!-- black rat -->
             </list>
         </property>
         <property name="termTrackNames">
@@ -192,6 +196,8 @@
                 <value>511</value>  <!-- Bonobo/panPan2 -->
                 <value>513</value>  <!-- Bonobo/panPan3 -->
                 <value>515</value>  <!-- Bonobo/NHGRI_mPanPan1-v2.0_pri -->
+
+                <value>1701</value>  <!-- black rat -->
             </list>
         </property>
     </bean>
