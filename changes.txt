@@ -1,3 +1,6 @@
+Jul 11, 2024
+  agr: added export of chromosome regions in header
+
 Apr 16 2024
   jbrowse2: added black rat assembly
 

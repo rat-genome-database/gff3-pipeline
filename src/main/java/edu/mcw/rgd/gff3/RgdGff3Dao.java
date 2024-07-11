@@ -73,6 +73,10 @@ public class RgdGff3Dao {
         return geneDAO.getAssociatedGenes(rgdId);
     }
 
+    public Gene getGene(int rgdId) throws Exception {
+        return geneDAO.getGene(rgdId);
+    }
+
     public List<Gene> getActiveGenes(int speciesTypeKey) throws Exception {
         return geneDAO.getActiveGenes(speciesTypeKey);
         //String query = "SELECT g.*, r.species_type_key FROM genes g, rgd_ids r WHERE r.object_status='ACTIVE'  AND r.species_type_key=?

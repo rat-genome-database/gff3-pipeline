@@ -207,7 +207,7 @@ public class CdsUtils {
         // QC: report any features that start pos <= stop pos
         for( CodingFeature cf: cfList ) {
             if( cf.getStartPos() > cf.getStopPos() ) {
-                System.out.println("problem with coding feature trId="+cf.getTranscriptRgdId());
+                System.out.println("problem with coding feature trId="+cf.getTranscriptRgdId()+": start_pos="+cf.getStartPos()+", stop_pos="+cf.getStopPos());
                 break;
             }
         }

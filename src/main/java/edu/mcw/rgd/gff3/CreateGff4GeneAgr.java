@@ -21,6 +21,12 @@ public class CreateGff4GeneAgr {
     private int mapKey;
     private int mapKeyEnsembl;
 
+    // if non-zero, instead of generating the file for all genes, only the file with this gene is generated
+    //private int specialGeneRgdId = 1318471; // WARS2
+    private int specialGeneRgdId = 0;
+
+    private boolean DEBUG_SKIP_SORT = false;
+
     public void setGff3Path(String gff3Path) {
         this.gff3Path = gff3Path;
     }
@@ -58,9 +64,17 @@ public class CreateGff4GeneAgr {
         gff3Writer.print("#!date-produced "+sdt.format(new Date())+"\n");
         gff3Writer.print("#!species "+ species+"\n");
         gff3Writer.print("#!primary-contact mtutaj@mcw.edu\n");
-        gff3Writer.print("#!tool AGR GFF3 extractor  v 2024-02-19\n");
+        gff3Writer.print("#!tool AGR GFF3 extractor  v 2024-05-17\n");
 
-        List<Gene> activeGenes = dao.getActiveGenes(speciesTypeKey);
+        List<Gene> activeGenes;
+        if( specialGeneRgdId != 0 ) {
+            Gene specialGene = dao.getGene(specialGeneRgdId);
+            activeGenes = new ArrayList<>();
+            activeGenes.add(specialGene);
+        } else {
+            activeGenes = dao.getActiveGenes(speciesTypeKey);
+        }
+
         Collections.sort(activeGenes, new Comparator<Gene>() {
             @Override
             public int compare(Gene o1, Gene o2) {
@@ -70,6 +84,8 @@ public class CreateGff4GeneAgr {
 
         System.out.println("active genes: "+activeGenes.size());
         Collections.shuffle(activeGenes);
+
+        SequenceRegionWatcher sequenceRegionWatcher = new SequenceRegionWatcher(mapKey, gff3Writer, dao);
 
         int i = 0;
         for( Gene gene: activeGenes ){
@@ -93,6 +109,8 @@ public class CreateGff4GeneAgr {
 
             for( MapData md: geneMap ) {
                 counters.genesInEachChromosomeCount++;
+
+                sequenceRegionWatcher.emit(md.getChromosome());
 
                 List<Transcript> geneTrs = dao.getTranscriptsForGene(geneRgdId);
                 if (geneTrs.size() > 1) {
@@ -153,7 +171,9 @@ public class CreateGff4GeneAgr {
                     counters.genesWithTranscriptsCount++;
 
                     for (Transcript tr : geneTrs) {
-
+//if(!tr.getAccId().startsWith("XM_047448640")) {
+//    continue;
+//}
                         if (tr.isNonCoding()) {
                             counters.nonCodingTransCount++;
                         }
@@ -291,7 +311,9 @@ public class CreateGff4GeneAgr {
         }
 
         gff3Writer.close();
-        gff3Writer.sortInMemory();
+        if( DEBUG_SKIP_SORT == false ) {
+            gff3Writer.sortInMemory();
+        }
 
         dumpCounters(counters);
     }
