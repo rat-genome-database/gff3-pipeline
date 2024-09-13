@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Jul 11, 2024 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Sep 13, 2024 --" />
 
         <property name="assemblies"><!-- file system location for files for given assembly: must be the same as found in '/ref/fasta' directory -->
             <map>
@@ -11,6 +11,9 @@
                 <entry key="360" value="data/jbrowse2/Rat" />
                 <entry key= "70" value="data/jbrowse2/Rat" />
                 <entry key= "60" value="data/jbrowse2/Rat" />
+                <entry key="301" value="data/jbrowse2/Rat" />
+                <entry key="302" value="data/jbrowse2/Rat" />
+                <entry key="303" value="data/jbrowse2/Rat" />
 
                 <entry key="239" value="data/jbrowse2/Mouse" />
                 <entry key= "35" value="data/jbrowse2/Mouse" />
@@ -59,6 +62,9 @@
                 <value>360</value>  <!-- rn6 -->
                 <value>70</value>  <!-- rn5 -->
                 <value>60</value>  <!-- rn4 -->
+                <value>301</value>  <!-- UTH_SHR -->
+                <value>302</value>  <!-- UTH_SHRSP -->
+                <value>303</value>  <!-- UTH_WKY -->
 
                 <value>239</value>  <!-- mm39 -->
                 <value>35</value>  <!-- mm10 -->
@@ -168,6 +174,9 @@
                 <value>360</value>  <!-- rn6 -->
                 <value>70</value>  <!-- rn5 -->
                 <value>60</value>  <!-- rn4 -->
+                <value>301</value>  <!-- UTH_SHR -->
+                <value>302</value>  <!-- UTH_SHRSP -->
+                <value>303</value>  <!-- UTH_WKY -->
 
                 <value>239</value>  <!-- mm39 -->
                 <value>35</value>  <!-- mm10 -->

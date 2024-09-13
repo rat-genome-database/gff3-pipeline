@@ -300,4 +300,18 @@ public class RgdGff3Dao {
     public String getTranscriptVersionInfo(String acc) throws Exception {
         return trDao.getTranscriptVersionInfo(acc);
     }
+
+    public int getStableId( String idKey ) throws Exception {
+
+        String sql = "SELECT MAX(id) FROM gff3_ids WHERE id_key=?";
+        return aliasDAO.getCount(sql, idKey);
+    }
+
+    public int createStableId( String idKey ) throws Exception {
+
+        int stableId = aliasDAO.getNextKeyFromSequence("gff3_ids_seq");
+        aliasDAO.update("INSERT INTO gff3_ids(id, id_key) VALUES(?,?)", stableId, idKey);
+        return stableId;
+    }
+
 }

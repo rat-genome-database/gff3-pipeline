@@ -31,7 +31,6 @@ public class CreateGff4GeneAgr {
         this.gff3Path = gff3Path;
     }
 
-    Map<String, Integer> idMap = new HashMap<>();
 
     public void createGeneGff3(int compressMode) throws Exception{
 
@@ -39,7 +38,6 @@ public class CreateGff4GeneAgr {
         CdsUtils utilsEnsembl = new CdsUtils(dao, mapKeyEnsembl);
 
         String species = SpeciesType.getCommonName(speciesTypeKey);
-        idMap.clear();
 
         Map<Integer, String> dbXrefsForTranscripts = loadDbXrefsForTranscripts(speciesTypeKey);
 
@@ -75,12 +73,7 @@ public class CreateGff4GeneAgr {
             activeGenes = dao.getActiveGenes(speciesTypeKey);
         }
 
-        Collections.sort(activeGenes, new Comparator<Gene>() {
-            @Override
-            public int compare(Gene o1, Gene o2) {
-                return Utils.stringsCompareToIgnoreCase(o1.getSymbol(), o2.getSymbol());
-            }
-        });
+        Map<String, List<Gene>> tr2GeneMap = new HashMap<>();
 
         System.out.println("active genes: "+activeGenes.size());
         Collections.shuffle(activeGenes);
@@ -129,8 +122,6 @@ public class CreateGff4GeneAgr {
 
                 Map<String, String> attributes = new HashMap<>();
 
-                String uniqueGeneId = getUniqueId2("RGD:" + geneRgdId);
-                attributes.put("ID", uniqueGeneId);
                 attributes.put("Name", gene.getSymbol());
                 if( nameOfgene!=null ) {
                     attributes.put("Note", nameOfgene);
@@ -162,6 +153,9 @@ public class CreateGff4GeneAgr {
                 attributes.put("so_term_name", getSoTermNameForGene(gType));
                 attributes.put("Ontology_term", getSoTermAccForGene(gType));
 
+                int uniqueGeneId = getStableId(map.getChromosome(), "RGD", "gene", map.getStartPos(), map.getStopPos(), "", curie, counters);
+                attributes.put("ID", uniqueGeneId+"");
+
                 gff3Writer.writeFirst8Columns(map.getChromosome(), "RGD", "gene", map.getStartPos(), map.getStopPos(), ".", map.getStrand(), ".");
                 gff3Writer.writeAttributes4Gff3(attributes);
 
@@ -171,9 +165,7 @@ public class CreateGff4GeneAgr {
                     counters.genesWithTranscriptsCount++;
 
                     for (Transcript tr : geneTrs) {
-//if(!tr.getAccId().startsWith("XM_047448640")) {
-//    continue;
-//}
+
                         if (tr.isNonCoding()) {
                             counters.nonCodingTransCount++;
                         }
@@ -183,17 +175,28 @@ public class CreateGff4GeneAgr {
                                 continue;
                             }
 
+                            if( !positionsOverlap(trMd, map))
+                                continue;
+
+                            List<Gene> trGenes = tr2GeneMap.get(tr.getAccId());
+                            if( trGenes==null ) {
+                                trGenes = new ArrayList<>();
+                                tr2GeneMap.put(tr.getAccId(), trGenes);
+                            }
+                            if( !trGenes.contains(gene) ) {
+                                trGenes.add(gene);
+                            }
+                            if( trGenes.size()>1 ) {
+                                System.out.println(tr2GeneMap.size()+". duplicate transcript-to-gene mapping: "+tr.getAccId()+"==>"+Utils.concatenate(",",trGenes,"getSymbol"));
+                                System.out.println(i+".");
+                            }
+
                             boolean isEnsemblTr = trMd.getMapKey()==mapKeyEnsembl;
                             String dbName = isEnsemblTr ? "ENSEMBL" : "NCBI";
                             CdsUtils utils = isEnsemblTr ? utilsEnsembl : utilsNcbi;
 
-                            if( !positionsOverlap(trMd, map))
-                                continue;
-
-                            String id = getUniqueId("rna");
                             counters.transcriptsMappedCount++;
 
-                            attributes.put("ID", id);
                             String trAccVer = dao.getTranscriptVersionInfo(tr.getAccId());
                             if( trAccVer==null ) {
                                 System.out.println("no tr acc ver for "+tr.getAccId());
@@ -207,7 +210,6 @@ public class CreateGff4GeneAgr {
                             attributes.put("curie", transcriptId);
 
                             attributes.put("Name", trAccVer);
-                            attributes.put("Parent", uniqueGeneId);
                             if (tr.getRefSeqStatus() != null) {
                                 attributes.put("status", tr.getRefSeqStatus());
                             }
@@ -229,6 +231,13 @@ public class CreateGff4GeneAgr {
                             }
 
                             String trBiotype = getTrBiotype(gType, tr);
+
+                            String parent = uniqueGeneId+"";
+                            attributes.put("Parent", parent);
+                            int id = getStableId(trMd.getChromosome(), dbName, trBiotype, trMd.getStartPos(), trMd.getStopPos(), parent, curie, counters);
+                            attributes.put("ID", id+"");
+
+
                             gff3Writer.writeFirst8Columns(trMd.getChromosome(), dbName, trBiotype, trMd.getStartPos(), trMd.getStopPos(), ".", trMd.getStrand(), ".");
                             gff3Writer.writeAttributes4Gff3(attributes);
 
@@ -237,7 +246,6 @@ public class CreateGff4GeneAgr {
                             boolean hasCds = false;
                             List<CodingFeature> cfList = utils.buildCfList(trMd);
                             for (CodingFeature cf : cfList) {
-                                String featureId;
 
                                 if (cf.getFeatureType() == TranscriptFeature.FeatureType.CDS) {
 
@@ -245,9 +253,6 @@ public class CreateGff4GeneAgr {
                                         // CdsUtils always tries to generate CDS; therefore it is important to know if the transcript is coding
                                         continue;
                                     }
-
-                                    // one CDS id per multiple fragments of CDS (as it is in NCBI RefSeq gff3 file for rat)
-                                    featureId = getUniqueId("cds");
 
                                     if( proteinId!=null ) {
                                         attributes.put("protein_id", proteinId);
@@ -258,15 +263,11 @@ public class CreateGff4GeneAgr {
                                 } else {
                                     if (cf.getFeatureType() == TranscriptFeature.FeatureType.EXON) {
                                         counters.exonCount++;
-                                        featureId = getUniqueId("e");
                                     } else if (cf.getFeatureType() == TranscriptFeature.FeatureType.UTR5) {
                                         counters.utr5Count++;
-                                        featureId = getUniqueId("u");
                                     } else if (cf.getFeatureType() == TranscriptFeature.FeatureType.UTR3) {
                                         counters.utr3Count++;
-                                        featureId = getUniqueId("u");
                                     } else {
-                                        featureId = getUniqueId("f");
                                     }
                                 }
 
@@ -277,8 +278,9 @@ public class CreateGff4GeneAgr {
                                 gff3Writer.writeFirst8Columns(cf.getChromosome(), dbName, cf.getCanonicalName(), cf.getStartPos(), cf.getStopPos(), ".", cf.getStrand(), cf.getCodingPhaseStr());
 
 
-                                attributes.put("ID", featureId);
-                                attributes.put("Parent", id);
+                                int featureId = getStableId(cf.getChromosome(), dbName, cf.getCanonicalName(), cf.getStartPos(), cf.getStopPos(), parent, "", counters);
+                                attributes.put("ID", featureId+"");
+                                attributes.put("Parent", id+"");
                                 if (cf.getNotes() != null)
                                     attributes.put("Note", cf.getNotes());
 
@@ -296,15 +298,19 @@ public class CreateGff4GeneAgr {
                     // generate fake feature for genes without features
                     gff3Writer.writeFirst8Columns(map.getChromosome(), "RGD", "transcript_region", map.getStartPos(), map.getStopPos(), ".", map.getStrand(), ".");
 
-                    String regionId = getUniqueId("rna");
-                    attributes.put("ID", regionId);
-                    attributes.put("Parent", uniqueGeneId);
+                    String parent = uniqueGeneId+"";
+                    int regionId = getStableId(map.getChromosome(), "RGD", "transcript_region", map.getStartPos(), map.getStopPos(), "", "RGD:"+geneRgdId, counters);
+                    attributes.put("ID", regionId+"");
+                    attributes.put("Parent", parent);
                     gff3Writer.writeAttributes4Gff3(attributes);
+
 
                     gff3Writer.writeFirst8Columns(map.getChromosome(), "RGD", "exon", map.getStartPos(), map.getStopPos(), ".", map.getStrand(), ".");
 
-                    attributes.put("ID", getUniqueId("e"));
-                    attributes.put("Parent", regionId);
+                    parent = regionId+"";
+                    int id = getStableId(map.getChromosome(), "RGD", "exon", map.getStartPos(), map.getStopPos(), parent, "", counters);
+                    attributes.put("ID", id+"");
+                    attributes.put("Parent", parent);
                     gff3Writer.writeAttributes4Gff3(attributes);
                 }
             }
@@ -471,6 +477,10 @@ public class CreateGff4GeneAgr {
             System.out.println(" Genes with NO XDB Ids:" + counters.genesWithNOXdbIds);
         if( counters.genesWithAdjustedPos>0 )
             System.out.println(" Genes with Adjusted pos:" + counters.genesWithAdjustedPos);
+        if( counters.stableIdsCreated>0 )
+            System.out.println(" Stable GFF3 IDs created:" + counters.stableIdsCreated);
+        if( counters.stableIdsReused>0 )
+            System.out.println(" Stable GFF3 IDs reused:" + counters.stableIdsReused);
         System.out.println("GFF3 File SUCCESSFUL!");
         System.out.println("=============================");
     }
@@ -704,37 +714,6 @@ public class CreateGff4GeneAgr {
         return nameOfgene;
     }
 
-    String getUniqueId(String idBase) {
-
-        Integer cnt = idMap.get(idBase);
-        if( cnt==null ) {
-            cnt = 1;
-        }
-        else {
-            cnt++;
-        }
-        idMap.put(idBase, cnt);
-
-        return idBase+cnt;
-    }
-
-    String getUniqueId2(String idBase) {
-
-        Integer cnt = idMap.get(idBase);
-        if( cnt==null ) {
-            cnt = 1;
-        }
-        else {
-            cnt++;
-        }
-        idMap.put(idBase, cnt);
-
-        if( cnt==1 ) {
-            return idBase;
-        }
-        return idBase+"_"+cnt;
-    }
-
     // currently we have only UniProtKB accessions as DbXrefs
     Map<Integer, String> loadDbXrefsForTranscripts(int speciesTypeKey) throws Exception {
         XdbId filter = new XdbId();
@@ -930,5 +909,23 @@ public class CreateGff4GeneAgr {
         int utr5Count=0;
         int utr3Count=0;
         int cdsCount=0;
+
+        int stableIdsCreated=0;
+        int stableIdsReused=0;
+    }
+
+    synchronized int getStableId( String chr, String source, String objType, int start, int stop, String parent, String curie, Counters counters ) throws Exception {
+
+        String idKey = chr+"|"+source+"|"+objType+"|"+start+"|"+stop+"|"+parent+"|"+curie;
+
+        int stableId = dao.getStableId(idKey);
+        if( stableId==0 ) {
+            // stable id not in database
+            stableId = dao.createStableId(idKey);
+            counters.stableIdsCreated++;
+        } else {
+            counters.stableIdsReused++;
+        }
+        return stableId;
     }
 }
