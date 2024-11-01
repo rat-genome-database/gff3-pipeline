@@ -1,3 +1,6 @@
+Nov 01, 2024
+  dog: added generation of files for assemblies Dog10K_Boxer_Tasha & UU_Cfam_GSD_1.0
+
 Sep 13, 2024
   agr: implemented stable ids
   jbrowse2 gff files: added UTH_SHR, UTH_SHRSP and UTH_WKY to list of processed rat assemblies
