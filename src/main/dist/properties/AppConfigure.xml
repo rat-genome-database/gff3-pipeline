@@ -331,7 +331,7 @@
 
     <bean id="jbrowse2PrepEva" class="edu.mcw.rgd.gff3.JBrowse2PrepEva">
         <property name="outDir" value="Variants/European Variation Archive"/><!-- JBrowse2 category -->
-        <property name="outPrefix" value="EVA Release 4"/>
+        <property name="outPrefix" value="EVA Release 6"/>
         <property name="srcFiles">
             <map>
                 <entry key="372" value="data/Eva/EVA_mRatBN7.2.gff3.gz"></entry>
