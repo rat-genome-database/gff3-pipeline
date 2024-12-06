@@ -15,7 +15,7 @@ public class Gff3Utils {
         // first, return UCSC assembly symbol, if available
         Map map = MapManager.getInstance().getMap(mapKey);
         if( map == null ) {
-            return null;
+            return "";
         }
         String symbol = map.getUcscAssemblyId();
         if( symbol != null ) {

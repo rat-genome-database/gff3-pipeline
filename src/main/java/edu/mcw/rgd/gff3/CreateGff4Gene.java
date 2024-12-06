@@ -67,10 +67,14 @@ public class CreateGff4Gene {
         String speciesName = SpeciesType.getCommonName(info.getSpeciesTypeKey());
         Map<String, AtomicInteger> idMap = new ConcurrentHashMap<>();
 
-        String ucscId = Gff3Utils.getAssemblySymbol(info.getMapKey());
+        String ucscId = Utils.NVL( Gff3Utils.getAssemblySymbol(info.getMapKey()), "" );
         String refseqId = MapManager.getInstance().getMap(info.getMapKey()).getRefSeqAssemblyName();
 
-        msgBuf.append("Generate GFF3 file for "+speciesName+", MAP_KEY="+info.getMapKey()+" ("+ucscId+")\n");
+        if( ucscId.isEmpty() ) {
+            msgBuf.append("Generate GFF3 file for " + speciesName + ", MAP_KEY=" + info.getMapKey() + "\n");
+        } else {
+            msgBuf.append("Generate GFF3 file for " + speciesName + ", MAP_KEY=" + info.getMapKey() + " (" + ucscId + ")\n");
+        }
         msgBuf.append("    "+dao.getConnectionInfo()+"\n");
 
         CounterPool counters = new CounterPool();
@@ -83,7 +87,7 @@ public class CreateGff4Gene {
             "# Generated: "+new Date()+"\n";
 
         String fileName = info.getToDir() + "/" + speciesName + " " + refseqId;
-        if( !ucscId.equalsIgnoreCase(refseqId) ) {
+        if( !ucscId.isEmpty()  &&  !ucscId.equalsIgnoreCase(refseqId) ) {
             fileName += " ("+ucscId+")";
         }
 
@@ -258,7 +262,7 @@ public class CreateGff4Gene {
         gff3GenesAndTranscripts.close();
         gff3GenesAndTranscripts.sortInMemory();
 
-        dumpCounters(counters, ucscId, msgBuf);
+        dumpCounters(counters, ucscId.isEmpty() ? refseqId : ucscId, msgBuf);
 
         msgBuf.append("OK!  elapsed "+Utils.formatElapsedTime(time0, System.currentTimeMillis())+"\n");
         msgBuf.append("========\n");

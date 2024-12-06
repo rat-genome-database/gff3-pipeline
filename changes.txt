@@ -1,3 +1,6 @@
+Dec 06, 2024
+  genes: fix to avoid NullPointerException
+
 Nov 01, 2024
   dog: added generation of files for assemblies Dog10K_Boxer_Tasha & UU_Cfam_GSD_1.0
 
