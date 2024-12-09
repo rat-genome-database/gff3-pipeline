@@ -5,7 +5,6 @@ import htsjdk.samtools.util.BlockCompressedOutputStream;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
@@ -115,6 +114,9 @@ public class Gff3ColumnWriter {
                 chr = "Chr" + chrNum;
             }
         }
+
+        // ensure strand is not null
+        strand = Utils.NVL(strand, "");
 
         String text = chr + "\t" + source + "\t" + type + "\t" + start + "\t" + stop + "\t" + score + "\t" + strand + "\t" + phase + "\t";
 

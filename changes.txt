@@ -1,3 +1,6 @@
+Dec 09, 2024
+  genes: fix to properly handle null strands
+
 Dec 06, 2024
   genes: fix to avoid NullPointerException
 
