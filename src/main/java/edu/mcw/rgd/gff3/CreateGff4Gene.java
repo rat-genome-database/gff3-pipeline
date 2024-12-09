@@ -110,7 +110,7 @@ public class CreateGff4Gene {
             }
             counters.increment(" Genes processed");
 
-            String nameOfgene = getNameOfGene(gene, counters);
+            String nameOfgene = getNameOfGene(gene);
 
             List<Transcript> geneTrs = dao.getTranscriptsForGene(geneRgdId);
 
@@ -145,14 +145,20 @@ public class CreateGff4Gene {
 
                 List<XdbId> xdbIds = getXdbIds(geneRgdId);
 
+                String aliasesStr = gene.getSymbol()+","+"RGD"+gene.getRgdId()+","+gene.getRgdId() + getHgncMgiIds(xdbIds);
+                if( nameOfgene != null ) {
+                    aliasesStr += "," + nameOfgene;
+                }
+
                 Map<String,String> attributesHashMap = new HashMap<>();
 
                 String uniqueGeneId = getUniqueId("RGD"+gene.getRgdId(), idMap);
                 attributesHashMap.put("ID", uniqueGeneId);
                 attributesHashMap.put("Name", gene.getSymbol());
-                attributesHashMap.put("fullName", nameOfgene);
-                attributesHashMap.put("Alias", gene.getSymbol()+","+"RGD"+gene.getRgdId()+","+gene.getRgdId()
-                        + "," + nameOfgene + getHgncMgiIds(xdbIds));
+                if( nameOfgene!=null ) {
+                    attributesHashMap.put("fullName", nameOfgene);
+                }
+                attributesHashMap.put("Alias", aliasesStr);
                 attributesHashMap.put("geneType", gType.replaceAll("\\-","_"));
                 attributesHashMap.put("species", speciesName);
                 if( gene.getRefSeqStatus()!=null )
@@ -430,22 +436,17 @@ public class CreateGff4Gene {
         return xdbList;
     }
 
-    private String getNameOfGene(Gene gene, CounterPool counters) {
+    private String getNameOfGene(Gene gene) {
 
         String nameOfgene = gene.getName();
 
-        if(nameOfgene!=null){
+        if( nameOfgene!=null ){
             if(nameOfgene.contains(",")){
                 nameOfgene = nameOfgene.replaceAll(",", "");
             }
             if(nameOfgene.contains(";")){
                 nameOfgene = nameOfgene.replaceAll(";", "");
             }
-        }
-
-        if(nameOfgene==null){
-            nameOfgene="null";
-            counters.increment(" Genes with NULL geneName");
         }
         return nameOfgene;
     }
