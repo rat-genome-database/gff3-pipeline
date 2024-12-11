@@ -324,7 +324,7 @@ public class CreateGff4GeneAgr {
         dumpCounters(counters);
     }
 
-    String getTrBiotype(String geneType, Transcript tr) throws Exception {
+    public static String getTrBiotype(String geneType, Transcript tr) throws Exception {
         if( tr.getType()==null ) {
             switch (geneType) {
                 case "protein-coding":

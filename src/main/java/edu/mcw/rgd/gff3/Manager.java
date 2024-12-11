@@ -259,6 +259,11 @@ public class Manager {
                             clinvar.run( 38, "data/Variants/ClinVar/GRCh38.p14", Gff3ColumnWriter.COMPRESS_MODE_BGZIP);
                             return true;
                         }
+                        case "gtfGenes": {
+                            CreateGtf4Gene gtf = (CreateGtf4Gene) (bf.getBean("geneGtfWriter"));
+                            gtf.run();
+                            return true;
+                        }
 
                         case "gene":
                             objectTypeKey = RgdId.OBJECT_KEY_GENES;

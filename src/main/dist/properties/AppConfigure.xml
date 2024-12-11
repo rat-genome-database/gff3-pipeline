@@ -540,6 +540,16 @@
 
         </property>
     </bean>
+
+    <bean id="geneGtfWriter" class="edu.mcw.rgd.gff3.CreateGtf4Gene">
+        <property name="outDir" value="data"/>
+        <property name="processedMapKeys">
+            <list>
+                <value>372</value>  <!-- rn7 -->
+            </list>
+        </property>
+    </bean>
+
 </beans>
 
 
