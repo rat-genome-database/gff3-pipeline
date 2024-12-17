@@ -1,3 +1,6 @@
+Dec 17, 2024
+  gtf generator: transcript_ids are now fully versioned
+
 Dec 09, 2024
   genes: fix to properly handle null strands and null gene names
 
