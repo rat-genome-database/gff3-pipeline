@@ -1,3 +1,9 @@
+Jan 16, 2025
+  agr gff3: suppressed generation of ID attributes for exons, utrs and CDSs
+
+Dec 17, 2024
+  gtf generator: transcript_ids are now fully versioned
+
 Dec 09, 2024
   genes: fix to properly handle null strands and null gene names
 

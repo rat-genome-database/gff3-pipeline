@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CreateGtf4Gene {
 
@@ -76,117 +77,128 @@ public class CreateGtf4Gene {
         gtfWriter.print(headerInfo);
 
         List<Gene> activeGenes = dao.getActiveGenes(speciesTypeKey);
-        Collections.shuffle(activeGenes);
         log.info("   genes to be processed "+activeGenes.size());
         System.out.println("   genes to be processed "+activeGenes.size());
 
-        int iGene = 0;
-        for( Gene gene: activeGenes ){
+        AtomicInteger iGene = new AtomicInteger(0);
+        activeGenes.parallelStream().forEach( gene -> {
 
-            int geneRgdId = gene.getRgdId();
-            List<MapData> geneMap = getMapData(geneRgdId, mapKey, counters);
-            if( geneMap.isEmpty() ) {
-                //System.out.println("no map positions");
-                continue;
-            }
-            counters.increment(" Genes processed");
-
-            List<XdbId> xdbIds = getXdbIds(geneRgdId);
-
-            List<Transcript> geneTrs = dao.getTranscriptsForGene(geneRgdId);
-
-            String geneId = "RGD"+gene.getRgdId();
-            String geneType = getGeneType(gene.getType());
-            String geneSymbol = gene.getSymbol();
-            String geneName = getNameOfGene(gene);
-            String dbXref = getDbXref(xdbIds);
-
-            System.out.println((++iGene)+". RGD:"+gene.getRgdId()+" "+geneType+" "+geneSymbol+" "+dbXref+" ["+geneName+"]");
-
-            for(MapData map : geneMap){
-
-                List<Transcript> trsOnMap = getTranscriptsForMap(geneTrs, map, utils);
-
-                Map<String,String> attributesHashMap = new HashMap<>();
-
-                attributesHashMap.put("gene_type", geneType);
-                if( geneSymbol != null ) {
-                    attributesHashMap.put("gene_symbol", geneSymbol);
+            try {
+                int geneRgdId = gene.getRgdId();
+                List<MapData> geneMap = getMapData(geneRgdId, mapKey, counters);
+                if (geneMap.isEmpty()) {
+                    //System.out.println("no map positions");
+                    return;
                 }
-                if( geneName != null ) {
-                    attributesHashMap.put("gene_name", geneName);
-                }
-                if( dbXref != null ) {
-                    attributesHashMap.put("db_xref", dbXref);
-                }
+                counters.increment(" Genes processed");
 
-                gtfWriter.writeFirst8Columns(map.getChromosome(),"RGD", "gene", map.getStartPos(), map.getStopPos(),".", map.getStrand(),".");
-                gtfWriter.writeAttributes(geneId, "", attributesHashMap);
+                List<XdbId> xdbIds = getXdbIds(geneRgdId);
 
-                for( Transcript tr: trsOnMap ){
+                List<Transcript> geneTrs = dao.getTranscriptsForGene(geneRgdId);
 
-                    String transcriptId = tr.getAccId();
-                    String transcriptType = CreateGff4GeneAgr.getTrBiotype(gene.getType(), tr);
-                    String proteinId = tr.getProteinAccId();
+                String geneId = "RGD" + gene.getRgdId();
+                String geneType = getGeneType(gene.getType());
+                String geneSymbol = gene.getSymbol();
+                String geneName = getNameOfGene(gene);
+                String dbXref = getDbXref(xdbIds);
 
-                    for( MapData trMd: tr.getGenomicPositions() ) {
-                        if( !CdsUtils.transcriptPositionOverlapsGenePosition(trMd, map) )
+                System.out.println((iGene.incrementAndGet()) + ". RGD:" + gene.getRgdId() + " " + geneType + " " + geneSymbol + " " + dbXref + " [" + geneName + "]");
+
+                for (MapData map : geneMap) {
+
+                    List<Transcript> trsOnMap = getTranscriptsForMap(geneTrs, map, utils);
+
+                    Map<String, String> attributesHashMap = new HashMap<>();
+
+                    attributesHashMap.put("gene_type", geneType);
+                    if (geneSymbol != null) {
+                        attributesHashMap.put("gene_symbol", geneSymbol);
+                    }
+                    if (geneName != null) {
+                        attributesHashMap.put("gene_name", geneName);
+                    }
+                    if (dbXref != null) {
+                        attributesHashMap.put("db_xref", dbXref);
+                    }
+
+                    synchronized (gtfWriter) {
+                        gtfWriter.writeFirst8Columns(map.getChromosome(), "RGD", "gene", map.getStartPos(), map.getStopPos(), ".", map.getStrand(), ".");
+                        gtfWriter.writeAttributes(geneId, "", attributesHashMap);
+                    }
+
+                    for (Transcript tr : trsOnMap) {
+
+                        String transcriptId = dao.getTranscriptVersionInfo(tr.getAccId());
+                        if( transcriptId==null ) {
+                            counters.increment("transcript accessions without version");
                             continue;
-
-                        attributesHashMap.put("gene_type", geneType);
-                        if( geneSymbol != null ) {
-                            attributesHashMap.put("gene_symbol", geneSymbol);
                         }
-                        if( geneName != null ) {
-                            attributesHashMap.put("gene_name", geneName);
-                        }
-                        if( transcriptType != null ) {
-                            attributesHashMap.put("transcript_type", transcriptType);
-                        }
-                        if( proteinId != null ) {
-                            attributesHashMap.put("protein_id", proteinId);
-                        }
+                        String transcriptType = CreateGff4GeneAgr.getTrBiotype(gene.getType(), tr);
+                        String proteinId = tr.getProteinAccId();
 
-                        gtfWriter.writeFirst8Columns(trMd.getChromosome(), "RGD", "transcript", trMd.getStartPos(),trMd.getStopPos(), ".", trMd.getStrand(), ".");
-                        gtfWriter.writeAttributes(geneId, transcriptId, attributesHashMap);
-
-
-                        List<edu.mcw.rgd.gff3.CodingFeature> cfList = utils.buildCfList(trMd);
-                        for(edu.mcw.rgd.gff3.CodingFeature cf: cfList){
-
-                            String featureType = null;
-
-                            if(cf.getFeatureType()== TranscriptFeature.FeatureType.CDS){
-                                featureType = "CDS";
-                            }
-                            else if(cf.getFeatureType()== TranscriptFeature.FeatureType.EXON) {
-                                featureType = "exon";
-                            }
-                            if( featureType == null ) {
+                        for (MapData trMd : tr.getGenomicPositions()) {
+                            if (!CdsUtils.transcriptPositionOverlapsGenePosition(trMd, map))
                                 continue;
-                            }
 
                             attributesHashMap.put("gene_type", geneType);
-                            if( geneSymbol != null ) {
+                            if (geneSymbol != null) {
                                 attributesHashMap.put("gene_symbol", geneSymbol);
                             }
-                            if( geneName != null ) {
+                            if (geneName != null) {
                                 attributesHashMap.put("gene_name", geneName);
                             }
-                            if( transcriptType != null ) {
+                            if (transcriptType != null) {
                                 attributesHashMap.put("transcript_type", transcriptType);
                             }
-                            if( proteinId != null ) {
+                            if (proteinId != null) {
                                 attributesHashMap.put("protein_id", proteinId);
                             }
 
-                            gtfWriter.writeFirst8Columns(trMd.getChromosome(), "RGD", featureType, cf.getStartPos(), cf.getStopPos(), ".", trMd.getStrand(), cf.getCodingPhaseStr());
-                            gtfWriter.writeAttributes(geneId, transcriptId, attributesHashMap);
+                            synchronized (gtfWriter) {
+                                gtfWriter.writeFirst8Columns(trMd.getChromosome(), "RGD", "transcript", trMd.getStartPos(), trMd.getStopPos(), ".", trMd.getStrand(), ".");
+                                gtfWriter.writeAttributes(geneId, transcriptId, attributesHashMap);
+                            }
+
+                            List<edu.mcw.rgd.gff3.CodingFeature> cfList = utils.buildCfList(trMd);
+                            for (edu.mcw.rgd.gff3.CodingFeature cf : cfList) {
+
+                                String featureType = null;
+
+                                if (cf.getFeatureType() == TranscriptFeature.FeatureType.CDS) {
+                                    featureType = "CDS";
+                                } else if (cf.getFeatureType() == TranscriptFeature.FeatureType.EXON) {
+                                    featureType = "exon";
+                                }
+                                if (featureType == null) {
+                                    continue;
+                                }
+
+                                attributesHashMap.put("gene_type", geneType);
+                                if (geneSymbol != null) {
+                                    attributesHashMap.put("gene_symbol", geneSymbol);
+                                }
+                                if (geneName != null) {
+                                    attributesHashMap.put("gene_name", geneName);
+                                }
+                                if (transcriptType != null) {
+                                    attributesHashMap.put("transcript_type", transcriptType);
+                                }
+                                if (proteinId != null) {
+                                    attributesHashMap.put("protein_id", proteinId);
+                                }
+
+                                synchronized (gtfWriter) {
+                                    gtfWriter.writeFirst8Columns(trMd.getChromosome(), "RGD", featureType, cf.getStartPos(), cf.getStopPos(), ".", trMd.getStrand(), cf.getCodingPhaseStr());
+                                    gtfWriter.writeAttributes(geneId, transcriptId, attributesHashMap);
+                                }
+                            }
                         }
                     }
                 }
+            } catch( Exception e ) {
+                throw new RuntimeException(e);
             }
-        }
+        });
 
         gtfWriter.close();
         gtfWriter.sortInMemory();
