@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Jan 16, 2025 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Jan 24, 2025 --" />
 
         <property name="assemblies"><!-- file system location for files for given assembly: must be the same as found in '/ref/fasta' directory -->
             <map>
@@ -221,6 +221,7 @@
         <property name="outDir" value="QTLs"/>
         <property name="processedMapKeys">
             <list>
+                <value>380</value>  <!-- rn8 -->
                 <value>372</value>  <!-- rn7 -->
                 <value>360</value>  <!-- rn6 -->
                 <value>70</value>  <!-- rn5 -->
@@ -241,6 +242,7 @@
         <property name="outDir" value="Variants/Micro Satellite Markers"/>
         <property name="processedMapKeys">
             <list>
+                <value>380</value>  <!-- rn8 -->
                 <value>372</value>  <!-- rn7 -->
                 <value>360</value>  <!-- rn6 -->
                 <value>70</value>  <!-- rn5 -->
@@ -261,6 +263,7 @@
         <property name="mutantStrains" value="Mutant Strains"/>
         <property name="processedMapKeys">
             <list>
+                <value>380</value>  <!-- rn8 -->
                 <value>372</value>  <!-- rn7 -->
                 <value>360</value>  <!-- rn6 -->
                 <value>70</value>  <!-- rn5 -->

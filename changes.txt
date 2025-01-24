@@ -1,3 +1,6 @@
+Jan 24, 2025
+  markers, qtls: added generation of gff3 files for GRCr8 assembly
+
 Jan 16, 2025
   agr gff3: suppressed generation of ID attributes for exons, utrs and CDSs
 
