@@ -1,3 +1,6 @@
+Jan 28, 2025
+  agr genes: fixed generation of stable ids for transcripts
+
 Jan 24, 2025
   markers, qtls: added generation of gff3 files for GRCr8 assembly
 

@@ -234,7 +234,7 @@ public class CreateGff4GeneAgr {
 
                             String parent = uniqueGeneId+"";
                             attributes.put("Parent", parent);
-                            int id = getStableId(trMd.getChromosome(), dbName, trBiotype, trMd.getStartPos(), trMd.getStopPos(), parent, curie, counters);
+                            int id = getStableId(trMd.getChromosome(), dbName, trBiotype, trMd.getStartPos(), trMd.getStopPos(), parent, transcriptId, counters);
                             attributes.put("ID", id+"");
 
 
@@ -278,8 +278,6 @@ public class CreateGff4GeneAgr {
                                 gff3Writer.writeFirst8Columns(cf.getChromosome(), dbName, cf.getCanonicalName(), cf.getStartPos(), cf.getStopPos(), ".", cf.getStrand(), cf.getCodingPhaseStr());
 
 
-                                //int featureId = getStableId(cf.getChromosome(), dbName, cf.getCanonicalName(), cf.getStartPos(), cf.getStopPos(), parent, "", counters);
-                                //attributes.put("ID", featureId+"");
                                 attributes.put("Parent", id+"");
                                 if (cf.getNotes() != null)
                                     attributes.put("Note", cf.getNotes());
@@ -308,8 +306,6 @@ public class CreateGff4GeneAgr {
                     gff3Writer.writeFirst8Columns(map.getChromosome(), "RGD", "exon", map.getStartPos(), map.getStopPos(), ".", map.getStrand(), ".");
 
                     parent = regionId+"";
-                    //int id = getStableId(map.getChromosome(), "RGD", "exon", map.getStartPos(), map.getStopPos(), parent, "", counters);
-                    //attributes.put("ID", id+"");
                     attributes.put("Parent", parent);
                     gff3Writer.writeAttributes4Gff3(attributes);
                 }
