@@ -7,6 +7,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.zip.GZIPOutputStream;
 
 /**
@@ -239,6 +240,50 @@ public class Gff3ColumnWriter {
         return buf.toString();
     }
 
+    public void sortAndRemoveDuplicates() throws IOException {
+
+        String fname = getFileName();
+        sortAndRemoveDuplicates(fname, compressMode);
+    }
+
+    static public void sortAndRemoveDuplicates( String fname, int compressMode ) throws IOException {
+
+        if( compressMode!=Gff3ColumnWriter.COMPRESS_MODE_NONE ) {
+            if( !fname.endsWith(".gz") ) {
+                fname += ".gz";
+            }
+        }
+
+        int linesRead = 0;
+        int linesWritten = 0;
+        BufferedReader in = Utils.openReader(fname);
+        String line;
+        TreeSet<String> lines = new TreeSet<>(new Gff3Comparator());
+        while( (line=in.readLine())!=null ) {
+            linesRead++;
+            lines.add(line);
+        }
+        in.close();
+
+        BufferedWriter out;
+        if( compressMode == COMPRESS_MODE_BGZIP ) {
+            out = new BufferedWriter(new OutputStreamWriter(new BlockCompressedOutputStream(fname)));
+        } else {
+            out = Utils.openWriter(fname);
+        }
+
+        for( String l: lines ) {
+            out.write(l);
+            out.write("\n");
+            linesWritten++;
+        }
+        out.close();
+
+        System.out.println("sortAndRemoveDuplicates for "+fname+":   lines read: "
+                +Utils.formatThousands(linesRead)+",    lines written: "+Utils.formatThousands(linesWritten));
+    }
+
+
     /**
      * sorts the given gff3 file by 1 column (chromosome) and then by start pos (4th col) and stop pos (5th col)
      * goal: tabix-ready gff3 file
@@ -269,38 +314,7 @@ public class Gff3ColumnWriter {
         }
         in.close();
 
-        lines.sort(new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                String[] cols1 = o1.split("[\\t]", -1);
-                String[] cols2 = o2.split("[\\t]", -1);
-                if( cols1.length>=9 && cols2.length>=9 ) {
-                    // compare chromosomes
-                    int r = cols1[0].compareTo(cols2[0]);
-                    if( r!=0 ) {
-                        return r;
-                    }
-                    // compare start positions
-                    int pos1 = Integer.parseInt(cols1[3]);
-                    int pos2 = Integer.parseInt(cols2[3]);
-                    if( pos1!=pos2 ) {
-                        return pos1-pos2;
-                    }
-                    // compare end positions
-                    pos1 = Integer.parseInt(cols1[4]);
-                    pos2 = Integer.parseInt(cols2[4]);
-                    return pos1-pos2;
-                } else {
-                    // '##' lines have absolute priority before the rest of lines
-                    int v1 = o1.startsWith("##") ? 0 : 1;
-                    int v2 = o2.startsWith("##") ? 0 : 1;
-                    if( v1!=v2 ) {
-                        return v1-v2;
-                    }
-                    return o1.compareTo(o2);
-                }
-            }
-        });
+        lines.sort(new Gff3Comparator());
 
         BufferedWriter out;
         if( compressMode == COMPRESS_MODE_BGZIP ) {
@@ -315,6 +329,43 @@ public class Gff3ColumnWriter {
         }
         out.close();
     }
+
+    static class Gff3Comparator implements Comparator<String> {
+        public int compare(String o1, String o2) {
+            String[] cols1 = o1.split("[\\t]", -1);
+            String[] cols2 = o2.split("[\\t]", -1);
+            if (cols1.length >= 9 && cols2.length >= 9) {
+                // compare chromosomes
+                int r = cols1[0].compareTo(cols2[0]);
+                if (r != 0) {
+                    return r;
+                }
+                // compare start positions
+                int pos1 = Integer.parseInt(cols1[3]);
+                int pos2 = Integer.parseInt(cols2[3]);
+                if (pos1 != pos2) {
+                    return pos1 - pos2;
+                }
+                // compare end positions
+                pos1 = Integer.parseInt(cols1[4]);
+                pos2 = Integer.parseInt(cols2[4]);
+                if (pos1 != pos2) {
+                    return pos1 - pos2;
+                }
+                // chr, start & stop positions the same: just compare the lines
+                return o1.compareTo(o2);
+            } else {
+                // '##' lines have absolute priority before the rest of lines
+                int v1 = o1.startsWith("##") ? 0 : 1;
+                int v2 = o2.startsWith("##") ? 0 : 1;
+                if (v1 != v2) {
+                    return v1 - v2;
+                }
+                return o1.compareTo(o2);
+            }
+        }
+    }
+
 
     public int getCompressMode() {
         return compressMode;

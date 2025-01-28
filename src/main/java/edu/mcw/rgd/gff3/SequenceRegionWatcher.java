@@ -11,10 +11,19 @@ public class SequenceRegionWatcher {
     private Gff3ColumnWriter gff3Writer;
     private RgdGff3Dao dao;
 
+    private String chromosomePrefix = "Chr";
+
     public SequenceRegionWatcher( int mapKey, Gff3ColumnWriter gff3Writer, RgdGff3Dao dao ) {
         this.mapKey = mapKey;
         this.gff3Writer = gff3Writer;
         this.dao = dao;
+    }
+
+    public SequenceRegionWatcher( int mapKey, Gff3ColumnWriter gff3Writer, RgdGff3Dao dao, String chrPrefix ) {
+        this.mapKey = mapKey;
+        this.gff3Writer = gff3Writer;
+        this.dao = dao;
+        this.chromosomePrefix = chrPrefix;
     }
 
     public void init( int mapKey, Gff3ColumnWriter gff3Writer, RgdGff3Dao dao ) {
@@ -38,7 +47,7 @@ public class SequenceRegionWatcher {
             }
 
             if( chrSize>0 ) {
-                gff3Writer.print("##sequence-region " + (chr.length()>2?chr:"Chr"+chr) + " 1 " + chrSize + "\n");
+                gff3Writer.print("##sequence-region " + (chr.length()>2 ? chr : chromosomePrefix+chr) + " 1 " + chrSize + "\n");
                 return true;
             }
         }

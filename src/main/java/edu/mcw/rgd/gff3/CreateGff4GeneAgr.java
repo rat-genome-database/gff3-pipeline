@@ -62,7 +62,7 @@ public class CreateGff4GeneAgr {
         gff3Writer.print("#!date-produced "+sdt.format(new Date())+"\n");
         gff3Writer.print("#!species "+ species+"\n");
         gff3Writer.print("#!primary-contact mtutaj@mcw.edu\n");
-        gff3Writer.print("#!tool AGR GFF3 extractor  v 2024-05-17\n");
+        gff3Writer.print("#!tool AGR GFF3 extractor  v 2025-01-28\n");
 
         List<Gene> activeGenes;
         if( specialGeneRgdId != 0 ) {
@@ -78,7 +78,7 @@ public class CreateGff4GeneAgr {
         System.out.println("active genes: "+activeGenes.size());
         Collections.shuffle(activeGenes);
 
-        SequenceRegionWatcher sequenceRegionWatcher = new SequenceRegionWatcher(mapKey, gff3Writer, dao);
+        SequenceRegionWatcher sequenceRegionWatcher = new SequenceRegionWatcher(mapKey, gff3Writer, dao, "");
 
         int i = 0;
         for( Gene gene: activeGenes ){
@@ -314,7 +314,7 @@ public class CreateGff4GeneAgr {
 
         gff3Writer.close();
         if( DEBUG_SKIP_SORT == false ) {
-            gff3Writer.sortInMemory();
+            gff3Writer.sortAndRemoveDuplicates();
         }
 
         dumpCounters(counters);
