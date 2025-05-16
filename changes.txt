@@ -1,7 +1,8 @@
 May 16, 2025
   ensembl data: upgraded from build 111 to 114; support for GRCr8
   genes: generation of tracks for genes and biological regions
-
+  removed unused class PhenoLoader
+  
 Jan 28, 2025
   agr genes: fixed generation of stable ids for transcripts
 
