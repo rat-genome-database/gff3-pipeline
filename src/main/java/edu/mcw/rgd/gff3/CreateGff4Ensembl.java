@@ -19,7 +19,7 @@ public class CreateGff4Ensembl {
 
             int mapKey = getMappings2().get(entry.getKey());
             String assemblyDir = Manager.getInstance().getAssemblies().get(mapKey);
-            String outDir2 = assemblyDir+"/"+getOutDir()+"/"+Gff3Utils.getAssemblyDirStandardized(mapKey);
+            String outDir2 = assemblyDir+"/"+Gff3Utils.getAssemblyDirStandardized(mapKey)+"/"+getOutDir();
             new File(outDir2).mkdirs();
             String outPath = outDir2+"/"+entry.getValue();
 
