@@ -52,14 +52,16 @@ public class CreateGff4Eva {
         int mapKey = info.getMapKey();
         String assemblyName = MapManager.getInstance().getMap(mapKey).getName();
         Gff3ColumnWriter gff3Writer = null;
+
         if(gff3Writer==null) {
             String gffFile = info.getToDir() + "EVA_" + assemblyName+ ".gff3";
             gff3Writer = new Gff3ColumnWriter(gffFile, info.getCompressMode());
         }
         List<String> chromosomes = getChromosomes(info.getMapKey());
-
+        SequenceRegionWatcher sequenceRegionWatcher = new SequenceRegionWatcher(info.getMapKey(), gff3Writer, dao);
         int dataLinesWritten = 0;
         for(String chr : chromosomes) {
+            sequenceRegionWatcher.emit(chr);
 
             Map<String, ArrayList<String>> rsSoCheck = new HashMap<>();
 
@@ -235,6 +237,7 @@ public class CreateGff4Eva {
             }
 
         }// end for chrom
+        gff3Writer.sortInMemory();
         if(gff3Writer!=null)
             gff3Writer.close();
 
