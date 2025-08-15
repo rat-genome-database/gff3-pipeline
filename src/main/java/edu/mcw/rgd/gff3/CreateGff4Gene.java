@@ -99,20 +99,10 @@ public class CreateGff4Gene {
         SequenceRegionWatcher sequenceRegionWatcher1 = new SequenceRegionWatcher(info.getMapKey(), gff3GenesOnly, dao);
         SequenceRegionWatcher sequenceRegionWatcher2 = new SequenceRegionWatcher(info.getMapKey(), gff3GenesAndTranscripts, dao);
 
-        // human and mouse genes, have thousands of biological-region type genes: they should go to separate gff3 file
-        Gff3ColumnWriter gff3BiologicalRegions = null;
-        SequenceRegionWatcher sequenceRegionWatcher3 = null;
-        if( info.getSpeciesTypeKey()==SpeciesType.HUMAN || info.getSpeciesTypeKey()==SpeciesType.MOUSE ) {
-            gff3BiologicalRegions = new Gff3ColumnWriter(fileName + " Biological Regions.gff3", info.getCompressMode());
-            gff3BiologicalRegions.print(headerInfo);
-            sequenceRegionWatcher3 = new SequenceRegionWatcher(info.getMapKey(), gff3BiologicalRegions, dao);
-        }
-
         List<Gene> activeGenes = dao.getActiveGenes(info.getSpeciesTypeKey());
 
         for( Gene gene: activeGenes ){
 
-            boolean isBiologicalRegion = Utils.stringsAreEqualIgnoreCase( gene.getType(), "biological-region" );
             int geneRgdId = gene.getRgdId();
 
             List<MapData> geneMap = getMapData(geneRgdId, info.getMapKey(), counters);
@@ -186,15 +176,7 @@ public class CreateGff4Gene {
 
                 String attrStr = Gff3ColumnWriter.prepAttributes4Gff3(attributesHashMap);
 
-                if( isBiologicalRegion ) {
-                    sequenceRegionWatcher3.emit(map.getChromosome());
-
-                    gff3BiologicalRegions.writeFirst8Columns(map.getChromosome(), "RGD", "gene", map.getStartPos(), map.getStopPos(), ".", map.getStrand(), ".");
-                    gff3BiologicalRegions.print(attrStr);
-
-                    continue;
-
-                } else {
+                {
                     sequenceRegionWatcher1.emit(map.getChromosome());
 
                     gff3GenesOnly.writeFirst8Columns(map.getChromosome(), "RGD", "gene", map.getStartPos(), map.getStopPos(), ".", map.getStrand(), ".");
@@ -290,10 +272,6 @@ public class CreateGff4Gene {
         gff3GenesOnly.sortInMemory();
         gff3GenesAndTranscripts.close();
         gff3GenesAndTranscripts.sortInMemory();
-        if( gff3BiologicalRegions!=null ) {
-            gff3BiologicalRegions.close();
-            gff3BiologicalRegions.sortInMemory();
-        }
 
         dumpCounters(counters, ucscId.isEmpty() ? refseqId : ucscId, msgBuf);
 

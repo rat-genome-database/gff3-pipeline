@@ -1,3 +1,6 @@
+Aug 15, 2025
+  added generation of biological regions track
+
 May 16, 2025
   ensembl data: upgraded from build 111 to 114; support for GRCr8
   genes: generation of tracks for genes and biological regions

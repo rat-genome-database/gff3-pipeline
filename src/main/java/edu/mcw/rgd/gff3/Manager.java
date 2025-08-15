@@ -264,6 +264,11 @@ public class Manager {
                             gtf.run();
                             return true;
                         }
+                        case "biologicalRegions": {
+                            CreateGff4BiologicalRegions gbr = (CreateGff4BiologicalRegions) (bf.getBean("biologicalRegionManager"));
+                            gbr.run();
+                            return true;
+                        }
 
                         case "gene":
                             objectTypeKey = RgdId.OBJECT_KEY_GENES;

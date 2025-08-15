@@ -28,6 +28,7 @@ public class RgdGff3Dao {
     private AssociationDAO assocDao = new AssociationDAO();
     private EvaDAO evaDAO = new EvaDAO();
     private GeneDAO geneDAO = assocDao.getGeneDAO();
+    private GenomicElementDAO geDAO = new GenomicElementDAO();
     private MapDAO mapDAO = new MapDAO();
     private OntologyXDAO ontologyXDAO = new OntologyXDAO();
     private QTLDAO qtlDAO = new QTLDAO();
@@ -82,6 +83,10 @@ public class RgdGff3Dao {
         //String query = "SELECT g.*, r.species_type_key FROM genes g, rgd_ids r WHERE r.object_status='ACTIVE'  AND r.species_type_key=?
         // AND NVL(gene_type_lc,'*') NOT IN ('splice','allele')  AND r.rgd_id=g.rgd_id AND g.rgd_id=1352628 ORDER BY g.gene_symbol_lc";
         //return GeneQuery.execute(geneDAO, query, new Object[]{speciesTypeKey});
+    }
+
+    public List<GenomicElement> getActiveBiologicalRegions(int speciesTypeKey) throws Exception {
+        return geDAO.getActiveElements( RgdId.OBJECT_KEY_BIOLOGICAL_REGIONS, speciesTypeKey );
     }
 
     /**
@@ -202,6 +207,10 @@ public class RgdGff3Dao {
 
     public List<XdbId> getXdbIds(XdbId filter) throws Exception {
         return xdbDao.getXdbIds(filter);
+    }
+
+    public List<XdbId> getXdbIds(int rgdId) throws Exception {
+        return xdbDao.getAllXdbIdsByRgdId(rgdId);
     }
 
     public List<XdbId> getXdbIds(XdbId filter, int speciesType, int objectKey) throws Exception {
