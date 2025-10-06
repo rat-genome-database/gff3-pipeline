@@ -11,7 +11,7 @@ LOGDIR=$APP_HOME/data
 
 SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
 if [ "$SERVER" == "REED" ]; then
-  EMAILLIST=mtutaj@mcw.edu,llamers@mcw.edu
+  EMAILLIST="mtutaj@mcw.edu llamers@mcw.edu"
 else
   EMAILLIST=mtutaj@mcw.edu
 fi
