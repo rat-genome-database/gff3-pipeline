@@ -128,6 +128,10 @@ public class CreateGff4Gene {
 
             for(MapData map : geneMap){
 
+                if( map.getStrand()==null ) {
+                    System.out.println("WARNING! no strand for RGD:"+map.getRgdId());
+                    continue;
+                }
                 List<Transcript> trsOnMap = getTranscriptsForMap(geneTrs, map, utils);
 
                 String gType;
