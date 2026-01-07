@@ -1,3 +1,6 @@
+Jan 07, 2026
+  rat: added assemblies: Dahl_SR_JrHsd, Lyon_Normot, Lyon_Hypertensive, F344_StmMcwi
+
 Dec 04, 2025
   gff3 writer: no longer exporting genes without a strand
 
