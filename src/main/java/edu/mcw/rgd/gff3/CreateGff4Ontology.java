@@ -83,10 +83,10 @@ public class CreateGff4Ontology {
         int doTermNr = 0;
         for( String termAcc: doTermAccessions ) {
 
-            doTermNr++;
             int jobsDone = mapKeysDone.get();
             String jobProgress = "["+jobsDone+"/"+jobCount+"]. ";
-            log.debug(jobProgress+termAcc+" ["+doTermNr+"/"+doTermAccessions.size()+"]");
+            log.debug(jobProgress+mainDir+" "+termAcc+" ["+doTermNr+"/"+doTermAccessions.size()+"]");
+            doTermNr++;
 
             String trackName = getTermTrackNames().get(termAcc);
             if (trackName == null) {
