@@ -68,6 +68,12 @@ public class CreateGff4Ontology {
 
         String assemblyDir = Manager.getInstance().getAssemblies().get(mapKey);
         if( assemblyDir==null ) {
+            long t1 = System.currentTimeMillis();
+            int jobsDone = mapKeysDone.incrementAndGet();
+            log.info("===");
+            log.info("=== "+jobsDone+"/"+jobCount+".  WARNING! NO ASSEMBLY DIR FOR MAP_KEY="+mapKey);
+            log.info("=== "+jobsDone+"/"+jobCount+".  Time elapsed " + Utils.formatElapsedTime(t0, t1));
+            log.info("===");
             return;
         }
         assemblyDir += "/" + Gff3Utils.getAssemblyDirStandardized(mapKey);
