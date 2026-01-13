@@ -143,7 +143,8 @@ public class CreateGff4Ontology {
             gff3Writer.print(gffHeader);
             sequenceRegionWatcher.init(mapKey, gff3Writer, dao);
 
-            for (MapData md : dao.getMapDataByMapKeyChr("*", mapKey, RgdId.OBJECT_KEY_QTLS)) {
+            List<MapData> qtlMds = dao.getMapData("*", mapKey, RgdId.OBJECT_KEY_QTLS, ontAspect);
+            for (MapData md : qtlMds ) {
                 if (md.getStartPos() != null && md.getStopPos() != null) {
 
                     Gff3Entry entry = new Gff3Entry(RgdId.OBJECT_KEY_QTLS, md);
@@ -464,7 +465,8 @@ public class CreateGff4Ontology {
         AtomicInteger annotCount = new AtomicInteger(0);
         StringBuffer gff3Lines = new StringBuffer();
 
-        dao.getMapDataByMapKeyChr(chr, mapKey, RgdId.OBJECT_KEY_GENES).parallelStream().forEach(md -> {
+        List<MapData> mds = dao.getMapData(chr, mapKey, RgdId.OBJECT_KEY_GENES, ontAspect);
+        mds.parallelStream().forEach(md -> {
 
             if (md.getStartPos() != null && md.getStopPos() != null) {
 
