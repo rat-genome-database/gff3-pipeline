@@ -61,6 +61,7 @@ public class CreateGff4Ontology {
 
     public void runOntology(Collection<String> doTermAccs, String outDirName, String ontAspect, Logger log, int mapKey, AtomicInteger mapKeysDone) throws Exception {
         long t0 = System.currentTimeMillis();
+        final int jobCount = getProcessedMapKeys().size();
 
         int compressMode = Gff3ColumnWriter.COMPRESS_MODE_BGZIP;
         int speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
@@ -79,9 +80,13 @@ public class CreateGff4Ontology {
 
         ArrayList<String> doTermAccessions = new ArrayList<>(doTermAccs);
         Collections.shuffle(doTermAccessions);
+        int doTermNr = 0;
         for( String termAcc: doTermAccessions ) {
 
-            log.debug("  "+mainDir+"  "+termAcc+" ...");
+            doTermNr++;
+            int jobsDone = mapKeysDone.get();
+            String jobProgress = "["+jobsDone+"/"+jobCount+"]. ";
+            log.debug(jobProgress+termAcc+" ["+doTermNr+"/"+doTermAccessions.size()+"]");
 
             String trackName = getTermTrackNames().get(termAcc);
             if (trackName == null) {
@@ -120,7 +125,7 @@ public class CreateGff4Ontology {
             }
 
             //Term rootTerm = dao.getTerm(termAcc);
-            String summaryMsg = "  "+mainDir+"  "+termAcc + " written genes: "+counter;
+            String summaryMsg = mainDir+"  "+termAcc + " written genes: "+counter;
 
 
             //// QTLS
@@ -199,7 +204,6 @@ public class CreateGff4Ontology {
 
         long t1 = System.currentTimeMillis();
         int jobsDone = mapKeysDone.incrementAndGet();
-        int jobCount = getProcessedMapKeys().size();
         log.info("===");
         log.info("=== "+jobsDone+"/"+jobCount+".  "+mainDir+" DONE! Time elapsed " + Utils.formatElapsedTime(t0, t1));
         log.info("===");
