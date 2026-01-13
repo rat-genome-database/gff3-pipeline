@@ -35,9 +35,10 @@ public class CreateGff4Ontology {
 
         Collection<String> doTermAccs = getTermsInJBrowseSlim();
 
+        AtomicInteger mapKeysDone = new AtomicInteger(0);
         getProcessedMapKeys().stream().parallel().forEach( processedMapKey -> {
             try {
-                runOntology(doTermAccs, getOutDirForDiseases(), "D", log, processedMapKey);
+                runOntology(doTermAccs, getOutDirForDiseases(), "D", log, processedMapKey, mapKeysDone);
             } catch( Exception e ) {
                 Utils.printStackTrace(e, log);
                 throw new RuntimeException(e);
@@ -52,12 +53,13 @@ public class CreateGff4Ontology {
         final String termAcc = "CHEBI:24432"; // CHEBI term 'biological_role'
         Collection<String> termAccs = dao.getTermDescendants(termAcc).keySet();
 
+        AtomicInteger mapKeysDone = new AtomicInteger(0);
         for( Integer processedMapKey: getProcessedMapKeys() ) {
-            runOntology(termAccs, getOutDirForChebi(), "E", log, processedMapKey);
+            runOntology(termAccs, getOutDirForChebi(), "E", log, processedMapKey, mapKeysDone);
         }
     }
 
-    public void runOntology(Collection<String> doTermAccs, String outDirName, String ontAspect, Logger log, int mapKey) throws Exception {
+    public void runOntology(Collection<String> doTermAccs, String outDirName, String ontAspect, Logger log, int mapKey, AtomicInteger mapKeysDone) throws Exception {
         long t0 = System.currentTimeMillis();
 
         int compressMode = Gff3ColumnWriter.COMPRESS_MODE_BGZIP;
@@ -196,8 +198,11 @@ public class CreateGff4Ontology {
         }
 
         long t1 = System.currentTimeMillis();
-        log.info("============");
-        log.info("\nTotal time elapsed " + Utils.formatElapsedTime(t0, t1));
+        int jobsDone = mapKeysDone.incrementAndGet();
+        int jobCount = getProcessedMapKeys().size();
+        log.info("===");
+        log.info("=== "+jobsDone+"/"+jobCount+".  "+mainDir+" DONE! Time elapsed " + Utils.formatElapsedTime(t0, t1));
+        log.info("===");
     }
 
     Map<String, Term> getAnnotatedChildTerms(String termAcc, int speciesTypeKey) throws Exception {
