@@ -71,7 +71,7 @@ public class CreateGff4Ontology {
 
         String mainDir = assemblyDir + "/" + outDirName;
 
-        log.info("processing "+mainDir+" ...");
+        log.info(mainDir+" ...");
 
         SequenceRegionWatcher sequenceRegionWatcher = new SequenceRegionWatcher(0, null, null);
 
@@ -117,8 +117,8 @@ public class CreateGff4Ontology {
                 new File(gff3Writer.getOutFileName()).delete();
             }
 
-            Term rootTerm = dao.getTerm(termAcc);
-            String summaryMsg = ">>> "+rootTerm.getAccId() + " " + rootTerm.getTerm() + " written genes: "+counter;
+            //Term rootTerm = dao.getTerm(termAcc);
+            String summaryMsg = "  "+mainDir+"  "+termAcc + " written genes: "+counter;
 
 
             //// QTLS
