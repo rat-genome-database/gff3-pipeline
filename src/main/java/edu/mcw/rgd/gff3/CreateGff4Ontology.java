@@ -6,6 +6,8 @@ import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.datamodel.ontologyx.*;
 import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.net.URLEncoder;
@@ -20,11 +22,6 @@ public class CreateGff4Ontology {
     OntologyXDAO ontXdao = new OntologyXDAO();
     QTLDAO qtldao = new QTLDAO();
 
-    // old - legacy -- properties
-    int speciesTypeKey=0;
-    int mapKey=0;
-    String ontAspect;
-
     /// new properties
     private String outDirForDiseases;
     private String outDirForChebi;
@@ -34,34 +31,37 @@ public class CreateGff4Ontology {
 
     public void runDiseaseOntology() throws Exception {
 
-        setOntAspect("D");
+        Logger log = LogManager.getLogger("disease");
 
         Collection<String> doTermAccs = getTermsInJBrowseSlim();
 
-        for( Integer processedMapKey: getProcessedMapKeys() ) {
-            mapKey = processedMapKey;
-            runOntology(doTermAccs, getOutDirForDiseases());
-        }
+        getProcessedMapKeys().stream().parallel().forEach( processedMapKey -> {
+            try {
+                runOntology(doTermAccs, getOutDirForDiseases(), "D", log, processedMapKey);
+            } catch( Exception e ) {
+                Utils.printStackTrace(e, log);
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public void runChebiOntology() throws Exception {
 
-        setOntAspect("E");
+        Logger log = LogManager.getLogger("chebi");
 
         final String termAcc = "CHEBI:24432"; // CHEBI term 'biological_role'
         Collection<String> termAccs = dao.getTermDescendants(termAcc).keySet();
 
         for( Integer processedMapKey: getProcessedMapKeys() ) {
-            mapKey = processedMapKey;
-            runOntology(termAccs, getOutDirForChebi());
+            runOntology(termAccs, getOutDirForChebi(), "E", log, processedMapKey);
         }
     }
 
-    public void runOntology(Collection<String> doTermAccs, String outDirName) throws Exception {
+    public void runOntology(Collection<String> doTermAccs, String outDirName, String ontAspect, Logger log, int mapKey) throws Exception {
         long t0 = System.currentTimeMillis();
 
         int compressMode = Gff3ColumnWriter.COMPRESS_MODE_BGZIP;
-        speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
+        int speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
 
         String assemblyDir = Manager.getInstance().getAssemblies().get(mapKey);
         if( assemblyDir==null ) {
@@ -71,17 +71,23 @@ public class CreateGff4Ontology {
 
         String mainDir = assemblyDir + "/" + outDirName;
 
+        log.info("processing "+mainDir+" ...");
+
         SequenceRegionWatcher sequenceRegionWatcher = new SequenceRegionWatcher(0, null, null);
 
-        for( String termAcc: doTermAccs ) {
+        ArrayList<String> doTermAccessions = new ArrayList<>(doTermAccs);
+        Collections.shuffle(doTermAccessions);
+        for( String termAcc: doTermAccessions ) {
+
+            log.debug("  "+mainDir+"  "+termAcc+" ...");
 
             String trackName = getTermTrackNames().get(termAcc);
             if (trackName == null) {
-                System.out.println("**** ERROR *** TERM " + termAcc + " DOES NOT HAVE A MAPPING IN CONFIG FILE -- SKIPPED!");
+                log.error("**** ERROR *** TERM " + termAcc + " DOES NOT HAVE A MAPPING IN CONFIG FILE -- SKIPPED!");
                 continue;
             }
 
-            if (!isTermAnnotated(termAcc))
+            if (!isTermAnnotated(termAcc, speciesTypeKey))
                 continue;
 
             String outDir = mainDir + "/" + trackName;
@@ -90,18 +96,18 @@ public class CreateGff4Ontology {
             // write as comment: date and time it was generated, species, assembly and ontology term
             String gffHeader = "";
             gffHeader += ("#generated on " + new Date() + "\n");
-            gffHeader += ("#" + SpeciesType.getCommonName(speciesTypeKey) + " assembly " + MapManager.getInstance().getMap(getMapKey()).getName() + "\n");
+            gffHeader += ("#" + SpeciesType.getCommonName(speciesTypeKey) + " assembly " + MapManager.getInstance().getMap(mapKey).getName() + "\n");
             gffHeader += ("#disease ontology track for term '" + dao.getTerm(termAcc).getTerm() + "' (" + termAcc + ")\n");
 
-            Map<String, Term> mapAccAnnList = getAnnotatedChildTerms(termAcc);
+            Map<String, Term> mapAccAnnList = getAnnotatedChildTerms(termAcc, speciesTypeKey);
 
             String gffFile = outDir + "/" + trackName + " Related Genes.gff3";
             Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(gffFile, compressMode);
             gff3Writer.print(gffHeader);
-            sequenceRegionWatcher.init(getMapKey(), gff3Writer, dao);
+            sequenceRegionWatcher.init(mapKey, gff3Writer, dao);
 
             List<RGDInfo> rgdInfoList = new ArrayList<>();
-            int counter = processGenes("*", termAcc, gff3Writer, mapAccAnnList, rgdInfoList, sequenceRegionWatcher);
+            int counter = processGenes("*", termAcc, gff3Writer, mapAccAnnList, rgdInfoList, sequenceRegionWatcher, ontAspect, mapKey, speciesTypeKey);
 
             gff3Writer.close();
             if (counter > 0) {
@@ -122,19 +128,19 @@ public class CreateGff4Ontology {
             gffFile = outDir + "/" + trackName + " Related QTLs.gff3";
             gff3Writer = new Gff3ColumnWriter(gffFile, compressMode);
             gff3Writer.print(gffHeader);
-            sequenceRegionWatcher.init(getMapKey(), gff3Writer, dao);
+            sequenceRegionWatcher.init(mapKey, gff3Writer, dao);
 
             for (MapData md : dao.getMapDataByMapKeyChr("*", mapKey, RgdId.OBJECT_KEY_QTLS)) {
                 if (md.getStartPos() != null && md.getStopPos() != null) {
 
                     Gff3Entry entry = new Gff3Entry(RgdId.OBJECT_KEY_QTLS, md);
-                    processQtl(entry);
+                    processQtl(entry, speciesTypeKey);
 
-                    counter += processAnnotations(mapAccAnnList, entry);
+                    counter += processAnnotations(mapAccAnnList, entry, ontAspect, speciesTypeKey);
 
                     if( !Utils.isStringEmpty(entry.anns) ) {
                         createRGdInfo(entry, rgdInfoList);
-                        writeGff3Line(gff3Writer, entry, termAcc);
+                        writeGff3Line(gff3Writer, entry, termAcc, speciesTypeKey);
                         sequenceRegionWatcher.emit(md.getChromosome());
                     }
                 }
@@ -159,7 +165,7 @@ public class CreateGff4Ontology {
                 gffFile = outDir + "/" + trackName + " Related Strains.gff3";
                 gff3Writer = new Gff3ColumnWriter(gffFile, compressMode);
                 gff3Writer.print(gffHeader);
-                sequenceRegionWatcher.init(getMapKey(), gff3Writer, dao);
+                sequenceRegionWatcher.init(mapKey, gff3Writer, dao);
 
                 for (MapData md : dao.getMapDataByMapKeyChr("*", mapKey, RgdId.OBJECT_KEY_STRAINS)) {
                     if (md.getStartPos() != null && md.getStopPos() != null) {
@@ -167,11 +173,11 @@ public class CreateGff4Ontology {
                         Gff3Entry entry = new Gff3Entry(RgdId.OBJECT_KEY_STRAINS, md);
                         processStrain(entry);
 
-                        counter += processAnnotations(mapAccAnnList, entry);
+                        counter += processAnnotations(mapAccAnnList, entry, ontAspect, speciesTypeKey);
 
                         if( !Utils.isStringEmpty(entry.anns) ) {
                             createRGdInfo(entry, rgdInfoList);
-                            writeGff3Line(gff3Writer, entry, termAcc);
+                            writeGff3Line(gff3Writer, entry, termAcc, speciesTypeKey);
                             sequenceRegionWatcher.emit(md.getChromosome());
                         }
                     }
@@ -186,21 +192,21 @@ public class CreateGff4Ontology {
                 }
                 summaryMsg += ", strains: "+counter;
             }
-            System.out.println(summaryMsg);
+            log.info(summaryMsg);
         }
 
         long t1 = System.currentTimeMillis();
-        System.out.println("============");
-        System.out.println("\nTotal time elapsed " + Utils.formatElapsedTime(t0, t1));
+        log.info("============");
+        log.info("\nTotal time elapsed " + Utils.formatElapsedTime(t0, t1));
     }
 
-    Map<String, Term> getAnnotatedChildTerms(String termAcc) throws Exception {
+    Map<String, Term> getAnnotatedChildTerms(String termAcc, int speciesTypeKey) throws Exception {
         List<TermDagEdge> termWithStatsList = ontXdao.getAllChildEdges(termAcc);
 
         Map<String, Term> mapAccAnnList = new HashMap<>();
         for (TermDagEdge tws : termWithStatsList) {
             TermWithStats t = dao.getTerm(tws.getChildTermAcc());
-            if( isTermAnnotated(tws.getChildTermAcc()) ) {
+            if( isTermAnnotated(tws.getChildTermAcc(), speciesTypeKey) ) {
                 mapAccAnnList.put(t.getAccId(), t);
             }
         }
@@ -223,7 +229,7 @@ public class CreateGff4Ontology {
         }
     }
 
-    void processQtl(Gff3Entry entry) throws Exception {
+    void processQtl(Gff3Entry entry, int speciesTypeKey) throws Exception {
 
         QTL qtlObj = qtldao.getQTL(entry.rgdId);
         entry.name = qtlObj.getName();
@@ -310,10 +316,10 @@ public class CreateGff4Ontology {
         }
     }
 
-    int processAnnotations(Map<String, Term> mapAccAnnList, Gff3Entry entry) throws Exception {
+    int processAnnotations(Map<String, Term> mapAccAnnList, Gff3Entry entry, String ontAspect, int speciesTypeKey) throws Exception {
 
         Map<String,String> annotMap = new TreeMap<>();
-        for( Annotation ann: dao.getAnnotationsByAspect(entry.rgdId, getOntAspect(), getSpeciesTypeKey()) ) {
+        for( Annotation ann: dao.getAnnotationsByAspect(entry.rgdId, ontAspect, speciesTypeKey) ) {
 
             if (mapAccAnnList.containsKey(ann.getTermAcc())) {
 
@@ -361,12 +367,12 @@ public class CreateGff4Ontology {
         rgdInfoList.add(rgdInfo);
     }
 
-    void writeGff3Line(Gff3ColumnWriter gff3Writer, Gff3Entry entry, String termAcc) {
+    void writeGff3Line(Gff3ColumnWriter gff3Writer, Gff3Entry entry, String termAcc, int speciesTypeKey) {
 
-        gff3Writer.print( prepGff3Line(gff3Writer, entry, termAcc) );
+        gff3Writer.print( prepGff3Line(gff3Writer, entry, termAcc, speciesTypeKey) );
     }
 
-    String prepGff3Line(Gff3ColumnWriter gff3Writer, Gff3Entry entry, String termAcc) {
+    String prepGff3Line(Gff3ColumnWriter gff3Writer, Gff3Entry entry, String termAcc, int speciesTypeKey) {
 
         StringBuffer buf = new StringBuffer(
             gff3Writer.prepFirst8Columns(entry.chrom,
@@ -437,7 +443,8 @@ public class CreateGff4Ontology {
     //// highly parallel code
 
     int processGenes(String chr, String termAcc, Gff3ColumnWriter gff3Writer, Map<String, Term> mapAccAnnList,
-                     List<RGDInfo> rgdInfoList, SequenceRegionWatcher sequenceRegionWatcher) throws Exception {
+                     List<RGDInfo> rgdInfoList, SequenceRegionWatcher sequenceRegionWatcher, String ontAspect,
+                     int mapKey, int speciesTypeKey) throws Exception {
 
         AtomicInteger annotCount = new AtomicInteger(0);
         StringBuffer gff3Lines = new StringBuffer();
@@ -452,11 +459,11 @@ public class CreateGff4Ontology {
                     Gff3Entry entry = new Gff3Entry(RgdId.OBJECT_KEY_GENES, md);
                     processGene(entry);
 
-                    annotCount.addAndGet(processAnnotations(mapAccAnnList, entry));
+                    annotCount.addAndGet(processAnnotations(mapAccAnnList, entry, ontAspect, speciesTypeKey));
 
                     if( !Utils.isStringEmpty(entry.anns) ) {
                         createRGdInfo(entry, rgdInfoList);
-                        gff3Lines.append(prepGff3Line(gff3Writer, entry, termAcc));
+                        gff3Lines.append(prepGff3Line(gff3Writer, entry, termAcc, speciesTypeKey));
                     }
                 } catch(Exception e) {
                     throw new RuntimeException(e);
@@ -468,9 +475,9 @@ public class CreateGff4Ontology {
         return annotCount.get();
     }
 
-    boolean isTermAnnotated(String termAcc) throws Exception {
+    boolean isTermAnnotated(String termAcc, int speciesTypeKey) throws Exception {
         TermWithStats t = dao.getTerm(termAcc);
-        return t.getAnnotObjectCountForSpecies(getSpeciesTypeKey(), true)>0;
+        return t.getAnnotObjectCountForSpecies(speciesTypeKey, true)>0;
     }
 
     Collection<String> getTermsInJBrowseSlim() throws Exception {
@@ -517,30 +524,6 @@ public class CreateGff4Ontology {
         public void setStrand(String strand) {
             this.strand = strand==null ? "." : strand;
         }
-    }
-
-    public int getSpeciesTypeKey() {
-        return speciesTypeKey;
-    }
-
-    public void setSpeciesTypeKey(int speciesTypeKey) {
-        this.speciesTypeKey = speciesTypeKey;
-    }
-
-    public int getMapKey() {
-        return mapKey;
-    }
-
-    public void setMapKey(int mapKey) {
-        this.mapKey = mapKey;
-    }
-
-    public String getOntAspect() {
-        return ontAspect;
-    }
-
-    public void setOntAspect(String ontAspect) {
-        this.ontAspect = ontAspect;
     }
 
     public String getOutDirForDiseases() {

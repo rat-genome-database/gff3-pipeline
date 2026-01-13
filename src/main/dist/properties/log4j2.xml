@@ -101,6 +101,32 @@
             <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
         </File>
 
+        <RollingFile name="disease_detail" append="true" fileName="logs/disease_detail.log" filePattern="logs/disease_detail.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/><!-- 1 month roll over -->
+            </Policies>
+        </RollingFile>
+        <RollingFile name="disease" append="true" fileName="logs/disease.log" filePattern="logs/disease.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/><!-- 1 month roll over -->
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="chebi_detail" append="true" fileName="logs/chebi_detail.log" filePattern="logs/chebi_detail.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/><!-- 1 month roll over -->
+            </Policies>
+        </RollingFile>
+        <RollingFile name="chebi" append="true" fileName="logs/chebi.log" filePattern="logs/chebi.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/><!-- 1 month roll over -->
+            </Policies>
+        </RollingFile>
+
         <RollingFile name="gtf" append="true" fileName="logs/gtf.log" filePattern="logs/gtf.log.%d{yyyy-MM}">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %p [%c] - %m%n"/>
             <Policies>
@@ -152,6 +178,18 @@
             <AppenderRef ref="ensembl"/>
             <AppenderRef ref="ensembl_detail" level="debug"/>
             <AppenderRef ref="ensembl_summary" level="info"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+
+        <Logger name="disease" level="debug" additivity="false">
+            <AppenderRef ref="disease_detail" level="debug"/>
+            <AppenderRef ref="disease" level="info"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+
+        <Logger name="chebi" level="debug" additivity="false">
+            <AppenderRef ref="chebi_detail" level="debug"/>
+            <AppenderRef ref="chebi" level="info"/>
             <AppenderRef ref="Console" level="info"/>
         </Logger>
 

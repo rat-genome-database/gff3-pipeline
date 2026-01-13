@@ -24,61 +24,60 @@ public class NcbiPrep {
 
     public static void main(String[] args) throws Exception {
 
-        String fname = "/Users/mtutaj/Downloads/GCF_000236235.1_SpeTri2.0_genomic.fna.gz";
-        String outDir = "/tmp/d";
+        String fname = "/rgd/f344.fna.gz";
+        String outName = "/rgd/307.fna.gz";
 
         //prepUthGff3Files();
         //loadUthPositions();
 
-        int mapKey = 720;
-        boolean isScaffoldAssembly = true;
+        int mapKey = 307;
+        boolean isScaffoldAssembly = false;
 
         // for scaffold assemblies, prefix must be an empty string; for chromosome assemblies it must be 'Chr'
-        final String chrPrefix = isScaffoldAssembly ? "" : "chr";
+        final String chrPrefix = isScaffoldAssembly ? "" : "Chr";
 
         MapDAO dao = new MapDAO();
         List<Chromosome> chromosomes = dao.getChromosomes(mapKey);
+
+        BufferedWriter out = Utils.openWriter(outName);
 
         // orig line:
         // >NC_051336.1 Rattus norvegicus strain BN/NHsdMcwi chromosome 1, mRatBN7.2, whole genome shotgun sequence
         // new line
         // Chr1
         String line;
-        String chrFileName;
-        BufferedWriter out = null;
         BufferedReader in = Utils.openReader(fname);
+        String chr = null;
         while( (line=in.readLine())!=null ) {
             if( line.startsWith(">") ) {
-                if( out!=null ) {
-                    out.close();
-                }
                 // parse chr acc
                 int spacePos = line.indexOf(' ');
                 String chrAcc = line.substring(1, spacePos).trim();
-                String chr = getChrName(chrAcc, chromosomes, chrPrefix);
-                if( chr==null ) {
-                    System.out.println("cannot match chromosome for line: "+line);
+                String c = getChrName(chrAcc, chromosomes, chrPrefix);
+                chr = c;
+                if( c!=null ) {
+                    String header = ">" + chr + "\n";
+                    out.write(header);
+                    System.out.print(header);
+                } else {
+                    System.out.println(line);
                 }
-                chrFileName = outDir+"/"+chr+".fna.gz";
-                System.out.println(chrFileName);
-                out = Utils.openWriter(chrFileName);
-                out.write(">"+chr+"\n");
             } else {
-                out.write(line);
-                out.write("\n");
+                if( chr!=null ) {
+                    out.write(line);
+                    out.write("\n");
+                }
             }
         }
         in.close();
-        if( out!=null ) {
-            out.close();
-        }
+        out.close();
         System.out.println("OK");
     }
 
 
     static String getChrName(String acc, List<Chromosome> chromosomes, String chrPrefix) {
         for( Chromosome ch: chromosomes ) {
-            if( acc.equals(ch.getRefseqId()) ) {
+            if( acc.equals(Utils.NVL(ch.getRefseqId(), ch.getGenbankId())) ) {
                 return chrPrefix+ch.getChromosome();
             }
         }
