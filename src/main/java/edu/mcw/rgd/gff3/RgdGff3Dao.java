@@ -175,6 +175,31 @@ public class RgdGff3Dao {
         return mapDAO.getMapDataByMapKeyChr(chromosome, mapKey, objectKey);
     }
 
+    public List<MapData> getMapData(String chromosome, int mapKey, int objectKey, String aspect) throws Exception {
+        // handle all chromosomes
+        if( chromosome.equals("*") ) {
+            List<MapData> results = new ArrayList<>();
+            for( Chromosome chr: getChromosomes(mapKey) ) {
+                results.addAll(getMapDataImpl(chr.getChromosome(), mapKey, objectKey, aspect));
+            }
+            return results;
+        }
+
+        // handle single chromosome
+        return getMapDataImpl(chromosome, mapKey, objectKey, aspect);
+    }
+
+    private List<MapData> getMapDataImpl(String chromosome, int mapKey, int objectKey, String aspect) throws Exception {
+
+        String query = """
+            SELECT md.* FROM maps_data md,rgd_ids r
+            WHERE map_key=? AND chromosome=? AND object_key=? AND r.rgd_id=md.rgd_id
+              AND EXISTS( SELECT 1 FROM full_annot WHERE annotated_object_rgd_id=r.rgd_id AND aspect=? )
+            """;
+        return mapDAO.executeMapDataQuery(query, mapKey, chromosome, objectKey, aspect);
+    }
+    
+    
     public List<Chromosome> getChromosomes(int mapKey) throws Exception {
         return mapDAO.getChromosomes(mapKey);
     }
