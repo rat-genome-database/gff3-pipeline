@@ -22,7 +22,7 @@ import java.util.*;
  * </ol>
  */
 public class EnsemblPrep {
-    private Map<Integer, String> ensemblGff;
+    private List<String> ensemblGff;
     private String outDir;
     Logger log = LogManager.getLogger("ensembl");
     //SimpleDateFormat sdt = new SimpleDateFormat("yyyyMMdd");
@@ -34,24 +34,20 @@ public class EnsemblPrep {
         outputDir.mkdirs();
 
         // open input and output files
-        Set<Integer> mapKeys = ensemblGff.keySet();
-        for(Integer mapKey : mapKeys) {
-            String inputFile = downloadEnsemblGffFile(ensemblGff.get(mapKey));
-            int pos = inputFile.indexOf(".gff3");
+        for( String inputFile : getEnsemblGff() ) {
+
+            String localFileName = downloadEnsemblGffFile(inputFile);
             log.info("Downloaded gff file from Ensembl: "+inputFile);
 
-            String modelFileName = inputFile.substring(0, pos) + "-model" + inputFile.substring(pos);
-            String featureFileName = inputFile.substring(0, pos) + "-feature" + inputFile.substring(pos);
+            int pos = localFileName.indexOf(".gff3");
+            String modelFileName = localFileName.substring(0, pos) + "-model" + localFileName.substring(pos);
+            String featureFileName = localFileName.substring(0, pos) + "-feature" + localFileName.substring(pos);
 
-            //int lastSlashPos = inputFile.lastIndexOf("/");
-            //int dotPos = inputFile.indexOf(".",lastSlashPos);
-            //String assemblyName = inputFile.substring(dotPos+1, pos); // f.e. GRCh38.106
-
-            BufferedReader in = Utils.openReader(inputFile);
+            BufferedReader in = Utils.openReader(localFileName);
             BufferedWriter modelFile = Utils.openWriter(modelFileName);
             BufferedWriter featureFile = Utils.openWriter(featureFileName);
 
-            log.info("opened file " + inputFile);
+            log.info("opened file " + localFileName);
             log.info("writing file " + modelFileName);
             log.info("writing file " + featureFileName);
 
@@ -62,7 +58,7 @@ public class EnsemblPrep {
             int skippedHashLines = 0;
             int badChrLines = 0;
 
-            Map<String, String> genbankToRefseqAccMap = parseSupercontigs(inputFile);
+            Map<String, String> genbankToRefseqAccMap = parseSupercontigs(localFileName);
             Set<String> chromosomes = new HashSet<>();
 
             String line;
@@ -233,11 +229,11 @@ public class EnsemblPrep {
         return downloader.downloadNew();
     }
 
-    public void setEnsemblGff(Map<Integer, String> ensemblGff) {
+    public void setEnsemblGff(List<String> ensemblGff) {
         this.ensemblGff = ensemblGff;
     }
 
-    public Map<Integer, String> getEnsemblGff() {
+    public List<String> getEnsemblGff() {
         return ensemblGff;
     }
 
