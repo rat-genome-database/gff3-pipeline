@@ -22,7 +22,7 @@ import java.util.*;
  * </ol>
  */
 public class EnsemblPrep {
-    private Map<Integer, String> ensemblGff;
+    private List<String> ensemblGff;
     private String outDir;
     Logger log = LogManager.getLogger("ensembl");
     //SimpleDateFormat sdt = new SimpleDateFormat("yyyyMMdd");
@@ -34,9 +34,7 @@ public class EnsemblPrep {
         outputDir.mkdirs();
 
         // open input and output files
-        Set<Integer> mapKeys = ensemblGff.keySet();
-        for(Integer mapKey : mapKeys) {
-            String inputFile = downloadEnsemblGffFile(ensemblGff.get(mapKey));
+        for( String inputFile : getEnsemblGff() ) {
             int pos = inputFile.indexOf(".gff3");
             log.info("Downloaded gff file from Ensembl: "+inputFile);
 
@@ -233,11 +231,11 @@ public class EnsemblPrep {
         return downloader.downloadNew();
     }
 
-    public void setEnsemblGff(Map<Integer, String> ensemblGff) {
+    public void setEnsemblGff(List<String> ensemblGff) {
         this.ensemblGff = ensemblGff;
     }
 
-    public Map<Integer, String> getEnsemblGff() {
+    public List<String> getEnsemblGff() {
         return ensemblGff;
     }
 
