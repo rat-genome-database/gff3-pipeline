@@ -365,6 +365,13 @@
             <map>
                 <entry key="Rattus_norvegicus.GRCr8.115-feature.gff3.gz" value="Ensembl (GRCr8.115) Features.gff3.gz"/>
                 <entry key="Rattus_norvegicus.GRCr8.115-model.gff3.gz" value="Ensembl (GRCr8.115) Model.gff3.gz"/>
+                <entry key="Rattus_norvegicus_shrutx.UTH_Rnor_SHR_Utx.115-feature.gff3.gz" value="Ensembl (UTH_Rnor_SHR_Utx.115) Features.gff3.gz"/>
+                <entry key="Rattus_norvegicus_shrutx.UTH_Rnor_SHR_Utx.115-model.gff3.gz" value="Ensembl (UTH_Rnor_SHR_Utx.115) Model.gff3.gz"/>
+                <entry key="Rattus_norvegicus_shrspbbbutx.UTH_Rnor_SHRSP_BbbUtx_1.0.115-feature.gff3.gz" value="Ensembl (UTH_Rnor_SHRSP_BbbUtx_1.0.115) Features.gff3.gz"/>
+                <entry key="Rattus_norvegicus_shrspbbbutx.UTH_Rnor_SHRSP_BbbUtx_1.0.115-model.gff3.gz" value="Ensembl (UTH_Rnor_SHRSP_BbbUtx_1.0.115) Model.gff3.gz"/>
+                <entry key="Rattus_norvegicus_wkybbb.UTH_Rnor_WKY_Bbb_1.0.115-feature.gff3.gz" value="Ensembl (UTH_Rnor_WKY_Bbb_1.0.115) Features.gff3.gz"/>
+                <entry key="Rattus_norvegicus_wkybbb.UTH_Rnor_WKY_Bbb_1.0.115-model.gff3.gz" value="Ensembl (UTH_Rnor_WKY_Bbb_1.0.115) Model.gff3.gz"/>
+
                 <entry key="Mus_musculus.GRCm39.115-feature.gff3.gz" value="Ensembl (GRCm39.115) Features.gff3.gz"/>
                 <entry key="Mus_musculus.GRCm39.115-model.gff3.gz" value="Ensembl (GRCm39.115) Model.gff3.gz"/>
                 <entry key="Homo_sapiens.GRCh38.115-feature.gff3.gz" value="Ensembl (GRCh38.115) Features.gff3.gz"/>
@@ -388,6 +395,13 @@
             <map>
                 <entry key="Rattus_norvegicus.GRCr8.115-feature.gff3.gz" value="380"/>
                 <entry key="Rattus_norvegicus.GRCr8.115-model.gff3.gz" value="380"/>
+                <entry key="Rattus_norvegicus_shrutx.UTH_Rnor_SHR_Utx.115-feature.gff3.gz" value="301"/>
+                <entry key="Rattus_norvegicus_shrutx.UTH_Rnor_SHR_Utx.115-model.gff3.gz" value="301"/>
+                <entry key="Rattus_norvegicus_shrspbbbutx.UTH_Rnor_SHRSP_BbbUtx_1.0.115-feature.gff3.gz" value="302"/>
+                <entry key="Rattus_norvegicus_shrspbbbutx.UTH_Rnor_SHRSP_BbbUtx_1.0.115-model.gff3.gz" value="302"/>
+                <entry key="Rattus_norvegicus_wkybbb.UTH_Rnor_WKY_Bbb_1.0.115-feature.gff3.gz" value="303"/>
+                <entry key="Rattus_norvegicus_wkybbb.UTH_Rnor_WKY_Bbb_1.0.115-model.gff3.gz" value="303"/>
+
                 <entry key="Mus_musculus.GRCm39.115-feature.gff3.gz" value="239"/>
                 <entry key="Mus_musculus.GRCm39.115-model.gff3.gz" value="239"/>
                 <entry key="Homo_sapiens.GRCh38.115-feature.gff3.gz" value="38"/>
