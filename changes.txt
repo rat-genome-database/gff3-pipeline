@@ -1,3 +1,6 @@
+Jan 22, 2026
+  ensembl: updated older rat assemblies
+
 Jan 21, 2026
   ensembl: updated to build 115
   ensembl: added rat assemblies UTH_Rnor_SHRSP_BbbUtx_1.0, UTH_Rnor_SHR_Utx and UTH_Rnor_WKY_Bbb_1.0
