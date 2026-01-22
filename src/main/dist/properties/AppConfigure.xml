@@ -347,7 +347,7 @@
                 <value>https://ftp.ensembl.org/pub/current_gff3/rattus_norvegicus_shrutx/Rattus_norvegicus_shrutx.UTH_Rnor_SHR_Utx.115.gff3.gz</value>
                 <value>https://ftp.ensembl.org/pub/current_gff3/rattus_norvegicus_wkybbb/Rattus_norvegicus_wkybbb.UTH_Rnor_WKY_Bbb_1.0.115.gff3.gz</value>
                 <value>https://ftp.ensembl.org/pub/release-113/gff3/rattus_norvegicus/Rattus_norvegicus.mRatBN7.2.113.gff3.gz</value>
-                <value>https://ftp.ensembl.org/pub/release-104/gff3/rattus_norvegicus/Rattus_norvegicus.Rnor_6.0.104.chr.gff3.gz</value>
+                <value>https://ftp.ensembl.org/pub/release-104/gff3/rattus_norvegicus/Rattus_norvegicus.Rnor_6.0.104.gff3.gz</value>
                 <value>https://ftp.ensembl.org/pub/current_gff3/homo_sapiens/Homo_sapiens.GRCh38.115.gff3.gz</value>
                 <value>https://ftp.ensembl.org/pub/current_gff3/mus_musculus/Mus_musculus.GRCm39.115.gff3.gz</value>
                 <value>https://ftp.ensembl.org/pub/current_gff3/sus_scrofa/Sus_scrofa.Sscrofa11.1.115.gff3.gz</value>
