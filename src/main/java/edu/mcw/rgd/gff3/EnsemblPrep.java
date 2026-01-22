@@ -35,21 +35,19 @@ public class EnsemblPrep {
 
         // open input and output files
         for( String inputFile : getEnsemblGff() ) {
-            int pos = inputFile.indexOf(".gff3");
+
+            String localFileName = downloadEnsemblGffFile(inputFile);
             log.info("Downloaded gff file from Ensembl: "+inputFile);
 
-            String modelFileName = inputFile.substring(0, pos) + "-model" + inputFile.substring(pos);
-            String featureFileName = inputFile.substring(0, pos) + "-feature" + inputFile.substring(pos);
+            int pos = localFileName.indexOf(".gff3");
+            String modelFileName = localFileName.substring(0, pos) + "-model" + localFileName.substring(pos);
+            String featureFileName = localFileName.substring(0, pos) + "-feature" + localFileName.substring(pos);
 
-            //int lastSlashPos = inputFile.lastIndexOf("/");
-            //int dotPos = inputFile.indexOf(".",lastSlashPos);
-            //String assemblyName = inputFile.substring(dotPos+1, pos); // f.e. GRCh38.106
-
-            BufferedReader in = Utils.openReader(inputFile);
+            BufferedReader in = Utils.openReader(localFileName);
             BufferedWriter modelFile = Utils.openWriter(modelFileName);
             BufferedWriter featureFile = Utils.openWriter(featureFileName);
 
-            log.info("opened file " + inputFile);
+            log.info("opened file " + localFileName);
             log.info("writing file " + modelFileName);
             log.info("writing file " + featureFileName);
 
@@ -60,7 +58,7 @@ public class EnsemblPrep {
             int skippedHashLines = 0;
             int badChrLines = 0;
 
-            Map<String, String> genbankToRefseqAccMap = parseSupercontigs(inputFile);
+            Map<String, String> genbankToRefseqAccMap = parseSupercontigs(localFileName);
             Set<String> chromosomes = new HashSet<>();
 
             String line;
