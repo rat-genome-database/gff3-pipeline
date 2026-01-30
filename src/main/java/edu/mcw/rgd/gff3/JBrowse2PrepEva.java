@@ -26,6 +26,7 @@ public class JBrowse2PrepEva {
 
             File inFile = new File(srcFileName);
             File outFile = new File(outPath);
+            System.out.println("copying "+inFile.getAbsolutePath()+" to "+outFile.getAbsolutePath());
             Files.copy( inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
             Gff3ColumnWriter.sortInMemory(outPath, Gff3ColumnWriter.COMPRESS_MODE_BGZIP);
