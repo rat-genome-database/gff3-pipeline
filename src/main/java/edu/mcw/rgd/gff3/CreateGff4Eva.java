@@ -237,9 +237,10 @@ public class CreateGff4Eva {
             }
 
         }// end for chrom
-        gff3Writer.sortInMemory();
         if(gff3Writer!=null)
             gff3Writer.close();
+
+        gff3Writer.sortInMemory();
 
         synchronized( this.getClass() ) {
             log.info(species+", MAP_KEY="+info.getMapKey()+" ("+ assemblyName+")   -- data lines: "+Utils.formatThousands(dataLinesWritten));
