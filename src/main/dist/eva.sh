@@ -17,7 +17,7 @@ else
   EMAILLIST="mtutaj@mcw.edu llamers@mcw.edu"
 fi
 
-RUNLOAD="$APP_HOME/run.sh"
+RUNLOAD="$APP_HOME/runForEva.sh"
 
 $RUNLOAD -object:Eva > Eva.log
 
