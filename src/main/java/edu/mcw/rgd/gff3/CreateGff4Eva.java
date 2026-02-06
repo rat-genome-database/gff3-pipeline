@@ -241,7 +241,6 @@ public class CreateGff4Eva {
             gff3Writer.close();
 
         gff3Writer.sortInMemory();
-        
         synchronized( this.getClass() ) {
             log.info(species+", MAP_KEY="+info.getMapKey()+" ("+ assemblyName+")   -- data lines: "+Utils.formatThousands(dataLinesWritten));
         }
