@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="--Gff3 generation pipeline -- build Jan 21, 2026 --" />
+        <property name="version" value="--Gff3 generation pipeline -- build Feb 06, 2026 --" />
 
         <property name="assemblies"><!-- file system location for files for given assembly: must be the same as found in '/ref/fasta' directory -->
             <map>
@@ -143,9 +143,8 @@
                 <value>360</value>  <!-- rn6 -->
                 <value>70</value>  <!-- rn5 -->
                 <value>60</value>  <!-- rn4 -->
-                <value>301</value>  <!-- UTH_SHR -->
-                <value>302</value>  <!-- UTH_SHRSP -->
-                <value>303</value>  <!-- UTH_WKY -->
+                <!-- note: do not export genes-and-transcripts for UTH_SHR, UTH_SHRSP and UTH_WKY (map_keys 301,302,303)
+                   because the data in RGD do not have transcripts -->
                 <value>304</value>  <!--  -->
                 <value>305</value>  <!--  -->
                 <value>306</value>  <!--  -->
