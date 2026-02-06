@@ -297,6 +297,7 @@
     </bean>
 
     <bean id="evaManager" class="edu.mcw.rgd.gff3.CreateGff4Eva">
+        <property name="evaRelease" value="EVA Release 7"/>
         <property name="processedAssemblies">
             <list>
                 <value>species:RAT    mapKey:70   toDir:data/Eva/ compress:bgzip</value>

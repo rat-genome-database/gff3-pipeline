@@ -1,6 +1,7 @@
 Feb 06, 2026
   genes: suppression generation of genes/transcripts tracks for three UTH assemblies
         (NOTE: we do not have transcripts in RGD for these)
+  eva: file names now have RefSeq assembly id
 
 Jan 22, 2026
   ensembl: updated older rat assemblies

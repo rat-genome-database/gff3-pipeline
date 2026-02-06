@@ -1,6 +1,9 @@
 package edu.mcw.rgd.gff3;
 
+import edu.mcw.rgd.datamodel.SpeciesType;
+import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
+
 
 
 /**
@@ -14,6 +17,10 @@ public class CreateInfo {
     private String assemblySymbol;
 
 
+    // properties available after calling 'getCanonicalFileName()'
+    public String ucscId;
+    public String refseqId;
+    public String speciesName = SpeciesType.getCommonName(getSpeciesTypeKey());
 
     public void parseFromString(String s) throws Exception {
         // sample string:
@@ -49,6 +56,20 @@ public class CreateInfo {
         if( mapKey>0 ) {
             speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
         }
+    }
+
+    // creates a file name based on mapKey, RefSeq assembly name and/or UCSC assembly name
+    public String getCanonicalFileName() throws Exception {
+
+        ucscId = Utils.NVL( Gff3Utils.getAssemblySymbol(getMapKey()), "" );
+        refseqId = MapManager.getInstance().getMap(getMapKey()).getRefSeqAssemblyName();
+        speciesName = SpeciesType.getCommonName(getSpeciesTypeKey());
+
+        String fileName = getToDir() + "/" + speciesName + " " + refseqId;
+        if( !ucscId.isEmpty()  &&  !ucscId.equalsIgnoreCase(refseqId) ) {
+            fileName += " ("+ucscId+")";
+        }
+        return fileName;
     }
 
     public String getToDir() {
