@@ -2,7 +2,6 @@ package edu.mcw.rgd.gff3;
 
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.Utils;
-import edu.mcw.rgd.process.mapping.MapManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,6 +17,7 @@ public class CreateGff4Eva {
     private RgdGff3Dao dao = new RgdGff3Dao();
     Logger log = LogManager.getLogger("evas");
     private List<String> processedAssemblies;
+    private String evaRelease;
 
     public void run() throws Exception{
         try {
@@ -48,15 +48,11 @@ public class CreateGff4Eva {
     }
 
     public void run(CreateInfo info) throws Exception {
-        String species = SpeciesType.getCommonName(info.getSpeciesTypeKey());
-        int mapKey = info.getMapKey();
-        String assemblyName = MapManager.getInstance().getMap(mapKey).getName();
-        Gff3ColumnWriter gff3Writer = null;
 
-        if(gff3Writer==null) {
-            String gffFile = info.getToDir() + "EVA_" + assemblyName+ ".gff3";
-            gff3Writer = new Gff3ColumnWriter(gffFile, info.getCompressMode());
-        }
+        int mapKey = info.getMapKey();
+        String fileName = info.getCanonicalFileName()+" "+getEvaRelease()+".gff3";
+        Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(fileName, info.getCompressMode());
+
         List<String> chromosomes = getChromosomes(info.getMapKey());
         SequenceRegionWatcher sequenceRegionWatcher = new SequenceRegionWatcher(info.getMapKey(), gff3Writer, dao);
         int dataLinesWritten = 0;
@@ -66,7 +62,7 @@ public class CreateGff4Eva {
             Map<String, ArrayList<String>> rsSoCheck = new HashMap<>();
 
             List<Eva> data = dao.getEvaObjectsbyKeyandChrom(mapKey,chr);
-            log.debug(" "+assemblyName+": data lines for Eva in chrom "+chr+": "+data.size());
+            log.debug(" "+ info.refseqId+": data lines for Eva in chrom "+chr+": "+data.size());
 
             if(data.size()==0)
                 continue;
@@ -90,7 +86,7 @@ public class CreateGff4Eva {
                         } else //
                         {
                             ArrayList<String> temp = rsSoCheck.get(rsId);
-                            if (temp.indexOf(soTerm)==-1){
+                            if (!temp.contains(soTerm)){
                                 temp.add(soTerm);
                                 rsSoCheck.put(rsId, temp);
                             }
@@ -106,7 +102,7 @@ public class CreateGff4Eva {
                         } else //
                         {
                             ArrayList<String> temp = rsSoCheck.get(rsId);
-                            if (temp.indexOf(soTerm)==-1){
+                            if (!temp.contains(soTerm)){
                                 temp.add(soTerm);
                                 rsSoCheck.put(rsId, temp);
                             }
@@ -122,7 +118,7 @@ public class CreateGff4Eva {
                         } else //
                         {
                             ArrayList<String> temp = rsSoCheck.get(rsId);
-                            if (temp.indexOf(soTerm)==-1){
+                            if (!temp.contains(soTerm)){
                                 temp.add(soTerm);
                                 rsSoCheck.put(rsId, temp);
                             }
@@ -138,7 +134,7 @@ public class CreateGff4Eva {
                         } else //
                         {
                             ArrayList<String> temp = rsSoCheck.get(rsId);
-                            if (temp.indexOf(soTerm)==-1){
+                            if (!temp.contains(soTerm)){
                                 temp.add(soTerm);
                                 rsSoCheck.put(rsId, temp);
                             }
@@ -154,7 +150,7 @@ public class CreateGff4Eva {
                         } else //
                         {
                             ArrayList<String> temp = rsSoCheck.get(rsId);
-                            if (temp.indexOf(soTerm)==-1){
+                            if (!temp.contains(soTerm)){
                                 temp.add(soTerm);
                                 rsSoCheck.put(rsId, temp);
                             }
@@ -169,13 +165,14 @@ public class CreateGff4Eva {
                         } else //
                         {
                             ArrayList<String> temp = rsSoCheck.get(rsId);
-                            if (temp.indexOf(soTerm)==-1){
+                            if (!temp.contains(soTerm)){
                                 temp.add(soTerm);
                                 rsSoCheck.put(rsId, temp);
                             }
                         }
                         break;
                     }
+
                     if (data.get(i).getRefNuc()==null)
                         offset = 0;
                     else
@@ -243,7 +240,7 @@ public class CreateGff4Eva {
         gff3Writer.sortInMemory();
 
         synchronized( this.getClass() ) {
-            log.info(species+", MAP_KEY="+info.getMapKey()+" ("+ assemblyName+")   -- data lines: "+Utils.formatThousands(dataLinesWritten));
+            log.info(info.speciesName+", MAP_KEY="+info.getMapKey()+" ("+ info.refseqId+")   -- data lines: "+Utils.formatThousands(dataLinesWritten));
         }
     }
 
@@ -265,5 +262,13 @@ public class CreateGff4Eva {
             result.add(c);
         }
         return result;
+    }
+
+    public String getEvaRelease() {
+        return evaRelease;
+    }
+
+    public void setEvaRelease(String evaRelease) {
+        this.evaRelease = evaRelease;
     }
 }
