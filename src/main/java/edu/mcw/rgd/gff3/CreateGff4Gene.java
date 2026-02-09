@@ -27,29 +27,11 @@ public class CreateGff4Gene {
 
         processedMapKeys.parallelStream().forEach( mapKey -> {
 
-            String assemblyDir = Manager.getInstance().getAssemblies().get(mapKey);
-            if( assemblyDir==null ) {
-                return;
-            }
-
-            int speciesTypeKey = 0;
             try {
-                assemblyDir += "/" + Gff3Utils.getAssemblyDirStandardized(mapKey);
-                speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
-            } catch( Exception e ) {
-            }
-            if( speciesTypeKey==0 ) {
-                return;
-            }
-
-            CreateInfo info = new CreateInfo();
-            info.setMapKey( mapKey );
-            info.setToDir( assemblyDir + "/" + getOutDir() );
-            info.setSpeciesTypeKey( speciesTypeKey );
-            info.setCompressMode( Gff3ColumnWriter.COMPRESS_MODE_BGZIP );
-
-            try {
-                createGeneGff3(info);
+                CreateInfo info = new CreateInfo( mapKey, getOutDir());
+                if( info.getSpeciesTypeKey()!=0 ) {
+                    createGeneGff3(info);
+                }
             } catch(Exception e) {
                 throw new RuntimeException(e);
             }

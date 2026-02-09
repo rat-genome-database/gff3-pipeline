@@ -59,6 +59,7 @@ public class Manager {
             creator.doMain(args, bf);
         }catch (Exception e){
             Utils.printStackTrace(e, creator.log);
+            throw e;
         }
     }
 
@@ -204,10 +205,6 @@ public class Manager {
                         case "ensembl":
                             CreateGff4Ensembl ensm = (CreateGff4Ensembl) (bf.getBean("ensemblManager"));
                             ensm.run();
-                            return true;
-                        case "jb2_eva":
-                            JBrowse2PrepEva ee = (JBrowse2PrepEva) (bf.getBean("jbrowse2PrepEva"));
-                            ee.run();
                             return true;
                         case "variants":
                             CreateGff4Variants varm = (CreateGff4Variants) (bf.getBean("variantManager"));

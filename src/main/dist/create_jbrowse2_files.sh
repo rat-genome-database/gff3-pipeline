@@ -19,7 +19,6 @@ $RUNLOAD -object:strains > strains.log
 $RUNLOAD -object:proteinDomains > domains.log
 $RUNLOAD -object:ensembl > ensembl.log
 $RUNLOAD -object:variants > variants.log
-$RUNLOAD -object:jb2_eva > jb2_eva.log
 
 # uth files
 mkdir -p "data/jbrowse2/Rat/UTH_Rnor_SHR_Utx/Gene Models"

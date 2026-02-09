@@ -5,6 +5,10 @@ import edu.mcw.rgd.process.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.Map;
 
@@ -18,6 +22,7 @@ public class CreateGff4Eva {
     Logger log = LogManager.getLogger("evas");
     private List<String> processedAssemblies;
     private String evaRelease;
+    private String jbrowse2OutDir;
 
     public void run() throws Exception{
         try {
@@ -241,6 +246,31 @@ public class CreateGff4Eva {
         synchronized( this.getClass() ) {
             log.info(info.speciesName+", MAP_KEY="+info.getMapKey()+" ("+ info.refseqId+")   -- data lines: "+Utils.formatThousands(dataLinesWritten));
         }
+
+        copyToJBrowse2OutDir( gff3Writer.getOutFileName(), info );
+    }
+
+    void copyToJBrowse2OutDir( String fullFileName, CreateInfo info ) throws IOException {
+
+        int sepPos = fullFileName.lastIndexOf('/');
+        if( sepPos<0 ) {
+            sepPos = fullFileName.lastIndexOf('\\');
+        }
+        String fileName = fullFileName.substring(sepPos+1);
+
+        String outFileDir = getJbrowse2OutDir()
+                .replace("{SPECIES}", info.speciesName)
+                .replace("{ASSEMBLY}", info.refseqId);
+        File outDir = new File(outFileDir);
+        if( !outDir.exists() ) {
+            outDir.mkdirs();
+        }
+        String outFileName = outFileDir + "/"+fileName;
+
+        File inFile = new File(fullFileName);
+        File outFile = new File(outFileName);
+        log.info("copying "+inFile.getAbsolutePath()+" to "+outFile.getAbsolutePath());
+        Files.copy( inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
     public void setProcessedAssemblies(List<String> processedAssemblies) {
@@ -269,5 +299,13 @@ public class CreateGff4Eva {
 
     public void setEvaRelease(String evaRelease) {
         this.evaRelease = evaRelease;
+    }
+
+    public String getJbrowse2OutDir() {
+        return jbrowse2OutDir;
+    }
+
+    public void setJbrowse2OutDir(String jbrowse2OutDir) {
+        this.jbrowse2OutDir = jbrowse2OutDir;
     }
 }

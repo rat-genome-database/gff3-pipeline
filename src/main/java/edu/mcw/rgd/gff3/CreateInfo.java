@@ -20,7 +20,43 @@ public class CreateInfo {
     // properties available after calling 'getCanonicalFileName()'
     public String ucscId;
     public String refseqId;
-    public String speciesName = SpeciesType.getCommonName(getSpeciesTypeKey());
+    public String speciesName;
+
+    public CreateInfo() {
+
+    }
+
+    public CreateInfo( int mapKey, String outDir ) throws Exception {
+
+        String assemblyDir = Manager.getInstance().getAssemblies().get(mapKey);
+        if( assemblyDir==null ) {
+            return;
+        }
+
+        int speciesTypeKey = 0;
+        try {
+            assemblyDir += "/" + Gff3Utils.getAssemblyDirStandardized(mapKey);
+            speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
+        } catch( Exception e ) {
+        }
+        if( speciesTypeKey==0 ) {
+            return;
+        }
+
+        setMapKey( mapKey );
+        setToDir( assemblyDir + "/" + outDir );
+        setSpeciesTypeKey( speciesTypeKey );
+        setCompressMode( Gff3ColumnWriter.COMPRESS_MODE_BGZIP );
+
+        computeCommonProperties();
+    }
+
+    public void computeCommonProperties() throws Exception {
+
+        speciesName = SpeciesType.getCommonName(getSpeciesTypeKey());
+        ucscId = Utils.NVL( Gff3Utils.getAssemblySymbol(getMapKey()), "" );
+        refseqId = MapManager.getInstance().getMap(getMapKey()).getRefSeqAssemblyName();
+    }
 
     public void parseFromString(String s) throws Exception {
         // sample string:
@@ -55,17 +91,19 @@ public class CreateInfo {
 
         if( mapKey>0 ) {
             speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
+
+            computeCommonProperties();
         }
     }
 
     // creates a file name based on mapKey, RefSeq assembly name and/or UCSC assembly name
-    public String getCanonicalFileName() throws Exception {
+    public String getCanonicalFileName() {
 
-        ucscId = Utils.NVL( Gff3Utils.getAssemblySymbol(getMapKey()), "" );
-        refseqId = MapManager.getInstance().getMap(getMapKey()).getRefSeqAssemblyName();
-        speciesName = SpeciesType.getCommonName(getSpeciesTypeKey());
-
-        String fileName = getToDir() + "/" + speciesName + " " + refseqId;
+        String fileName = getToDir();
+        if( !fileName.endsWith("/") ) {
+            fileName += "/";
+        }
+        fileName += speciesName + " " + refseqId;
         if( !ucscId.isEmpty()  &&  !ucscId.equalsIgnoreCase(refseqId) ) {
             fileName += " ("+ucscId+")";
         }
