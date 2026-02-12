@@ -72,8 +72,8 @@ public class CreateGff4CarpeNovo {
 
     void creategff4CarpeNovo(String gffFile, String gffDamagingFile, int mapKey, Connection conn, int sampleId) throws Exception{
 
-        Gff3ColumnWriter gffWriter = new Gff3ColumnWriter(gffFile, Gff3ColumnWriter.COMPRESS_MODE_ZIP);
-        Gff3ColumnWriter gffDmgVariantWriter = new Gff3ColumnWriter(gffDamagingFile, Gff3ColumnWriter.COMPRESS_MODE_ZIP);
+        Gff3ColumnWriter gffWriter = new Gff3ColumnWriter(gffFile, Gff3ColumnWriter.COMPRESS_MODE_BGZIP);
+        Gff3ColumnWriter gffDmgVariantWriter = new Gff3ColumnWriter(gffDamagingFile, Gff3ColumnWriter.COMPRESS_MODE_BGZIP);
 
         String msg = "#RGD SAMPLE ID: "+sampleId+"\n";
         gffWriter.print(msg);

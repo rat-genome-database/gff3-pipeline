@@ -1,3 +1,6 @@
+Feb 12, 2026
+  strain specific variants: now files written in bgzip format (it was: gzipped)
+  
 Feb 06, 2026
   genes: suppression generation of genes/transcripts tracks for three UTH assemblies
         (NOTE: we do not have transcripts in RGD for these)
