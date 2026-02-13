@@ -1,3 +1,6 @@
+Feb 13, 2026
+  strain specific variants: legacy variant type 'snp' is now emitted as 'SNV'
+
 Feb 12, 2026
   strain specific variants: now files written in bgzip format (it was: gzipped)
   

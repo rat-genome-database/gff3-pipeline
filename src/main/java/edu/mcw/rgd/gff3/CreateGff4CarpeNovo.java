@@ -528,7 +528,7 @@ public class CreateGff4CarpeNovo {
     static String getSoVarType( String varTypeInRgd ) {
 
         return switch (varTypeInRgd) {
-            case "snv" -> "SNV";
+            case "snp", "snv" -> "SNV";
             case "ins", "insertion" -> "insertion";
             case "del", "deletion" -> "deletion";
             case "delins" -> "delins";
