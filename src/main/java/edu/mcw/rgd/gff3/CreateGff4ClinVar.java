@@ -81,7 +81,8 @@ public class CreateGff4ClinVar {
             // these variants must have a position on given assembly
             List<MapData> mds = dao.getMapData(var.getRgdId(), mapKey);
             for( MapData md: mds ) {
-                gff3Writer.writeFirst8Columns(md.getChromosome(), "ClinVar", soType, md.getStartPos(), md.getStopPos(), ".", ".", ".");
+                String first8Cols = gff3Writer.prepFirst8Columns(md.getChromosome(), "ClinVar", soType, md.getStartPos(), md.getStopPos(), ".", ".", ".");
+                gff3Writer.print(first8Cols);
                 HashMap<String, String> attributes = new HashMap<>();
 
                 attributes.put("ID", var.getSymbol());
@@ -117,12 +118,13 @@ public class CreateGff4ClinVar {
                     attributes.put("traitName", var.getTraitName());
                     variantsWithTraitName++;
                 }
-                gff3Writer.writeAttributes4Gff3(attributes);
+                String gff3Attrs = Gff3ColumnWriter.prepAttributes4Gff3(attributes);
+                gff3Writer.print(gff3Attrs);
 
                 if( gff3Writer == snpsIndelsWriter && var.getClinicalSignificance().contains("pathogenic") ) {
 
-                    pathogenicWriter.writeFirst8Columns(md.getChromosome(), "ClinVar", soType, md.getStartPos(), md.getStopPos(), ".", ".", ".");
-                    pathogenicWriter.writeAttributes4Gff3(attributes);
+                    pathogenicWriter.print(first8Cols);
+                    pathogenicWriter.print(gff3Attrs);
                 }
             }
 
