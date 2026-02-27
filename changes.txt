@@ -1,6 +1,7 @@
 Feb 27, 2026
   clinvar: fixed generation of pathogenic tracks
-
+  phenotypic_variants: added rat assembly GRCr8
+  
 Feb 13, 2026
   strain specific variants: legacy variant type 'snp' is now emitted as 'SNV'
 

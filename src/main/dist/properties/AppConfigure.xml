@@ -435,6 +435,7 @@
         <property name="outDir" value="Variants/Phenotypic Alleles Variants"/>
         <property name="processedMapKeys">
             <list>
+                <value>380</value>  <!-- rn8 -->
                 <value>372</value>  <!-- rn7 -->
                 <value>360</value>  <!-- rn6 -->
                 <value>70</value>  <!-- rn5 -->
