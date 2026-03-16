@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.Map;
 
@@ -24,10 +26,19 @@ public class CreateGff4Eva {
     private String evaRelease;
     private String jbrowse2OutDir;
 
+    private String getMemoryUsage() {
+        Runtime rt = Runtime.getRuntime();
+        long usedMB = (rt.totalMemory() - rt.freeMemory()) / (1024 * 1024);
+        long totalMB = rt.totalMemory() / (1024 * 1024);
+        long maxMB = rt.maxMemory() / (1024 * 1024);
+        return "Memory: used=" + usedMB + "MB, allocated=" + totalMB + "MB, max=" + maxMB + "MB";
+    }
+
     public void run() throws Exception{
         try {
             log.info("EVA GFF3 GENERATOR -- all species");
             log.info(dao.getConnectionInfo()+"\n");
+            log.info(getMemoryUsage());
 
             long timeStart = System.currentTimeMillis();
 
@@ -44,6 +55,7 @@ public class CreateGff4Eva {
 
             log.info("");
             log.info("OK elapsed "+Utils.formatElapsedTime(timeStart, System.currentTimeMillis()));
+            log.info(getMemoryUsage());
             log.info("");
         }
         catch (Exception e) {
@@ -58,196 +70,117 @@ public class CreateGff4Eva {
         String fileName = info.getCanonicalFileName()+" "+getEvaRelease()+".gff3";
         Gff3ColumnWriter gff3Writer = new Gff3ColumnWriter(fileName, info.getCompressMode());
 
-        List<String> chromosomes = getChromosomes(info.getMapKey());
-        SequenceRegionWatcher sequenceRegionWatcher = new SequenceRegionWatcher(info.getMapKey(), gff3Writer, dao);
-        int dataLinesWritten = 0;
+        List<String> chromosomes = getChromosomes(mapKey);
+        SequenceRegionWatcher sequenceRegionWatcher = new SequenceRegionWatcher(mapKey, gff3Writer, dao);
+        int[] dataLinesWritten = {0};
+
         for(String chr : chromosomes) {
             sequenceRegionWatcher.emit(chr);
+            log.debug("  chr "+chr+" start -- "+getMemoryUsage());
 
             Map<String, ArrayList<String>> rsSoCheck = new HashMap<>();
+            List<Eva> currentGroup = new ArrayList<>();
 
-            List<Eva> data = dao.getEvaObjectsbyKeyandChrom(mapKey,chr);
-            log.debug(" "+ info.refseqId+": data lines for Eva in chrom "+chr+": "+data.size());
+            dao.streamEvaObjectsByKeyAndChrom(mapKey, chr, rs -> {
+                Eva eva = mapResultSetToEva(rs);
 
-            if(data.size()==0)
-                continue;
-
-            String prevVarNuc = "";
-
-            for(int i = 0; i < data.size(); i++)
-            {
-                String rsId = data.get(i).getRsId();
-                String soTerm;
-                String evaSoTerm = data.get(i).getSoTerm();
-                int offset = 0;
-                switch (evaSoTerm) {
-                    case "SO:0002007":
-                    case "0002007":
-                        soTerm = "MNP";
-                        if (rsSoCheck.get(rsId) == null) {
-                            ArrayList<String> temp = new ArrayList<>();
-                            temp.add(soTerm);
-                            rsSoCheck.put(rsId, temp);
-                        } else //
-                        {
-                            ArrayList<String> temp = rsSoCheck.get(rsId);
-                            if (!temp.contains(soTerm)){
-                                temp.add(soTerm);
-                                rsSoCheck.put(rsId, temp);
-                            }
-                        }
-                        break;
-                    case "SO:0000159":
-                    case "0000159":
-                        soTerm = "DELETION";
-                        if (rsSoCheck.get(rsId) == null) {
-                            ArrayList<String> temp = new ArrayList<>();
-                            temp.add(soTerm);
-                            rsSoCheck.put(rsId, temp);
-                        } else //
-                        {
-                            ArrayList<String> temp = rsSoCheck.get(rsId);
-                            if (!temp.contains(soTerm)){
-                                temp.add(soTerm);
-                                rsSoCheck.put(rsId, temp);
-                            }
-                        }
-                        break;
-                    case "SO:0000667":
-                    case "0000667":
-                        soTerm = "INSERTION";
-                        if (rsSoCheck.get(rsId) == null) {
-                            ArrayList<String> temp = new ArrayList<>();
-                            temp.add(soTerm);
-                            rsSoCheck.put(rsId, temp);
-                        } else //
-                        {
-                            ArrayList<String> temp = rsSoCheck.get(rsId);
-                            if (!temp.contains(soTerm)){
-                                temp.add(soTerm);
-                                rsSoCheck.put(rsId, temp);
-                            }
-                        }
-                        break;
-                    case "SO:1000032":
-                    case "1000032":
-                        soTerm = "DELIN";
-                        if (rsSoCheck.get(rsId) == null) {
-                            ArrayList<String> temp = new ArrayList<>();
-                            temp.add(soTerm);
-                            rsSoCheck.put(rsId, temp);
-                        } else //
-                        {
-                            ArrayList<String> temp = rsSoCheck.get(rsId);
-                            if (!temp.contains(soTerm)){
-                                temp.add(soTerm);
-                                rsSoCheck.put(rsId, temp);
-                            }
-                        }
-                        break;
-                    case "SO:0000705":
-                    case "0000705":
-                        soTerm = "TANDEM_REPEAT";
-                        if (rsSoCheck.get(rsId) == null) {
-                            ArrayList<String> temp = new ArrayList<>();
-                            temp.add(soTerm);
-                            rsSoCheck.put(rsId, temp);
-                        } else //
-                        {
-                            ArrayList<String> temp = rsSoCheck.get(rsId);
-                            if (!temp.contains(soTerm)){
-                                temp.add(soTerm);
-                                rsSoCheck.put(rsId, temp);
-                            }
-                        }
-                        break;
-                    default:
-                        soTerm = "SNP";
-                        if (rsSoCheck.get(rsId) == null) {
-                            ArrayList<String> temp = new ArrayList<>();
-                            temp.add(soTerm);
-                            rsSoCheck.put(rsId, temp);
-                        } else //
-                        {
-                            ArrayList<String> temp = rsSoCheck.get(rsId);
-                            if (!temp.contains(soTerm)){
-                                temp.add(soTerm);
-                                rsSoCheck.put(rsId, temp);
-                            }
-                        }
-                        break;
+                // if rsId changed, flush the previous group
+                if(!currentGroup.isEmpty() && !currentGroup.get(0).getRsId().equals(eva.getRsId())) {
+                    try {
+                        dataLinesWritten[0] += writeGroup(currentGroup, rsSoCheck, gff3Writer);
+                    } catch(Exception e) {
+                        throw new RuntimeException(e);
                     }
-
-                    if (data.get(i).getRefNuc()==null)
-                        offset = 0;
-                    else
-                        offset = data.get(i).getRefNuc().length()-1;
-                if(i+1==data.size()) {
-                    gff3Writer.writeFirst8Columns(data.get(i).getChromosome(), "EVA", soTerm, data.get(i).getPos(), data.get(i).getPos()+offset, ".", ".", ".");
-                    HashMap<String, String> attributes = new HashMap<>();
-
-                    if(rsSoCheck.get( rsId ).indexOf(soTerm) == 0 ) {// terms are the same
-                        attributes.put("ID", data.get(i).getRsId());
-                    }
-                    else {// size has more than 1
-                        int idNum = rsSoCheck.get(rsId).indexOf(soTerm);
-                        attributes.put("ID", rsId+"_"+idNum);
-                    }
-
-                    attributes.put("Alias", rsId);
-                    prevVarNuc = "/"+Utils.NVL(data.get(i).getVarNuc(),"-");
-                    attributes.put("allele", Utils.NVL(data.get(i).getRefNuc(),"-") + prevVarNuc);
-                    gff3Writer.writeAttributes4Gff3(attributes);
-                    dataLinesWritten++;
+                    currentGroup.clear();
                 }
-                else { // check +1 rs id, if different add current data to file else add data to allele
-                    String nextRsId = data.get(i+1).getRsId();
-                    if(data.get(i).getRsId().equals(nextRsId)) {
-                        prevVarNuc += "/" + data.get(i).getVarNuc();
-                    }
-                    else {
 
-                        gff3Writer.writeFirst8Columns(data.get(i).getChromosome(), "EVA", soTerm, data.get(i).getPos(), data.get(i).getPos()+offset, ".", ".", ".");
-                        HashMap<String, String> attributes = new HashMap<>();
+                currentGroup.add(eva);
+            });
 
-                        if(rsSoCheck.get( rsId ).indexOf(soTerm) == 0 ) {// terms are the same
-                            attributes.put("ID", data.get(i).getRsId());
-                        }
-                        else {// size has more than 1
-                            int idNum = rsSoCheck.get(rsId).indexOf(soTerm);
-                            attributes.put("ID", rsId+"_"+idNum);
-                        }
-
-                        attributes.put("Alias", data.get(i).getRsId());
-                        String notHere = "-";
-                        if(data.get(i).getRefNuc()==null) {
-                            prevVarNuc += "/" + Utils.NVL(data.get(i).getVarNuc(),"-");
-                            attributes.put("allele", notHere+prevVarNuc);
-                        }
-                        else if(data.get(i).getVarNuc()==null) {
-                            attributes.put("allele",Utils.NVL(data.get(i).getRefNuc(),"-")+"/"+notHere);
-                        }
-                        else {
-                            prevVarNuc += "/" + data.get(i).getVarNuc();
-                            attributes.put("allele", Utils.NVL(data.get(i).getRefNuc(),"-") + prevVarNuc);
-                        }
-                        prevVarNuc = "";
-                        gff3Writer.writeAttributes4Gff3(attributes);
-                        dataLinesWritten++;
-                    }
-                }
+            // flush remaining group for this chromosome
+            if(!currentGroup.isEmpty()) {
+                dataLinesWritten[0] += writeGroup(currentGroup, rsSoCheck, gff3Writer);
+                currentGroup.clear();
             }
+            log.debug("  chr "+chr+" done -- "+getMemoryUsage());
+        }
 
-        }// end for chrom
-        if(gff3Writer!=null)
-            gff3Writer.close();
-
+        log.info("before sortInMemory -- "+getMemoryUsage());
         gff3Writer.sortInMemory();
+        log.info("after sortInMemory -- "+getMemoryUsage());
+        gff3Writer.close();
+
         synchronized( this.getClass() ) {
-            log.info(info.speciesName+", MAP_KEY="+info.getMapKey()+" ("+ info.refseqId+")   -- data lines: "+Utils.formatThousands(dataLinesWritten));
+            log.info(info.speciesName+", MAP_KEY="+info.getMapKey()+" ("+ info.refseqId+")   -- data lines: "+Utils.formatThousands(dataLinesWritten[0]));
         }
 
         copyToJBrowse2OutDir( gff3Writer.getOutFileName(), info );
+    }
+
+    private Eva mapResultSetToEva(ResultSet rs) throws SQLException {
+        Eva eva = new Eva();
+        eva.setEvaid(rs.getInt("EVA_ID"));
+        eva.setChromosome(rs.getString("CHROMOSOME"));
+        eva.setPos(rs.getInt("POS"));
+        eva.setRsid(rs.getString("RS_ID"));
+        eva.setRefnuc(rs.getString("REF_NUC"));
+        eva.setVarnuc(rs.getString("VAR_NUC"));
+        eva.setPadBase(rs.getString("PADDING_BASE"));
+        eva.setSoterm(rs.getString("SO_TERM_ACC"));
+        eva.setMapkey(rs.getInt("MAP_KEY"));
+        return eva;
+    }
+
+    private String mapSoTerm(String evaSoTerm) {
+        return switch (evaSoTerm) {
+            case "SO:0002007", "0002007" -> "MNP";
+            case "SO:0000159", "0000159" -> "DELETION";
+            case "SO:0000667", "0000667" -> "INSERTION";
+            case "SO:1000032", "1000032" -> "DELIN";
+            case "SO:0000705", "0000705" -> "TANDEM_REPEAT";
+            default -> "SNP";
+        };
+    }
+
+    private int writeGroup(List<Eva> group, Map<String, ArrayList<String>> rsSoCheck, Gff3ColumnWriter gff3Writer) throws Exception {
+        if(group.isEmpty()) return 0;
+
+        Eva lastEva = group.get(group.size() - 1);
+        String rsId = lastEva.getRsId();
+
+        // determine soTerm and update rsSoCheck for each row in the group
+        String soTerm = null;
+        for(Eva eva : group) {
+            soTerm = mapSoTerm(eva.getSoTerm());
+            ArrayList<String> terms = rsSoCheck.computeIfAbsent(rsId, k -> new ArrayList<>());
+            if(!terms.contains(soTerm)) {
+                terms.add(soTerm);
+            }
+        }
+
+        int offset = lastEva.getRefNuc() == null ? 0 : lastEva.getRefNuc().length() - 1;
+
+        gff3Writer.writeFirst8Columns(lastEva.getChromosome(), "EVA", soTerm, lastEva.getPos(), lastEva.getPos() + offset, ".", ".", ".");
+        HashMap<String, String> attributes = new HashMap<>();
+
+        if(rsSoCheck.get(rsId).indexOf(soTerm) == 0) {
+            attributes.put("ID", rsId);
+        } else {
+            int idNum = rsSoCheck.get(rsId).indexOf(soTerm);
+            attributes.put("ID", rsId + "_" + idNum);
+        }
+
+        attributes.put("Alias", rsId);
+
+        // build allele string from all rows in the group
+        StringBuilder allele = new StringBuilder(Utils.NVL(lastEva.getRefNuc(), "-"));
+        for(Eva eva : group) {
+            allele.append("/").append(Utils.NVL(eva.getVarNuc(), "-"));
+        }
+        attributes.put("allele", allele.toString());
+
+        gff3Writer.writeAttributes4Gff3(attributes);
+        return 1;
     }
 
     void copyToJBrowse2OutDir( String fullFileName, CreateInfo info ) throws IOException {

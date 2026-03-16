@@ -1,12 +1,14 @@
 package edu.mcw.rgd.gff3;
 
 import edu.mcw.rgd.dao.impl.*;
+import edu.mcw.rgd.dao.spring.EvaQuery;
 import edu.mcw.rgd.dao.spring.GeneQuery;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.datamodel.ontologyx.Relation;
 import edu.mcw.rgd.datamodel.ontologyx.TermWithStats;
 import edu.mcw.rgd.process.Utils;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.object.MappingSqlQuery;
 
 import javax.sql.DataSource;
@@ -329,6 +331,10 @@ public class RgdGff3Dao {
 
     public List<Eva> getEvaObjectsbyKeyandChrom(int mapKey, String chr) throws Exception {
         return evaDAO.getEvaObjectsFromMapKeyAndChromosome(mapKey,chr);
+    }
+
+    public void streamEvaObjectsByKeyAndChrom(int mapKey, String chr, RowCallbackHandler handler) throws Exception {
+        evaDAO.streamEvaObjectsFromMapKeyAndChromosome(mapKey, chr, handler);
     }
 
     public String getTranscriptVersionInfo(String acc) throws Exception {
