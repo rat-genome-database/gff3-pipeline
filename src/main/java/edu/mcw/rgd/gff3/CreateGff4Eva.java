@@ -105,10 +105,10 @@ public class CreateGff4Eva {
             log.debug("  chr "+chr+" done -- "+getMemoryUsage());
         }
 
+        gff3Writer.close();
         log.info("before sortInMemory -- "+getMemoryUsage());
         gff3Writer.sortInMemory();
         log.info("after sortInMemory -- "+getMemoryUsage());
-        gff3Writer.close();
 
         synchronized( this.getClass() ) {
             log.info(info.speciesName+", MAP_KEY="+info.getMapKey()+" ("+ info.refseqId+")   -- data lines: "+Utils.formatThousands(dataLinesWritten[0]));
