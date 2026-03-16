@@ -1,3 +1,6 @@
+Mar 16, 2026
+  added run_weekly.sh script to run all weekly gff3 generation tasks
+
 Feb 27, 2026
   clinvar: fixed generation of pathogenic tracks
   phenotypic_variants: added rat assembly GRCr8
