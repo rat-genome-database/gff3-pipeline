@@ -8,4 +8,4 @@ APPDIR=/home/rgddata/pipelines/$APPNAME
 cd $APPDIR
 java -Dspring.config=$APPDIR/../properties/default_db2.xml \
     -Dlog4j.configurationFile=file://$APPDIR/properties/log4j2.xml \
-    -Xmx40g -jar lib/$APPNAME.jar "$@"
+    -Xmx50g -jar lib/$APPNAME.jar "$@"
