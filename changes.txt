@@ -1,5 +1,5 @@
 Mar 30, 2026
-  added runAll.sh script to run all gff3 generation scripts sequentially
+  added MemoryMonitor; removed duplicate runAll.sh
 
 Mar 16, 2026
   added run_weekly.sh script to run all weekly gff3 generation tasks

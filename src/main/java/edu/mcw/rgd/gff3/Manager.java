@@ -1,6 +1,7 @@
 package edu.mcw.rgd.gff3;
 
 import edu.mcw.rgd.datamodel.*;
+import edu.mcw.rgd.process.MemoryMonitor;
 import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
 import org.apache.logging.log4j.LogManager;
@@ -55,11 +56,17 @@ public class Manager {
 
         System.out.println(creator.getVersion());
 
+        MemoryMonitor memoryMonitor = new MemoryMonitor();
+        memoryMonitor.start();
+
         try{
             creator.doMain(args, bf);
         }catch (Exception e){
             Utils.printStackTrace(e, creator.log);
             throw e;
+        } finally {
+            memoryMonitor.stop();
+            creator.log.info(memoryMonitor.getSummary());
         }
     }
 
