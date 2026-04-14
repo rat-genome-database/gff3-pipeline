@@ -76,7 +76,7 @@ public class CreateGff4Eva {
 
         for(String chr : chromosomes) {
             sequenceRegionWatcher.emit(chr);
-            log.debug("  chr "+chr+" start -- "+getMemoryUsage());
+            log.debug("  MAP_KEY="+mapKey+" chr "+chr+" start -- "+getMemoryUsage());
 
             Map<String, ArrayList<String>> rsSoCheck = new HashMap<>();
             List<Eva> currentGroup = new ArrayList<>();
@@ -102,13 +102,13 @@ public class CreateGff4Eva {
                 dataLinesWritten[0] += writeGroup(currentGroup, rsSoCheck, gff3Writer);
                 currentGroup.clear();
             }
-            log.debug("  chr "+chr+" done -- "+getMemoryUsage());
+            log.debug("  MAP_KEY="+mapKey+" chr "+chr+" done -- "+getMemoryUsage());
         }
 
         gff3Writer.close();
-        log.info("before sortInMemory -- "+getMemoryUsage());
+        log.info("MAP_KEY="+mapKey+" before sortInMemory -- "+getMemoryUsage());
         gff3Writer.sortInMemory();
-        log.info("after sortInMemory -- "+getMemoryUsage());
+        log.info("MAP_KEY="+mapKey+" after sortInMemory -- "+getMemoryUsage());
 
         synchronized( this.getClass() ) {
             log.info(info.speciesName+", MAP_KEY="+info.getMapKey()+" ("+ info.refseqId+")   -- data lines: "+Utils.formatThousands(dataLinesWritten[0]));
