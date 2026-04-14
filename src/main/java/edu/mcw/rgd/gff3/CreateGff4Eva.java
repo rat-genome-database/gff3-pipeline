@@ -144,42 +144,66 @@ public class CreateGff4Eva {
     private int writeGroup(List<Eva> group, Gff3ColumnWriter gff3Writer) throws Exception {
         if(group.isEmpty()) return 0;
 
-        Eva lastEva = group.get(group.size() - 1);
-        String rsId = lastEva.getRsId();
+        String rsId = group.get(0).getRsId();
 
-        // collect unique soTerms seen in this group, in order of first appearance
-        List<String> soTermsSeen = new ArrayList<>();
-        String soTerm = null;
+        // Sub-group by (chr, pos, refNuc, soTerm). Each sub-group represents one distinct variant
+        // sharing the rsId. Within a sub-group, rows may carry different varNuc values — those are
+        // genuine multi-allelic alternatives at the same reference span and collapse into a single
+        // GFF3 line with allele = refNuc/alt1/alt2/...
+        // A LinkedHashMap keeps insertion order stable; we sort keys explicitly below for determinism.
+        Map<String, SubGroup> subGroups = new LinkedHashMap<>();
         for(Eva eva : group) {
-            soTerm = mapSoTerm(eva.getSoTerm());
-            if(!soTermsSeen.contains(soTerm)) {
-                soTermsSeen.add(soTerm);
+            String soTerm = mapSoTerm(eva.getSoTerm());
+            String refNuc = Utils.NVL(eva.getRefNuc(), "-");
+            String varNuc = Utils.NVL(eva.getVarNuc(), "-");
+            String key = eva.getChromosome()+"\u0001"+eva.getPos()+"\u0001"+refNuc+"\u0001"+soTerm;
+            SubGroup sg = subGroups.computeIfAbsent(key, k -> new SubGroup(eva, soTerm, refNuc));
+            if(!sg.varNucs.contains(varNuc)) {
+                sg.varNucs.add(varNuc);
             }
         }
 
-        int offset = lastEva.getRefNuc() == null ? 0 : lastEva.getRefNuc().length() - 1;
+        // Deterministic ordering of sub-groups: by pos, then refNuc, then soTerm
+        List<SubGroup> ordered = new ArrayList<>(subGroups.values());
+        ordered.sort(Comparator
+                .comparingInt((SubGroup sg) -> sg.representative.getPos())
+                .thenComparing(sg -> sg.refNuc)
+                .thenComparing(sg -> sg.soTerm));
 
-        gff3Writer.writeFirst8Columns(lastEva.getChromosome(), "EVA", soTerm, lastEva.getPos(), lastEva.getPos() + offset, ".", ".", ".");
-        HashMap<String, String> attributes = new HashMap<>();
+        int suffix = 0;
+        for(SubGroup sg : ordered) {
+            Eva rep = sg.representative;
+            int offset = rep.getRefNuc() == null ? 0 : rep.getRefNuc().length() - 1;
 
-        int idNum = soTermsSeen.indexOf(soTerm);
-        if(idNum == 0) {
-            attributes.put("ID", rsId);
-        } else {
-            attributes.put("ID", rsId + "_" + idNum);
+            gff3Writer.writeFirst8Columns(rep.getChromosome(), "EVA", sg.soTerm, rep.getPos(), rep.getPos() + offset, ".", ".", ".");
+
+            HashMap<String, String> attributes = new HashMap<>();
+            attributes.put("ID", suffix == 0 ? rsId : rsId + "_" + suffix);
+            attributes.put("Alias", rsId);
+
+            Collections.sort(sg.varNucs);
+            StringBuilder allele = new StringBuilder(sg.refNuc);
+            for(String v : sg.varNucs) {
+                allele.append("/").append(v);
+            }
+            attributes.put("allele", allele.toString());
+
+            gff3Writer.writeAttributes4Gff3(attributes);
+            suffix++;
         }
+        return ordered.size();
+    }
 
-        attributes.put("Alias", rsId);
-
-        // build allele string from all rows in the group
-        StringBuilder allele = new StringBuilder(Utils.NVL(lastEva.getRefNuc(), "-"));
-        for(Eva eva : group) {
-            allele.append("/").append(Utils.NVL(eva.getVarNuc(), "-"));
+    private static class SubGroup {
+        final Eva representative;
+        final String soTerm;
+        final String refNuc;
+        final List<String> varNucs = new ArrayList<>();
+        SubGroup(Eva representative, String soTerm, String refNuc) {
+            this.representative = representative;
+            this.soTerm = soTerm;
+            this.refNuc = refNuc;
         }
-        attributes.put("allele", allele.toString());
-
-        gff3Writer.writeAttributes4Gff3(attributes);
-        return 1;
     }
 
     void copyToJBrowse2OutDir( String fullFileName, CreateInfo info ) throws IOException {
