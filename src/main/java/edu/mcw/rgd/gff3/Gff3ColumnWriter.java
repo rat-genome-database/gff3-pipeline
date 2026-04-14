@@ -15,7 +15,7 @@ import java.util.zip.GZIPOutputStream;
  * @since 9/9/11
  * convenience class to handle writing of gff3 files
  */
-public class Gff3ColumnWriter {
+public class Gff3ColumnWriter implements AutoCloseable {
 
     public static int COMPRESS_MODE_NONE = 0;
     public static int COMPRESS_MODE_ZIP = 1;
@@ -74,6 +74,7 @@ public class Gff3ColumnWriter {
         return outFileName;
     }
 
+    @Override
     public void close() {
         gff3Writer.close();
     }

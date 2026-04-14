@@ -78,6 +78,8 @@ public class CreateGff4Gene {
         Gff3ColumnWriter gff3GenesAndTranscripts = new Gff3ColumnWriter(fileName+" Genes and Transcripts.gff3", info.getCompressMode());
         gff3GenesAndTranscripts.print(headerInfo);
 
+        try (gff3GenesOnly; gff3GenesAndTranscripts) {
+
         SequenceRegionWatcher sequenceRegionWatcher1 = new SequenceRegionWatcher(info.getMapKey(), gff3GenesOnly, dao);
         SequenceRegionWatcher sequenceRegionWatcher2 = new SequenceRegionWatcher(info.getMapKey(), gff3GenesAndTranscripts, dao);
 
@@ -254,9 +256,9 @@ public class CreateGff4Gene {
             }//end of map data loop
         }
 
-        gff3GenesOnly.close();
+        } // end try-with-resources: writers auto-closed here
+
         gff3GenesOnly.sortInMemory();
-        gff3GenesAndTranscripts.close();
         gff3GenesAndTranscripts.sortInMemory();
 
         dumpCounters(counters, ucscId.isEmpty() ? refseqId : ucscId, msgBuf);
