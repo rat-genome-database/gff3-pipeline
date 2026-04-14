@@ -78,7 +78,6 @@ public class CreateGff4Eva {
             sequenceRegionWatcher.emit(chr);
             log.debug("  MAP_KEY="+mapKey+" chr "+chr+" start -- "+getMemoryUsage());
 
-            Map<String, ArrayList<String>> rsSoCheck = new HashMap<>();
             List<Eva> currentGroup = new ArrayList<>();
 
             dao.streamEvaObjectsByKeyAndChrom(mapKey, chr, rs -> {
@@ -87,7 +86,7 @@ public class CreateGff4Eva {
                 // if rsId changed, flush the previous group
                 if(!currentGroup.isEmpty() && !currentGroup.get(0).getRsId().equals(eva.getRsId())) {
                     try {
-                        dataLinesWritten[0] += writeGroup(currentGroup, rsSoCheck, gff3Writer);
+                        dataLinesWritten[0] += writeGroup(currentGroup, gff3Writer);
                     } catch(Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -99,7 +98,7 @@ public class CreateGff4Eva {
 
             // flush remaining group for this chromosome
             if(!currentGroup.isEmpty()) {
-                dataLinesWritten[0] += writeGroup(currentGroup, rsSoCheck, gff3Writer);
+                dataLinesWritten[0] += writeGroup(currentGroup, gff3Writer);
                 currentGroup.clear();
             }
             log.debug("  MAP_KEY="+mapKey+" chr "+chr+" done -- "+getMemoryUsage());
@@ -142,19 +141,19 @@ public class CreateGff4Eva {
         };
     }
 
-    private int writeGroup(List<Eva> group, Map<String, ArrayList<String>> rsSoCheck, Gff3ColumnWriter gff3Writer) throws Exception {
+    private int writeGroup(List<Eva> group, Gff3ColumnWriter gff3Writer) throws Exception {
         if(group.isEmpty()) return 0;
 
         Eva lastEva = group.get(group.size() - 1);
         String rsId = lastEva.getRsId();
 
-        // determine soTerm and update rsSoCheck for each row in the group
+        // collect unique soTerms seen in this group, in order of first appearance
+        List<String> soTermsSeen = new ArrayList<>();
         String soTerm = null;
         for(Eva eva : group) {
             soTerm = mapSoTerm(eva.getSoTerm());
-            ArrayList<String> terms = rsSoCheck.computeIfAbsent(rsId, k -> new ArrayList<>());
-            if(!terms.contains(soTerm)) {
-                terms.add(soTerm);
+            if(!soTermsSeen.contains(soTerm)) {
+                soTermsSeen.add(soTerm);
             }
         }
 
@@ -163,10 +162,10 @@ public class CreateGff4Eva {
         gff3Writer.writeFirst8Columns(lastEva.getChromosome(), "EVA", soTerm, lastEva.getPos(), lastEva.getPos() + offset, ".", ".", ".");
         HashMap<String, String> attributes = new HashMap<>();
 
-        if(rsSoCheck.get(rsId).indexOf(soTerm) == 0) {
+        int idNum = soTermsSeen.indexOf(soTerm);
+        if(idNum == 0) {
             attributes.put("ID", rsId);
         } else {
-            int idNum = rsSoCheck.get(rsId).indexOf(soTerm);
             attributes.put("ID", rsId + "_" + idNum);
         }
 
