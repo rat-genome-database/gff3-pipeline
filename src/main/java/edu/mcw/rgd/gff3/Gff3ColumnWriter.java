@@ -1,11 +1,13 @@
 package edu.mcw.rgd.gff3;
 
+import edu.mcw.rgd.process.FileExternalSort;
 import edu.mcw.rgd.process.Utils;
 import htsjdk.samtools.util.BlockCompressedOutputStream;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.zip.GZIPOutputStream;
@@ -296,8 +298,13 @@ public class Gff3ColumnWriter implements AutoCloseable {
     }
 
     /**
-     * sorts the given gff3 file by 1 column (chromosome) and then by start pos (4th col) and stop pos (5th col)
-     * goal: tabix-ready gff3 file
+     * sorts the given gff3 file by 1st column (chromosome), then start pos (4th col), then stop pos (5th col).
+     * goal: tabix-ready gff3 file.
+     *
+     * Uses external merge sort (FileExternalSort) with a fixed-size in-memory block cap so that
+     * peak heap stays bounded regardless of file size or concurrent callers. Block size is
+     * deliberately capped below what FileExternalSort.estimateBestSizeOfBlocks would pick, because
+     * that method sizes blocks to Runtime.freeMemory()/2 and explodes under parallelStream() usage.
      */
     static public void sortInMemory( String fname, int compressMode ) throws IOException {
 
@@ -307,28 +314,54 @@ public class Gff3ColumnWriter implements AutoCloseable {
             }
         }
 
-        BufferedReader in = Utils.openReader(fname);
-        String line;
-        ArrayList<String> lines = new ArrayList<>();
-        while( (line=in.readLine())!=null ) {
-            lines.add(line);
-        }
-        in.close();
+        final long BLOCK_BYTES = 256L * 1024 * 1024; // 256 MB of raw chars per in-memory block
+        Gff3Comparator cmp = new Gff3Comparator();
+        List<File> sortedChunks = new ArrayList<>();
 
-        lines.sort(new Gff3Comparator());
-
-        BufferedWriter out;
-        if( compressMode == COMPRESS_MODE_BGZIP ) {
-            out = new BufferedWriter(new OutputStreamWriter(new BlockCompressedOutputStream(fname)));
-        } else {
-            out = Utils.openWriter(fname);
+        // Phase 1: read input in blocks, sort each block, spill to temp file
+        try (BufferedReader in = Utils.openReader(fname)) {
+            List<String> buf = new ArrayList<>();
+            long bufBytes = 0;
+            String line;
+            while( (line = in.readLine()) != null ) {
+                buf.add(line);
+                bufBytes += (long) line.length() * 2L; // Java chars are UTF-16
+                if( bufBytes >= BLOCK_BYTES ) {
+                    sortedChunks.add(FileExternalSort.sortAndSave(buf, cmp));
+                    buf.clear();
+                    bufBytes = 0;
+                }
+            }
+            if( !buf.isEmpty() ) {
+                sortedChunks.add(FileExternalSort.sortAndSave(buf, cmp));
+            }
         }
 
-        for( String l: lines ) {
-            out.write(l);
-            out.write("\n");
+        // Phase 2: k-way merge the sorted chunks into a plain temp file
+        File mergedTemp = File.createTempFile("gff3sort_merged_", ".txt");
+        mergedTemp.deleteOnExit();
+        try {
+            FileExternalSort.mergeSortedFiles(sortedChunks, mergedTemp, cmp, false);
+
+            // Phase 3: rewrite to the original fname with the requested compression
+            BufferedWriter out;
+            if( compressMode == COMPRESS_MODE_BGZIP ) {
+                out = new BufferedWriter(new OutputStreamWriter(new BlockCompressedOutputStream(fname)));
+            } else {
+                out = Utils.openWriter(fname);
+            }
+            try( BufferedReader mergedIn = new BufferedReader(new FileReader(mergedTemp)) ) {
+                String line;
+                while( (line = mergedIn.readLine()) != null ) {
+                    out.write(line);
+                    out.write("\n");
+                }
+            } finally {
+                out.close();
+            }
+        } finally {
+            mergedTemp.delete();
         }
-        out.close();
     }
 
     static class Gff3Comparator implements Comparator<String> {

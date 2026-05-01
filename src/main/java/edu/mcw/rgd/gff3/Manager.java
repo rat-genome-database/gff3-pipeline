@@ -213,10 +213,6 @@ public class Manager {
                             CreateGff4Ensembl ensm = (CreateGff4Ensembl) (bf.getBean("ensemblManager"));
                             ensm.run();
                             return true;
-                        case "variants":
-                            CreateGff4Variants varm = (CreateGff4Variants) (bf.getBean("variantManager"));
-                            varm.run();
-                            return true;
                         case "phenotypic_variants":
                             CreateGff4PhenotypicVariants pvarm = (CreateGff4PhenotypicVariants) (bf.getBean("phenotypicVariantManager"));
                             pvarm.run();
@@ -271,6 +267,11 @@ public class Manager {
                         case "biologicalRegions": {
                             CreateGff4BiologicalRegions gbr = (CreateGff4BiologicalRegions) (bf.getBean("biologicalRegionManager"));
                             gbr.run();
+                            return true;
+                        }
+                        case "gff3Variants": {
+                            CreateGff4StrainSpecificVariants ssv = (CreateGff4StrainSpecificVariants) (bf.getBean("gff3VariantsManager"));
+                            ssv.run();
                             return true;
                         }
 

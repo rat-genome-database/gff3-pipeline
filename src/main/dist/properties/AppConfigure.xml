@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="gff3-pipeline   -- build Apr 14, 2026" />
+        <property name="version" value="gff3-pipeline   -- build May 01, 2026" />
 
         <property name="assemblies"><!-- file system location for files for given assembly: must be the same as found in '/ref/fasta' directory -->
             <map>
@@ -411,26 +411,6 @@
     </bean>
 
 
-    <bean id="variantManager" class="edu.mcw.rgd.gff3.CreateGff4Variants">
-        <property name="oldOutDirPrefix" value="data/jbrowse2/"/>
-        <property name="newOutDirPrefix" value="data/jbrowse2_variants/"/>
-
-        <property name="outDir1" value="Variants/Damaging Variants"/>
-        <property name="suffix1" value="_damaging.gff3.gz"/>
-
-        <property name="outDir2" value="Variants/Strain Specific Variants"/>
-        <property name="suffix2" value=".gff3.gz"/>
-
-        <property name="srcDataDir">
-            <map>
-                <entry key="372" value="data/strain_specific_variants/rat7"/>
-                <entry key="360" value="data/strain_specific_variants/rat6"/>
-                <entry key="70" value="data/strain_specific_variants/rat5"/>
-                <entry key="60" value="data/strain_specific_variants/rat3_4"/>
-            </map>
-        </property>
-    </bean>
-
     <bean id="phenotypicVariantManager" class="edu.mcw.rgd.gff3.CreateGff4PhenotypicVariants">
         <property name="outDir" value="Variants/Phenotypic Alleles Variants"/>
         <property name="processedMapKeys">
@@ -541,6 +521,31 @@
                 <value>372</value>  <!-- rn7 -->
             </list>
         </property>
+    </bean>
+
+    <!-- Strain-specific variants for jbrowse2: per-sample GFF3 files routed to a per-assembly directory tree.
+         Replaces the per-patient invocations in CreateRatStrainSpecificVariantGff3.sh. -->
+    <bean id="gff3VariantsManager" class="edu.mcw.rgd.gff3.CreateGff4StrainSpecificVariants">
+        <property name="patientIds">
+            <list>
+                <value>180</value>  <!-- RGSC_v3.4 samples -->
+                <value>500</value>  <!-- Rnor_5.0 samples -->
+                <value>600</value>  <!-- Rnor_6.0 samples -->
+                <value>372</value>  <!-- mRatBN7.2 samples -->
+                <value>380</value>  <!-- GRCr8 samples -->
+            </list>
+        </property>
+        <property name="assembliesVariants"><!-- per-mapKey output prefix; sample.getMapKey() picks the assembly subdir -->
+            <map>
+                <entry key="380" value="data/jbrowse2_variants/Rat" />
+                <entry key="372" value="data/jbrowse2_variants/Rat" />
+                <entry key="360" value="data/jbrowse2_variants/Rat" />
+                <entry key= "70" value="data/jbrowse2_variants/Rat" />
+                <entry key= "60" value="data/jbrowse2_variants/Rat" />
+            </map>
+        </property>
+        <property name="fileSource" value="CN"/>
+        <property name="parallelSamples" value="10"/>
     </bean>
 
 </beans>

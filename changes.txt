@@ -1,5 +1,10 @@
+May 01, 2026
+  new -object:gff3Variants module: per-sample strain-specific variant GFF3 files routed to per-assembly directory tree under data/jbrowse2_variants/
+  removed obsolete -object:variants module (CreateGff4Variants); superseded by gff3Variants
+
 Apr 14, 2026
   fixed writer leak in CreateGff4Gene on exception path; Gff3ColumnWriter now implements AutoCloseable
+  Gff3ColumnWriter.sortInMemory: switched to external merge sort (FileExternalSort) with 256MB block cap to keep heap bounded under parallelStream usage (EVA pipeline was hitting 50GB)
 
 Mar 30, 2026
   added MemoryMonitor; removed duplicate runAll.sh
