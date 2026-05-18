@@ -54,6 +54,9 @@ public class CreateGff4GeneAgr {
         if( mapKey==372 ) {
             gff3Writer.print("#!annotationSource RefSeq RS_2023_06\n");     // https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_015227675.2/
             gff3Writer.print("#!annotationSource ENSEMBL 111.72\n"); // https://m.ensembl.org/Rattus_norvegicus/Info/Annotation
+        } else if( mapKey==380 ) {
+            gff3Writer.print("#!annotationSource RefSeq RS_2024_02\n");     // https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_036323735.1/
+            gff3Writer.print("#!annotationSource ENSEMBL 115\n"); // https://m.ensembl.org/Rattus_norvegicus/Info/Annotation
         } else if( mapKey==38 ) {
             gff3Writer.print("#!annotationSource RefSeq RS_2023_10 (GRCh38.p14)\n");     // https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40
             gff3Writer.print("#!annotationSource ENSEMBL 111.38 (GRCh38.p14)\n"); // https://m.ensembl.org/Homo_sapiens/Info/Annotation

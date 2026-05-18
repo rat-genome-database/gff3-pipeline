@@ -1,3 +1,6 @@
+May 18, 2026
+  AGR: rat assembly switched to GRCr8 (mapKey 380/381); RefSeq RS_2024_02, Ensembl 115
+
 May 01, 2026
   new -object:gff3Variants module: per-sample strain-specific variant GFF3 files routed to per-assembly directory tree under data/jbrowse2_variants/
   removed obsolete -object:variants module (CreateGff4Variants); superseded by gff3Variants
