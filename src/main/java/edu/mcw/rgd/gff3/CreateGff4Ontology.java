@@ -401,13 +401,14 @@ public class CreateGff4Ontology {
                 ".")
         );
 
-        Map<String, String> attributesHashMap = new HashMap<>();
+        Map<String, String> attributesHashMap = new LinkedHashMap<>();
         attributesHashMap.put("Dbxref", "RGD:" + entry.rgdId);
         attributesHashMap.put("ID", "RGD" + entry.rgdId);
         if( !Utils.isStringEmpty(entry.name) ) {
             attributesHashMap.put("geneName", entry.name.replaceAll(",", "").replaceAll(";", "|"));
         }
         attributesHashMap.put("Name", entry.symbol);
+        attributesHashMap.put("rgdId", ""+entry.rgdId);
         if( !Utils.isStringEmpty(entry.note) ) {
             attributesHashMap.put("info", entry.note.replaceAll(",", ""));
         }

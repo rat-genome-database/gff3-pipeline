@@ -198,7 +198,7 @@ public class CreateGff4QTL {
 
                 gff3Writer.writeFirst8Columns(chrom, source, type, start, stop, ".",strand,".");
 
-                Map<String, String> attributesHashMap = new HashMap<String, String>();
+                Map<String, String> attributesHashMap = new LinkedHashMap<String, String>();
 
                 //get related strains
                 String relStrain = "";
@@ -265,6 +265,7 @@ public class CreateGff4QTL {
 
                 attributesHashMap.put("ID", rgdId +"_"+start+"_"+stop);
                 attributesHashMap.put("Name", "QTL:"+symbol);
+                attributesHashMap.put("rgdId", ""+rgdId);
                 attributesHashMap.put("fullName", full_name);
                 attributesHashMap.put("Alias", "RGD:"+rgdId+", QTL:"+full_name+","+symbol);
                 if( lod!=null ) {

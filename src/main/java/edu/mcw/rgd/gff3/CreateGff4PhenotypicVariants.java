@@ -86,11 +86,12 @@ public class CreateGff4PhenotypicVariants {
 
                 gff3Writer.writeFirst8Columns(md.getChromosome(), "RGD", soTerm.getTerm(), md.getStartPos(), md.getStopPos(), ".", md.getStrand(),".");
 
-                Map<String, String> attributesHashMap = new HashMap<String, String>();
+                Map<String, String> attributesHashMap = new LinkedHashMap<String, String>();
 
                 String id = getUniqueId(var.getRgdId());
                 attributesHashMap.put("ID", id);
                 attributesHashMap.put("Name", var.getName());
+                attributesHashMap.put("rgdId", ""+var.getRgdId());
 
                 String aliasField = "RGD:"+var.getRgdId();
                 if( !Utils.isStringEmpty(aliasesStr) ) {

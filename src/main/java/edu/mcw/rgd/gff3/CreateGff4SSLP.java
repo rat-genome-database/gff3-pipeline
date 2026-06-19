@@ -146,10 +146,11 @@ public class CreateGff4SSLP {
                     gff3Writer.writeFirst8Columns(chrom,"RGD","SSLPS",start,stop,".",strand,".");
 
                     //initialize hashmap for attributes
-                    HashMap<String, String> attributesHashMap = new HashMap<>();
+                    LinkedHashMap<String, String> attributesHashMap = new LinkedHashMap<>();
 
                     attributesHashMap.put("ID", sslpRgdId+"_"+start+"_"+stop);
                     attributesHashMap.put("Name", sslpSymbol);
+                    attributesHashMap.put("rgdId", ""+sslpRgdId);
                     if( aliases!=null ) {
                         if( aliases.contains("\t") || aliases.contains("\n") ) {
                             aliases = aliases.replace("\\s+", " ");

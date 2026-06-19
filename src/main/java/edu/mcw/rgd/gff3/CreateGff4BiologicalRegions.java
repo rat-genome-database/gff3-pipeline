@@ -127,11 +127,12 @@ public class CreateGff4BiologicalRegions {
                     aliasesStr += "," + name;
                 }
 
-                Map<String,String> attributesHashMap = new HashMap<>();
+                Map<String,String> attributesHashMap = new LinkedHashMap<>();
 
                 String uniqueGeId = getUniqueId("RGD"+ge.getRgdId(), idMap);
                 attributesHashMap.put("ID", uniqueGeId);
                 attributesHashMap.put("Name", ge.getSymbol());
+                attributesHashMap.put("rgdId", ""+ge.getRgdId());
                 if( name!=null ) {
                     attributesHashMap.put("fullName", name);
                 }

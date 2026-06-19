@@ -165,12 +165,13 @@ public class CreateGff4CongenicStrains {
                         md.getStartPos(),md.getStopPos(),".",strand,".");
 
                 //create attributes hash map for this line
-                Map<String, String> attributesHashMap = new HashMap<>();
+                Map<String, String> attributesHashMap = new LinkedHashMap<>();
 
                 emitAttributesForMultiCongenics(attributesHashMap, newmdList, md);
 
                 attributesHashMap.put("ID",strain.getRgdId()+"_"+md.getChromosome()+"_"+m);
                 attributesHashMap.put("Name", strain.getSymbol());
+                attributesHashMap.put("rgdId", ""+strain.getRgdId());
                 attributesHashMap.put("Alias", "RGD:"+strain.getRgdId()+","+strain.getRgdId()+","+
                         "Strain:"+parentStr+","+subStr+","+strain.getSymbol());
                 if( note!=null ) {
