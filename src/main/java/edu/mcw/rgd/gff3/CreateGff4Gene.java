@@ -138,11 +138,12 @@ public class CreateGff4Gene {
                     aliasesStr += "," + nameOfgene;
                 }
 
-                Map<String,String> attributesHashMap = new HashMap<>();
+                Map<String,String> attributesHashMap = new LinkedHashMap<>();
 
                 String uniqueGeneId = getUniqueId("RGD"+gene.getRgdId(), idMap);
                 attributesHashMap.put("ID", uniqueGeneId);
                 attributesHashMap.put("Name", gene.getSymbol());
+                attributesHashMap.put("rgdId", ""+gene.getRgdId());
                 if( nameOfgene!=null ) {
                     attributesHashMap.put("fullName", nameOfgene);
                 }
