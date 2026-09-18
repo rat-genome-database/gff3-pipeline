@@ -1,6 +1,6 @@
 package edu.mcw.rgd.gff3;
 
-import edu.mcw.rgd.process.FileDownloader;
+import edu.mcw.rgd.process.FileDownloader2;
 import edu.mcw.rgd.process.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -222,7 +222,7 @@ public class EnsemblPrep {
 
         int lastSlashPos = file.lastIndexOf('/');
         String localFileName = getOutDir()+file.substring(lastSlashPos+1);
-        FileDownloader downloader = new FileDownloader();
+        FileDownloader2 downloader = new FileDownloader2();
         downloader.setExternalFile(file);
         downloader.setLocalFile(localFileName);
         downloader.setUseCompression(true);

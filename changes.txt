@@ -1,3 +1,7 @@
+Sep 18, 2026
+  Ensembl GFF3 sources updated to release 116; SHRSP_T2T (mapKey 308) added to jbrowse2 gene-and-transcript export
+  EnsemblPrep: switched to FileDownloader2 (JDK HttpClient); removed commons-net, httpclient and commons-collections4 dependencies; updated rgdcore jar
+
 Jun 19, 2026
   genes: added attribute rgdId; all attributes in the file in the order they are generated
   qtl, strain, biological region, sslp, phenotypic variant and ontology tracks: added attribute rgdId; attributes emitted in generation order
