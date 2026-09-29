@@ -126,6 +126,10 @@
                 <entry key="CHEBI:76219"  value="Fluorogen"/>
                 <entry key="CHEBI:140399" value="Specialized Proresolving Mediator"/>
                 <entry key="CHEBI:190286" value="Ceramide Mimetic"/>
+                <entry key="CHEBI:195251" value="Activator"/>
+                <entry key="CHEBI:233442" value="Chemosensitizer"/>
+                <entry key="CHEBI:234102" value="Double Stranded DNA"/>
+                <entry key="CHEBI:234587" value="Histone H3"/>
             </map>
         </property>
 

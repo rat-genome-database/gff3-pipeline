@@ -53,9 +53,14 @@ public class CreateGff4Ontology {
         Collection<String> termAccs = dao.getTermDescendants(termAcc).keySet();
 
         AtomicInteger mapKeysDone = new AtomicInteger(0);
-        for( Integer processedMapKey: getProcessedMapKeys() ) {
-            runOntology(termAccs, getOutDirForChebi(), "E", log, processedMapKey, mapKeysDone);
-        }
+        getProcessedMapKeys().stream().parallel().forEach( processedMapKey -> {
+            try {
+                runOntology(termAccs, getOutDirForChebi(), "E", log, processedMapKey, mapKeysDone);
+            } catch( Exception e ) {
+                Utils.printStackTrace(e, log);
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public void runOntology(Collection<String> doTermAccs, String outDirName, String ontAspect, Logger log, int mapKey, AtomicInteger mapKeysDone) throws Exception {
@@ -75,11 +80,13 @@ public class CreateGff4Ontology {
             log.info("===");
             return;
         }
-        assemblyDir += "/" + Gff3Utils.getAssemblyDirStandardized(mapKey);
+        String assemblyName = Gff3Utils.getAssemblyDirStandardized(mapKey);
+        String assemblyLabel = new File(assemblyDir).getName() + "/" + assemblyName; // short name for logging, f.e. Rat/GRCr8
+        assemblyDir += "/" + assemblyName;
 
         String mainDir = assemblyDir + "/" + outDirName;
 
-        log.info(mainDir+" ...");
+        log.info(assemblyLabel+"  START, output dir: "+mainDir);
 
         SequenceRegionWatcher sequenceRegionWatcher = new SequenceRegionWatcher(0, null, null);
 
@@ -90,8 +97,8 @@ public class CreateGff4Ontology {
 
             int jobsDone = mapKeysDone.get();
             String jobProgress = "["+jobsDone+"/"+jobCount+"]. ";
-            log.debug(jobProgress+mainDir+" "+termAcc+" ["+doTermNr+"/"+doTermAccessions.size()+"]");
             doTermNr++;
+            log.debug(jobProgress+assemblyLabel+" "+termAcc+" ["+doTermNr+"/"+doTermAccessions.size()+"]");
 
             String trackName = getTermTrackNames().get(termAcc);
             if (trackName == null) {
@@ -119,10 +126,10 @@ public class CreateGff4Ontology {
             sequenceRegionWatcher.init(mapKey, gff3Writer, dao);
 
             List<RGDInfo> rgdInfoList = new ArrayList<>();
-            int counter = processGenes("*", termAcc, gff3Writer, mapAccAnnList, rgdInfoList, sequenceRegionWatcher, ontAspect, mapKey, speciesTypeKey);
+            Counts geneCounts = processGenes("*", termAcc, gff3Writer, mapAccAnnList, rgdInfoList, sequenceRegionWatcher, ontAspect, mapKey, speciesTypeKey);
 
             gff3Writer.close();
-            if (counter > 0) {
+            if (geneCounts.annotations() > 0) {
                 gff3Writer.sortInMemory();
             } else {
                 // no data -- delete it
@@ -130,12 +137,13 @@ public class CreateGff4Ontology {
             }
 
             //Term rootTerm = dao.getTerm(termAcc);
-            String summaryMsg = mainDir+"  "+termAcc + " written genes: "+counter;
+            String summaryMsg = assemblyLabel+"  ["+doTermNr+"/"+doTermAccessions.size()+"] "+termAcc+" "+trackName+": "+geneCounts.format("genes");
 
 
             //// QTLS
 
-            counter = 0;
+            int counter = 0;
+            int objectCount = 0;
 
             gffFile = outDir + "/" + trackName + " Related QTLs.gff3";
             gff3Writer = new Gff3ColumnWriter(gffFile, compressMode);
@@ -152,6 +160,7 @@ public class CreateGff4Ontology {
                     counter += processAnnotations(mapAccAnnList, entry, ontAspect, speciesTypeKey);
 
                     if( !Utils.isStringEmpty(entry.anns) ) {
+                        objectCount++;
                         createRGdInfo(entry, rgdInfoList);
                         writeGff3Line(gff3Writer, entry, termAcc, speciesTypeKey);
                         sequenceRegionWatcher.emit(md.getChromosome());
@@ -166,7 +175,7 @@ public class CreateGff4Ontology {
                 // no data -- delete it
                 new File(gff3Writer.getOutFileName()).delete();
             }
-            summaryMsg += ", qtls: "+counter;
+            summaryMsg += ", "+new Counts(objectCount, counter).format("qtls");
 
 
             //// RAT STRAINS
@@ -174,6 +183,7 @@ public class CreateGff4Ontology {
             if (speciesTypeKey == SpeciesType.RAT) {
 
                 counter = 0;
+                objectCount = 0;
 
                 gffFile = outDir + "/" + trackName + " Related Strains.gff3";
                 gff3Writer = new Gff3ColumnWriter(gffFile, compressMode);
@@ -189,6 +199,7 @@ public class CreateGff4Ontology {
                         counter += processAnnotations(mapAccAnnList, entry, ontAspect, speciesTypeKey);
 
                         if( !Utils.isStringEmpty(entry.anns) ) {
+                            objectCount++;
                             createRGdInfo(entry, rgdInfoList);
                             writeGff3Line(gff3Writer, entry, termAcc, speciesTypeKey);
                             sequenceRegionWatcher.emit(md.getChromosome());
@@ -203,7 +214,7 @@ public class CreateGff4Ontology {
                     // no data -- delete it
                     new File(gff3Writer.getOutFileName()).delete();
                 }
-                summaryMsg += ", strains: "+counter;
+                summaryMsg += ", "+new Counts(objectCount, counter).format("strains");
             }
             log.info(summaryMsg);
         }
@@ -211,7 +222,7 @@ public class CreateGff4Ontology {
         long t1 = System.currentTimeMillis();
         int jobsDone = mapKeysDone.incrementAndGet();
         log.info("===");
-        log.info("=== "+jobsDone+"/"+jobCount+".  "+mainDir+" DONE! Time elapsed " + Utils.formatElapsedTime(t0, t1));
+        log.info("=== "+jobsDone+"/"+jobCount+".  "+assemblyLabel+" DONE! Time elapsed " + Utils.formatElapsedTime(t0, t1));
         log.info("===");
     }
 
@@ -458,11 +469,12 @@ public class CreateGff4Ontology {
     ///////
     //// highly parallel code
 
-    int processGenes(String chr, String termAcc, Gff3ColumnWriter gff3Writer, Map<String, Term> mapAccAnnList,
+    Counts processGenes(String chr, String termAcc, Gff3ColumnWriter gff3Writer, Map<String, Term> mapAccAnnList,
                      List<RGDInfo> rgdInfoList, SequenceRegionWatcher sequenceRegionWatcher, String ontAspect,
                      int mapKey, int speciesTypeKey) throws Exception {
 
         AtomicInteger annotCount = new AtomicInteger(0);
+        AtomicInteger geneCount = new AtomicInteger(0);
         StringBuffer gff3Lines = new StringBuffer();
 
         List<MapData> mds = dao.getMapData(chr, mapKey, RgdId.OBJECT_KEY_GENES, ontAspect);
@@ -479,6 +491,7 @@ public class CreateGff4Ontology {
                     annotCount.addAndGet(processAnnotations(mapAccAnnList, entry, ontAspect, speciesTypeKey));
 
                     if( !Utils.isStringEmpty(entry.anns) ) {
+                        geneCount.incrementAndGet();
                         createRGdInfo(entry, rgdInfoList);
                         gff3Lines.append(prepGff3Line(gff3Writer, entry, termAcc, speciesTypeKey));
                     }
@@ -489,7 +502,7 @@ public class CreateGff4Ontology {
         });
 
         gff3Writer.print(gff3Lines.toString());
-        return annotCount.get();
+        return new Counts(geneCount.get(), annotCount.get());
     }
 
     boolean isTermAnnotated(String termAcc, int speciesTypeKey) throws Exception {
@@ -505,6 +518,17 @@ public class CreateGff4Ontology {
             termAccs.add(synonym.getTermAcc());
         }
         return termAccs;
+    }
+
+    /** number of objects written to a track and the number of their annotations; used for logging */
+    record Counts(int objects, int annotations) {
+        String format(String label) {
+            String msg = label + " " + Utils.formatThousands(objects);
+            if( annotations > 0 ) {
+                msg += " (" + Utils.formatThousands(annotations) + " annotations)";
+            }
+            return msg;
+        }
     }
 
     class Gff3Entry {
