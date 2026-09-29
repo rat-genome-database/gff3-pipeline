@@ -1,3 +1,7 @@
+Sep 29, 2026
+  AGR genes: header annotation sources updated to RefSeq RS_2026_08 (GRCr8), RefSeq RS_2025_08 (GRCh38.p14) and Ensembl 116
+  updated dependencies
+
 Sep 18, 2026
   Ensembl GFF3 sources updated to release 116; SHRSP_T2T (mapKey 308) added to jbrowse2 gene-and-transcript export
   EnsemblPrep: switched to FileDownloader2 (JDK HttpClient); removed commons-net, httpclient and commons-collections4 dependencies; updated rgdcore jar
