@@ -25,7 +25,6 @@ public class CreateGff4Ontology {
     /// new properties
     private String outDirForDiseases;
     private String outDirForChebi;
-    private List<Integer> processedMapKeys;
     private Map<String, String> termTrackNames;
 
 
@@ -560,12 +559,12 @@ public class CreateGff4Ontology {
         this.outDirForChebi = outDirForChebi;
     }
 
+    /**
+     * map keys to process: all assemblies listed in property 'assemblies' of bean 'manager',
+     * in the order they are configured there
+     */
     public List<Integer> getProcessedMapKeys() {
-        return processedMapKeys;
-    }
-
-    public void setProcessedMapKeys(List<Integer> processedMapKeys) {
-        this.processedMapKeys = processedMapKeys;
+        return new ArrayList<>(Manager.getInstance().getAssemblies().keySet());
     }
 
     public Map<String, String> getTermTrackNames() {

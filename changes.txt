@@ -1,6 +1,7 @@
 Sep 29, 2026
   AGR genes: header annotation sources updated to RefSeq RS_2026_08 (GRCr8), RefSeq RS_2025_08 (GRCh38.p14) and Ensembl 116
   updated dependencies
+  ontology tracks: processed assemblies are now taken from property 'assemblies' of the manager bean; restores generation for all assemblies (limited to GRCh38 since Jan 13, 2026)
 
 Sep 18, 2026
   Ensembl GFF3 sources updated to release 116; SHRSP_T2T (mapKey 308) added to jbrowse2 gene-and-transcript export

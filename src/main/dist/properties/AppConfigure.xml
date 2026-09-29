@@ -62,11 +62,7 @@
         <property name="outDirForDiseases" value="Disease Related Tracks"/>
         <property name="outDirForChebi"    value="Gene-Chemical Interaction Tracks/Biological Role"/>
 
-        <property name="processedMapKeys">
-            <list>
-                <value>38</value>  <!-- GRCh38 -->
-            </list>
-        </property>
+        <!-- processed assemblies: all assemblies listed in property 'assemblies' of bean 'manager' -->
         <property name="termTrackNames">
             <map>
                 <entry key="DOID:1287"  value="Cardiovascular Diseases"/>
