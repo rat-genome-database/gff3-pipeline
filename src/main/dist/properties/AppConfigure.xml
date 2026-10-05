@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.gff3.Manager">
-        <property name="version" value="gff3-pipeline   -- build Sep 29, 2026" />
+        <property name="version" value="gff3-pipeline   -- build Oct 5, 2026" />
 
         <property name="assemblies"><!-- file system location for files for given assembly: must be the same as found in '/ref/fasta' directory -->
             <map>
@@ -28,6 +28,7 @@
                 <entry key= "17" value="data/jbrowse2/Human" />
                 <entry key= "13" value="data/jbrowse2/Human" />
 
+                <entry key="913" value="data/jbrowse2/Pig" /> <!-- Sscrofa_HxYL_maternal_Yorkshire_Landrace_v2.0 -->
                 <entry key="911" value="data/jbrowse2/Pig" />
                 <entry key="910" value="data/jbrowse2/Pig" />
 
@@ -160,6 +161,7 @@
                 <value>17</value>  <!-- Human/GRCh37 -->
                 <value>13</value>  <!-- Human/NCBI36 -->
 
+                <value>913</value>  <!-- Pig/Sscrofa_HxYL_maternal_Yorkshire_Landrace_v2.0 -->
                 <value>911</value>  <!-- Pig/susScr11 -->
                 <value>910</value>  <!-- Pig/susScr3 -->
 
@@ -273,6 +275,7 @@
                 <value>38</value>  <!-- GRCh38 -->
                 <value>17</value>  <!-- GRCh37 -->
 
+                <value>913</value>  <!-- Pig/Sscrofa_HxYL_maternal_Yorkshire_Landrace_v2.0 -->
                 <value>911</value>  <!-- Pig/susScr11 -->
                 <value>910</value>  <!-- Pig/susScr3 -->
 
