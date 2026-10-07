@@ -23,9 +23,19 @@ public class CreateGff4Gene {
     /**
      * load the species list and assemblies from properties/AppConfigure.xml
      */
-    public void run() {
+    public void run() throws Exception {
+        run(0);
+    }
 
-        processedMapKeys.parallelStream().forEach( mapKey -> {
+    /**
+     * @param speciesTypeKey 0: all assemblies from properties/AppConfigure.xml; otherwise only the assemblies of this species
+     */
+    public void run(int speciesTypeKey) throws Exception {
+
+        List<Integer> mapKeys = Gff3Utils.filterMapKeysBySpecies(processedMapKeys, speciesTypeKey);
+        log.info("processing map keys "+mapKeys+(speciesTypeKey>0 ? " (species "+SpeciesType.getCommonName(speciesTypeKey)+")" : ""));
+
+        mapKeys.parallelStream().forEach( mapKey -> {
 
             try {
                 CreateInfo info = new CreateInfo( mapKey, getOutDir());

@@ -29,15 +29,25 @@ public class CreateGff4Ontology {
 
 
     public void runDiseaseOntology() throws Exception {
+        runDiseaseOntology(0);
+    }
+
+    /**
+     * @param speciesTypeKey 0: all configured assemblies; otherwise only the assemblies of this species
+     */
+    public void runDiseaseOntology(int speciesTypeKey) throws Exception {
 
         Logger log = LogManager.getLogger("disease");
 
         Collection<String> doTermAccs = getTermsInJBrowseSlim();
 
+        List<Integer> mapKeys = getProcessedMapKeys(speciesTypeKey);
+        log.info("processing map keys "+mapKeys+(speciesTypeKey>0 ? " (species "+SpeciesType.getCommonName(speciesTypeKey)+")" : ""));
+
         AtomicInteger mapKeysDone = new AtomicInteger(0);
-        getProcessedMapKeys().stream().parallel().forEach( processedMapKey -> {
+        mapKeys.stream().parallel().forEach( processedMapKey -> {
             try {
-                runOntology(doTermAccs, getOutDirForDiseases(), "D", log, processedMapKey, mapKeysDone);
+                runOntology(doTermAccs, getOutDirForDiseases(), "D", log, processedMapKey, mapKeysDone, mapKeys.size());
             } catch( Exception e ) {
                 Utils.printStackTrace(e, log);
                 throw new RuntimeException(e);
@@ -46,16 +56,26 @@ public class CreateGff4Ontology {
     }
 
     public void runChebiOntology() throws Exception {
+        runChebiOntology(0);
+    }
+
+    /**
+     * @param speciesTypeKey 0: all configured assemblies; otherwise only the assemblies of this species
+     */
+    public void runChebiOntology(int speciesTypeKey) throws Exception {
 
         Logger log = LogManager.getLogger("chebi");
 
         final String termAcc = "CHEBI:24432"; // CHEBI term 'biological_role'
         Collection<String> termAccs = dao.getTermDescendants(termAcc).keySet();
 
+        List<Integer> mapKeys = getProcessedMapKeys(speciesTypeKey);
+        log.info("processing map keys "+mapKeys+(speciesTypeKey>0 ? " (species "+SpeciesType.getCommonName(speciesTypeKey)+")" : ""));
+
         AtomicInteger mapKeysDone = new AtomicInteger(0);
-        getProcessedMapKeys().stream().parallel().forEach( processedMapKey -> {
+        mapKeys.stream().parallel().forEach( processedMapKey -> {
             try {
-                runOntology(termAccs, getOutDirForChebi(), "E", log, processedMapKey, mapKeysDone);
+                runOntology(termAccs, getOutDirForChebi(), "E", log, processedMapKey, mapKeysDone, mapKeys.size());
             } catch( Exception e ) {
                 Utils.printStackTrace(e, log);
                 throw new RuntimeException(e);
@@ -63,9 +83,8 @@ public class CreateGff4Ontology {
         });
     }
 
-    public void runOntology(Collection<String> doTermAccs, String outDirName, String ontAspect, Logger log, int mapKey, AtomicInteger mapKeysDone) throws Exception {
+    public void runOntology(Collection<String> doTermAccs, String outDirName, String ontAspect, Logger log, int mapKey, AtomicInteger mapKeysDone, int jobCount) throws Exception {
         long t0 = System.currentTimeMillis();
-        final int jobCount = getProcessedMapKeys().size();
 
         int compressMode = Gff3ColumnWriter.COMPRESS_MODE_BGZIP;
         int speciesTypeKey = MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey();
@@ -589,6 +608,13 @@ public class CreateGff4Ontology {
      */
     public List<Integer> getProcessedMapKeys() {
         return new ArrayList<>(Manager.getInstance().getAssemblies().keySet());
+    }
+
+    /**
+     * @param speciesTypeKey 0: all configured assemblies; otherwise only the assemblies of this species
+     */
+    public List<Integer> getProcessedMapKeys(int speciesTypeKey) throws Exception {
+        return Gff3Utils.filterMapKeysBySpecies(getProcessedMapKeys(), speciesTypeKey);
     }
 
     public Map<String, String> getTermTrackNames() {

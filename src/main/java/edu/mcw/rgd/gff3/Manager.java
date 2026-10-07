@@ -198,6 +198,11 @@ public class Manager {
 
     boolean parseArgs(String[] args, DefaultListableBeanFactory bf) throws Exception {
 
+        // bulk modes that honor '-species:' (genes, diseases, chebi) are dispatched after all arguments are parsed,
+        // so that the option order on the command line does not matter
+        String deferredObject = null;
+        String speciesArg = null;
+
         if(args.length>0){
             for(String obj: args ){
                 String argArr[] = obj.split(":");
@@ -206,9 +211,10 @@ public class Manager {
                     switch (argArr[1]) {
                         // all species // assemblies version
                         case "genes":
-                            CreateGff4Gene gm = (CreateGff4Gene) (bf.getBean("geneManager"));
-                            gm.run();
-                            return true;
+                        case "diseases":
+                        case "chebi":
+                            deferredObject = argArr[1];
+                            break;
                         case "ensembl":
                             CreateGff4Ensembl ensm = (CreateGff4Ensembl) (bf.getBean("ensemblManager"));
                             ensm.run();
@@ -236,14 +242,6 @@ public class Manager {
                         case "Eva":
                             CreateGff4Eva em = (CreateGff4Eva) (bf.getBean("evaManager"));
                             em.run();
-                            return true;
-                        case "diseases":
-                            CreateGff4Ontology pdo = (CreateGff4Ontology) (bf.getBean("ontologyManager"));
-                            pdo.runDiseaseOntology();
-                            return true;
-                        case "chebi":
-                            CreateGff4Ontology pdw = (CreateGff4Ontology) (bf.getBean("ontologyManager"));
-                            pdw.runChebiOntology();
                             return true;
                         case "aliases":
                             JBrowse2Aliases jba = new JBrowse2Aliases();
@@ -299,6 +297,7 @@ public class Manager {
                     }
                 }else
                 if(obj.startsWith("-species:")){
+                    speciesArg = argArr[1];
                     speciesTypekey = SpeciesType.parse(argArr[1]);
                 }else
                 if(obj.startsWith("-mapKey:")){
@@ -358,6 +357,32 @@ public class Manager {
                     }
                 }
             }
+        }
+
+        // -object:genes, -object:diseases, -object:chebi: all configured assemblies,
+        // or only the assemblies of the species given by '-species:'
+        if( deferredObject!=null ) {
+            if( speciesArg!=null && speciesTypekey<=0 ) {
+                throw new ArgumentsException("unknown species '"+speciesArg+"' in '-species:' argument");
+            }
+            String scope = speciesTypekey>0 ? "species "+SpeciesType.getCommonName(speciesTypekey) : "all species";
+            System.out.println("-object:"+deferredObject+" for "+scope);
+
+            switch( deferredObject ) {
+                case "genes":
+                    CreateGff4Gene gm = (CreateGff4Gene) (bf.getBean("geneManager"));
+                    gm.run(speciesTypekey);
+                    break;
+                case "diseases":
+                    CreateGff4Ontology pdo = (CreateGff4Ontology) (bf.getBean("ontologyManager"));
+                    pdo.runDiseaseOntology(speciesTypekey);
+                    break;
+                case "chebi":
+                    CreateGff4Ontology pdw = (CreateGff4Ontology) (bf.getBean("ontologyManager"));
+                    pdw.runChebiOntology(speciesTypekey);
+                    break;
+            }
+            return true;
         }
         return false;
     }

@@ -3,11 +3,29 @@ package edu.mcw.rgd.gff3;
 import edu.mcw.rgd.datamodel.Map;
 import edu.mcw.rgd.process.mapping.MapManager;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 /**
  * @author mtutaj
  * @since 2019-10-24
  */
 public class Gff3Utils {
+
+    /**
+     * @param mapKeys configured map keys, in their configured order
+     * @param speciesTypeKey 0 keeps every map key; otherwise only map keys of assemblies of this species are kept
+     */
+    public static List<Integer> filterMapKeysBySpecies(Collection<Integer> mapKeys, int speciesTypeKey) throws Exception {
+        List<Integer> result = new ArrayList<>();
+        for( int mapKey: mapKeys ) {
+            if( speciesTypeKey<=0 || MapManager.getInstance().getMap(mapKey).getSpeciesTypeKey()==speciesTypeKey ) {
+                result.add(mapKey);
+            }
+        }
+        return result;
+    }
 
     /// return human friendly assembly symbol
     synchronized static public String getAssemblySymbol(int mapKey) throws Exception {
