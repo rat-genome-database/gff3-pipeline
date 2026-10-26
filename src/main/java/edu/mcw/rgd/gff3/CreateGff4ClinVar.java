@@ -16,8 +16,8 @@ public class CreateGff4ClinVar {
     private RgdGff3Dao dao = new RgdGff3Dao();
 
     /**
-     * generate gff3 file for ClinVar  Variants/ClinVar/GRCh37.p13
-     *                                 Variants/ClinVar/GRCh38.p14
+     * generate gff3 file for ClinVar  jbrowse2/Human/GRCh37.p13/Variants/ClinVar
+     *                                 jbrowse2/Human/GRCh38.p14/Variants/ClinVar
      */
     public void run(int mapKey, String outDir, int compressMode) throws Exception {
 

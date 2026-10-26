@@ -1,3 +1,6 @@
+Oct 26, 2026
+  ClinVar gff3 files are now generated in data/jbrowse2/Human/<assembly>/Variants/ClinVar
+
 Oct 6, 2026
   -object:genes, -object:diseases, -object:chebi accept '-species:' to process only the assemblies of one species (default: all)
 

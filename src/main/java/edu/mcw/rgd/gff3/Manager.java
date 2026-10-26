@@ -253,8 +253,11 @@ public class Manager {
                             return true;
                         case "clinvar": {
                             CreateGff4ClinVar clinvar = (CreateGff4ClinVar) (bf.getBean("clinvarManager"));
-                            clinvar.run( 17, "data/Variants/ClinVar/GRCh37.p13", Gff3ColumnWriter.COMPRESS_MODE_BGZIP);
-                            clinvar.run( 38, "data/Variants/ClinVar/GRCh38.p14", Gff3ColumnWriter.COMPRESS_MODE_BGZIP);
+                            // f.e. data/jbrowse2/Human/GRCh38.p14/Variants/ClinVar
+                            for( int mapKey: new int[]{17, 38} ) {
+                                String outDir = getAssemblies().get(mapKey) + "/" + Gff3Utils.getAssemblyDirStandardized(mapKey) + "/Variants/ClinVar";
+                                clinvar.run( mapKey, outDir, Gff3ColumnWriter.COMPRESS_MODE_BGZIP);
+                            }
                             return true;
                         }
                         case "gtfGenes": {

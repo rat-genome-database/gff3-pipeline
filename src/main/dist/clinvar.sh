@@ -19,6 +19,10 @@ RUNLOAD="$APP_HOME/run.sh"
 $RUNLOAD -object:clinvar > clinvar.log
 
 echo "copy generated gff3 files to data_release directory"
-echo "  rsync -avd data/Variants/ClinVar/ $DATA_RELEASE_DIR"
-rsync -avd data/Variants/ClinVar/ $DATA_RELEASE_DIR
+# data/jbrowse2/Human/<assembly>/Variants/ClinVar/  -->  $DATA_RELEASE_DIR<assembly>/
+for CLINVAR_DIR in data/jbrowse2/Human/*/Variants/ClinVar; do
+  ASSEMBLY=`basename $(dirname $(dirname $CLINVAR_DIR))`
+  echo "  rsync -avd $CLINVAR_DIR/ $DATA_RELEASE_DIR$ASSEMBLY/"
+  rsync -avd $CLINVAR_DIR/ $DATA_RELEASE_DIR$ASSEMBLY/
+done
 echo "  rsync OK!"
